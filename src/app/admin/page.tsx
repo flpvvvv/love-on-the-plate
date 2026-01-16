@@ -8,6 +8,7 @@ import { Header, Footer } from '@/components/layout';
 import { UploadZone, ImagePreview } from '@/components/upload';
 import { Button } from '@/components/ui';
 import { createClient } from '@/lib/supabase/client';
+import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
 import type { PhotoWithUrls } from '@/types';
 
 export default function AdminPage() {
@@ -32,15 +33,23 @@ export default function AdminPage() {
       setDescriptionEn('Generating English description...');
       setDescriptionCn('正在生成中文描述...');
 
-      // Create a temporary preview - descriptions will be generated on upload
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      // Compress image on client side before sending
+      const compressedBase64 = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'image/jpeg',
+      });
 
-      // Call describe endpoint with base64 image (this is a preview generation)
+      const originalSize = formatFileSize(file.size);
+      const compressedSize = formatFileSize(getBase64Size(compressedBase64));
+      console.log(`Image compressed: ${originalSize} → ${compressedSize}`);
+
+      // Call describe endpoint with compressed base64 image
       const response = await fetch('/api/describe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: base64 }),
+        body: JSON.stringify({ imageBase64: compressedBase64 }),
       });
 
       if (response.ok) {
@@ -65,13 +74,19 @@ export default function AdminPage() {
 
     try {
       setRegenerating(true);
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      
+      // Compress image before sending
+      const compressedBase64 = await compressImage(selectedFile, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'image/jpeg',
+      });
 
       const response = await fetch('/api/describe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: base64 }),
+        body: JSON.stringify({ imageBase64: compressedBase64 }),
       });
 
       if (response.ok) {

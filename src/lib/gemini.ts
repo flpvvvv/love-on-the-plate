@@ -31,20 +31,21 @@ export interface BilingualDescription {
 }
 
 export async function generateDescription(imageBase64: string): Promise<BilingualDescription> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  // Use gemini-3-flash-preview for latest capabilities
+  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
   const result = await model.generateContent([
     DESCRIPTION_PROMPT,
     {
       inlineData: {
-        mimeType: 'image/jpeg',
-        data: imageBase64,
+          mimeType: 'image/jpeg',
+          data: imageBase64,
+        },
       },
-    },
-  ]);
+    ]);
 
-  const response = await result.response;
-  const text = response.text().trim();
+    const response = await result.response;
+    const text = response.text().trim();
 
   try {
     // Parse the JSON response

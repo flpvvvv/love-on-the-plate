@@ -111,7 +111,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
                 Drop a photo or click to browse
               </p>
               <p className="text-sm text-muted">
-                Supports JPEG, PNG, WebP, HEIC (max 10MB)
+                Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically
               </p>
             </div>
 
