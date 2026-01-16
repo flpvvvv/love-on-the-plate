@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Plate (outer ring) -->
+  <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="3" fill="none"/>
+  <circle cx="50" cy="50" r="38" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5"/>
+
+  <!-- Heart -->
+  <path d="M50 70 C35 55, 25 45, 25 35 C25 25, 35 20, 50 32 C65 20, 75 25, 75 35 C75 45, 65 55, 50 70Z"
+        fill="currentColor" opacity="0.9"/>
+
+  <!-- Steam wisps -->
+  <path d="M35 22 Q33 18, 35 14 Q37 10, 35 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M50 18 Q48 14, 50 10 Q52 6, 50 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M65 22 Q63 18, 65 14 Q67 10, 65 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+</svg>
