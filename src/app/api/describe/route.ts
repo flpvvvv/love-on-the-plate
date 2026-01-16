@@ -17,8 +17,11 @@ export async function POST(request: NextRequest) {
 
     // Option 1: Generate description from base64 image (for preview)
     if (imageBase64) {
-      const description = await generateDescription(imageBase64);
-      return NextResponse.json({ description });
+      const descriptions = await generateDescription(imageBase64);
+      return NextResponse.json({
+        descriptionEn: descriptions.en,
+        descriptionCn: descriptions.cn,
+      });
     }
 
     // Option 2: Regenerate description for existing photo
@@ -56,20 +59,26 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await imageData.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-    // Generate new description
-    const description = await generateDescription(base64);
+    // Generate new descriptions (English and Chinese)
+    const descriptions = await generateDescription(base64);
 
     // Update the photo record
     const { error: updateError } = await serviceClient
       .from('photos')
-      .update({ description })
+      .update({
+        description_en: descriptions.en,
+        description_cn: descriptions.cn,
+      })
       .eq('id', photoId);
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update description' }, { status: 500 });
     }
 
-    return NextResponse.json({ description });
+    return NextResponse.json({
+      descriptionEn: descriptions.en,
+      descriptionCn: descriptions.cn,
+    });
   } catch (error) {
     console.error('Description generation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

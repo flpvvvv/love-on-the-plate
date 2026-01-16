@@ -55,7 +55,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               <div className="relative w-full h-full rounded-full overflow-hidden">
                 <Image
                   src={photo.thumbnailUrl}
-                  alt={photo.description || 'A homemade meal'}
+                  alt={photo.description_en || photo.description_cn || 'A homemade meal'}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover"
@@ -70,10 +70,15 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               whileHover={{ opacity: 1 }}
               className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
             >
-              {photo.description && (
-                <p className="text-white text-sm text-center px-4 line-clamp-3">
-                  {photo.description}
-                </p>
+              {(photo.description_en || photo.description_cn) && (
+                <div className="text-white text-sm text-center px-4">
+                  {photo.description_en && (
+                    <p className="line-clamp-2">{photo.description_en}</p>
+                  )}
+                  {photo.description_cn && (
+                    <p className="line-clamp-2 mt-1 text-white/80">{photo.description_cn}</p>
+                  )}
+                </div>
               )}
             </motion.div>
           </motion.button>

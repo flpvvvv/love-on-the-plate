@@ -75,7 +75,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { photoId, description } = await request.json();
+    const { photoId, descriptionEn, descriptionCn } = await request.json();
 
     if (!photoId) {
       return NextResponse.json({ error: 'Photo ID required' }, { status: 400 });
@@ -99,10 +99,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Build update object with only provided fields
+    const updateData: { description_en?: string; description_cn?: string } = {};
+    if (descriptionEn !== undefined) updateData.description_en = descriptionEn;
+    if (descriptionCn !== undefined) updateData.description_cn = descriptionCn;
+
     // Update the photo
     const { data: updatedPhoto, error: updateError } = await serviceClient
       .from('photos')
-      .update({ description })
+      .update(updateData)
       .eq('id', photoId)
       .select()
       .single();

@@ -5,11 +5,31 @@ A beautiful webapp to document and celebrate homemade meals with AI-generated de
 ## Features
 
 - **Three Gallery Views**: Floating Plates, Masonry Grid, and Love Timeline
-- **AI Descriptions**: Automatically generate warm, descriptive captions using Google Gemini
+- **Bilingual AI Descriptions**: Automatically generate warm, descriptive captions in both English and Chinese using Google Gemini
 - **Magic Link Auth**: Passwordless authentication for admin access
 - **Image Optimization**: Automatic resizing and thumbnail generation
 - **Dark/Light Mode**: Beautiful themes for any time of day
 - **Responsive Design**: Works great on mobile and desktop
+
+## Bilingual Descriptions
+
+Each photo automatically receives two AI-generated descriptions:
+- **English**: Warm, evocative description of the dish
+- **Chinese (中文)**: Matching description in Simplified Chinese
+
+### Frontend Layout
+
+The bilingual descriptions are displayed throughout the app:
+
+| View | English | Chinese |
+|------|---------|---------|
+| **Photo Card** | Primary text | Secondary text below |
+| **Photo Modal** | Top section | Below divider line |
+| **Floating Plates** | Hover overlay | Lighter text below |
+| **Love Timeline** | Primary text | Lighter text below |
+| **Admin Upload** | Editable textarea | Separate editable textarea |
+
+Both descriptions can be edited before upload and regenerated using the "Regenerate Both" button.
 
 ## Getting Started
 

@@ -23,7 +23,7 @@ export function PhotoModal({ photo, open, onClose }: PhotoModalProps) {
         <div className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-black">
           <Image
             src={photo.imageUrl}
-            alt={photo.description || 'A homemade meal'}
+            alt={photo.description_en || photo.description_cn || 'A homemade meal'}
             fill
             sizes="(max-width: 768px) 100vw, 60vw"
             className="object-contain"
@@ -35,12 +35,26 @@ export function PhotoModal({ photo, open, onClose }: PhotoModalProps) {
         <div className="w-full md:w-80 p-6 bg-background overflow-y-auto">
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-muted uppercase tracking-wide mb-1">
+              <p className="text-xs text-muted uppercase tracking-wide mb-2">
                 {formatDate(photo.created_at)}
               </p>
-              {photo.description ? (
-                <p className="text-foreground leading-relaxed">{photo.description}</p>
-              ) : (
+
+              {/* English Description */}
+              {photo.description_en ? (
+                <div className="mb-3">
+                  <p className="text-foreground leading-relaxed">{photo.description_en}</p>
+                </div>
+              ) : null}
+
+              {/* Chinese Description */}
+              {photo.description_cn ? (
+                <div className="pt-3 border-t border-border">
+                  <p className="text-foreground/80 leading-relaxed">{photo.description_cn}</p>
+                </div>
+              ) : null}
+
+              {/* No description fallback */}
+              {!photo.description_en && !photo.description_cn && (
                 <p className="text-muted italic">No description yet</p>
               )}
             </div>

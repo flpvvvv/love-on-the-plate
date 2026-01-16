@@ -13,25 +13,26 @@ import type { PhotoWithUrls } from '@/types';
 export default function AdminPage() {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [description, setDescription] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
+  const [descriptionCn, setDescriptionCn] = useState('');
   const [uploading, setUploading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [recentPhotos, setRecentPhotos] = useState<PhotoWithUrls[]>([]);
 
   const handleFileSelect = useCallback(async (file: File) => {
     setSelectedFile(file);
-    setDescription('');
+    setDescriptionEn('');
+    setDescriptionCn('');
 
-    // Generate initial description
+    // Generate initial descriptions
     try {
       setRegenerating(true);
-      const formData = new FormData();
-      formData.append('file', file);
 
-      // We'll generate description during upload, just show preview for now
-      setDescription('Generating description...');
+      // We'll generate descriptions during upload, just show preview for now
+      setDescriptionEn('Generating English description...');
+      setDescriptionCn('正在生成中文描述...');
 
-      // Create a temporary preview - description will be generated on upload
+      // Create a temporary preview - descriptions will be generated on upload
       const arrayBuffer = await file.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
 
@@ -44,13 +45,16 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setDescription(data.description || '');
+        setDescriptionEn(data.descriptionEn || '');
+        setDescriptionCn(data.descriptionCn || '');
       } else {
-        setDescription('');
+        setDescriptionEn('');
+        setDescriptionCn('');
       }
     } catch (error) {
       console.error('Preview generation error:', error);
-      setDescription('');
+      setDescriptionEn('');
+      setDescriptionCn('');
     } finally {
       setRegenerating(false);
     }
@@ -72,7 +76,8 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setDescription(data.description || '');
+        setDescriptionEn(data.descriptionEn || '');
+        setDescriptionCn(data.descriptionCn || '');
       }
     } catch (error) {
       console.error('Regenerate error:', error);
@@ -102,14 +107,23 @@ export default function AdminPage() {
 
       const photo: PhotoWithUrls = await response.json();
 
-      // If user edited description, update it
-      if (description && description !== photo.description) {
+      // If user edited descriptions, update them
+      const needsUpdate =
+        (descriptionEn && descriptionEn !== photo.description_en) ||
+        (descriptionCn && descriptionCn !== photo.description_cn);
+
+      if (needsUpdate) {
         await fetch('/api/photos', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ photoId: photo.id, description }),
+          body: JSON.stringify({
+            photoId: photo.id,
+            descriptionEn,
+            descriptionCn,
+          }),
         });
-        photo.description = description;
+        photo.description_en = descriptionEn;
+        photo.description_cn = descriptionCn;
       }
 
       // Add to recent photos
@@ -117,18 +131,20 @@ export default function AdminPage() {
 
       // Reset form
       setSelectedFile(null);
-      setDescription('');
+      setDescriptionEn('');
+      setDescriptionCn('');
     } catch (error) {
       console.error('Upload error:', error);
       alert(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, description]);
+  }, [selectedFile, descriptionEn, descriptionCn]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
-    setDescription('');
+    setDescriptionEn('');
+    setDescriptionCn('');
   }, []);
 
   const handleLogout = async () => {
@@ -158,8 +174,10 @@ export default function AdminPage() {
           {selectedFile ? (
             <ImagePreview
               file={selectedFile}
-              description={description}
-              onDescriptionChange={setDescription}
+              descriptionEn={descriptionEn}
+              descriptionCn={descriptionCn}
+              onDescriptionEnChange={setDescriptionEn}
+              onDescriptionCnChange={setDescriptionCn}
               onRegenerateDescription={handleRegenerateDescription}
               onUpload={handleUpload}
               onCancel={handleCancel}
@@ -184,7 +202,7 @@ export default function AdminPage() {
                   >
                     <Image
                       src={photo.thumbnailUrl}
-                      alt={photo.description || 'Recent upload'}
+                      alt={photo.description_en || photo.description_cn || 'Recent upload'}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 33vw, 200px"

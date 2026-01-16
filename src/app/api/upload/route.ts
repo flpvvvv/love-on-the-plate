@@ -85,10 +85,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to upload thumbnail' }, { status: 500 });
     }
 
-    // Generate AI description
-    let description = '';
+    // Generate AI descriptions (English and Chinese)
+    let descriptionEn = '';
+    let descriptionCn = '';
     try {
-      description = await generateDescription(bufferToBase64(fullBuffer));
+      const descriptions = await generateDescription(bufferToBase64(fullBuffer));
+      descriptionEn = descriptions.en;
+      descriptionCn = descriptions.cn;
     } catch (descError) {
       console.error('Description generation error:', descError);
       // Continue without description - user can regenerate later
@@ -101,7 +104,8 @@ export async function POST(request: NextRequest) {
         id: photoId,
         storage_path: fullPath,
         thumbnail_path: thumbPath,
-        description,
+        description_en: descriptionEn,
+        description_cn: descriptionCn,
         original_filename: file.name,
         file_size: fullBuffer.length,
         width,
