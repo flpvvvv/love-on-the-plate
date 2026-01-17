@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,6 +19,33 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [recentPhotos, setRecentPhotos] = useState<PhotoWithUrls[]>([]);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // null = loading
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  // Check if user is admin
+  useEffect(() => {
+    async function checkAdminStatus() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push('/admin/login');
+        return;
+      }
+
+      setUserEmail(user.email || null);
+
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      setIsAdmin(profile?.role === 'admin');
+    }
+
+    checkAdminStatus();
+  }, [router]);
 
   const handleFileSelect = useCallback(async (file: File) => {
     setSelectedFile(file);
@@ -167,6 +194,62 @@ export default function AdminPage() {
     await supabase.auth.signOut();
     router.push('/admin/login');
   };
+
+  // Loading state
+  if (isAdmin === null) {
+    return (
+      <>
+        <Header showAdminLink={false} />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto text-center py-16">
+            <div className="animate-pulse">
+              <div className="h-8 bg-surface rounded w-48 mx-auto mb-4"></div>
+              <div className="h-4 bg-surface rounded w-64 mx-auto"></div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Pending approval state for non-admin users
+  if (!isAdmin) {
+    return (
+      <>
+        <Header showAdminLink={false} />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="max-w-md mx-auto text-center py-16">
+            <div className="mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h1 className="font-serif text-2xl font-semibold text-foreground mb-2">Pending Approval</h1>
+              <p className="text-muted">
+                Your account is awaiting admin approval before you can upload images.
+              </p>
+              {userEmail && (
+                <p className="text-sm text-muted mt-2">
+                  Signed in as <span className="font-medium text-foreground">{userEmail}</span>
+                </p>
+              )}
+            </div>
+            <div className="space-y-3">
+              <Button variant="ghost" onClick={handleLogout} className="w-full">
+                Sign Out
+              </Button>
+              <Link href="/" className="block text-accent hover:text-accent-hover transition-colors">
+                View Gallery
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
