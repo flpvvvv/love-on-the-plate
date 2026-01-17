@@ -142,6 +142,15 @@ export async function DELETE(request: NextRequest) {
 
     const serviceClient = await createServiceClient();
 
+    // Check if user is admin
+    const { data: profile } = await serviceClient
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.role === 'admin';
+
     // Get photo to verify ownership and get storage paths
     const { data: photo, error: fetchError } = await serviceClient
       .from('photos')
@@ -153,7 +162,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 
-    if (photo.uploaded_by !== user.id) {
+    // Allow deletion if user is admin or is the uploader
+    if (!isAdmin && photo.uploaded_by !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

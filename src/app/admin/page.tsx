@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [recentPhotos, setRecentPhotos] = useState<PhotoWithUrls[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // null = loading
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
 
   // Check if user is admin
   useEffect(() => {
@@ -42,6 +43,33 @@ export default function AdminPage() {
         .single();
 
       setIsAdmin(profile?.role === 'admin');
+
+      // Fetch recent photos if user is admin
+      if (profile?.role === 'admin') {
+        const { data } = await supabase
+          .from('photos')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (data) {
+          const photosWithUrls: PhotoWithUrls[] = data.map((photo) => {
+            const { data: fullUrlData } = supabase.storage
+              .from('photos')
+              .getPublicUrl(photo.storage_path);
+            const { data: thumbUrlData } = supabase.storage
+              .from('photos')
+              .getPublicUrl(photo.thumbnail_path);
+
+            return {
+              ...photo,
+              imageUrl: fullUrlData.publicUrl,
+              thumbnailUrl: thumbUrlData.publicUrl,
+            };
+          });
+          setRecentPhotos(photosWithUrls);
+        }
+      }
     }
 
     checkAdminStatus();
@@ -195,6 +223,33 @@ export default function AdminPage() {
     router.push('/admin/login');
   };
 
+  const handleDelete = useCallback(async (photoId: string) => {
+    if (!confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setDeletingPhotoId(photoId);
+      
+      const response = await fetch(`/api/photos?id=${photoId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Delete failed');
+      }
+
+      // Remove from recent photos list
+      setRecentPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(error instanceof Error ? error.message : 'Delete failed');
+    } finally {
+      setDeletingPhotoId(null);
+    }
+  }, []);
+
   // Loading state
   if (isAdmin === null) {
     return (
@@ -296,7 +351,7 @@ export default function AdminPage() {
                 {recentPhotos.map((photo) => (
                   <div
                     key={photo.id}
-                    className="aspect-square relative rounded-xl overflow-hidden bg-surface border border-border"
+                    className="aspect-square relative rounded-xl overflow-hidden bg-surface border border-border group"
                   >
                     <Image
                       src={photo.thumbnailUrl}
@@ -305,6 +360,26 @@ export default function AdminPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 33vw, 200px"
                     />
+                    {/* Delete button overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                      <button
+                        onClick={() => handleDelete(photo.id)}
+                        disabled={deletingPhotoId === photo.id}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete photo"
+                      >
+                        {deletingPhotoId === photo.id ? (
+                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

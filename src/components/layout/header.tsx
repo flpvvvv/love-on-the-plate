@@ -27,7 +27,7 @@ export function Header({ showAdminLink = true }: HeaderProps) {
               Love on the Plate
             </span>
             <span className="font-script text-sm text-muted hidden sm:block">
-              Celebrating homemade meals
+              Happy wife, happy life
             </span>
           </div>
         </Link>
