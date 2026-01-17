@@ -30,9 +30,11 @@ export interface BilingualDescription {
   cn: string;
 }
 
+const DEFAULT_MODEL = 'gemini-2.0-flash';
+
 export async function generateDescription(imageBase64: string): Promise<BilingualDescription> {
-  // Use gemini-3-flash-preview for latest capabilities
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL;
+  const model = genAI.getGenerativeModel({ model: modelName });
 
   const result = await model.generateContent([
     DESCRIPTION_PROMPT,

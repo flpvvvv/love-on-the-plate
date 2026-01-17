@@ -14,6 +14,7 @@ A beautiful webapp to document and celebrate homemade meals with AI-generated de
 ## Bilingual Descriptions
 
 Each photo automatically receives two AI-generated descriptions:
+
 - **English**: Warm, evocative description of the dish
 - **Chinese (中文)**: Matching description in Simplified Chinese
 
@@ -21,13 +22,13 @@ Each photo automatically receives two AI-generated descriptions:
 
 The bilingual descriptions are displayed throughout the app:
 
-| View | English | Chinese |
-|------|---------|---------|
-| **Photo Card** | Primary text | Secondary text below |
-| **Photo Modal** | Top section | Below divider line |
-| **Floating Plates** | Hover overlay | Lighter text below |
-| **Love Timeline** | Primary text | Lighter text below |
-| **Admin Upload** | Editable textarea | Separate editable textarea |
+| View                | English           | Chinese                    |
+| ------------------- | ----------------- | -------------------------- |
+| **Photo Card**      | Primary text      | Secondary text below       |
+| **Photo Modal**     | Top section       | Below divider line         |
+| **Floating Plates** | Hover overlay     | Lighter text below         |
+| **Love Timeline**   | Primary text      | Lighter text below         |
+| **Admin Upload**    | Editable textarea | Separate editable textarea |
 
 Both descriptions can be edited before upload and regenerated using the "Regenerate Both" button.
 
@@ -42,20 +43,24 @@ Both descriptions can be edited before upload and regenerated using the "Regener
 ### Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/love-on-the-plate.git
    cd love-on-the-plate
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Fill in your Supabase and Google Gemini credentials.
 
 4. Set up Supabase:
@@ -65,11 +70,70 @@ Both descriptions can be edited before upload and regenerated using the "Regener
    - Enable Email Auth with Magic Link
 
 5. Start the development server:
+
    ```bash
    npm run dev
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000)
+
+## Deploy to Vercel
+
+### Prerequisites
+
+- A [Vercel](https://vercel.com) account
+- Your project pushed to a Git repository (GitHub, GitLab, or Bitbucket)
+
+### Step-by-Step Deployment
+
+1. **Push your code to Git**
+
+   ```bash
+   git add .
+   git commit -m "Ready for Vercel deployment"
+   git push origin main
+   ```
+
+2. **Import project to Vercel**
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Select your Git provider and authorize Vercel
+   - Import the `love-on-the-plate` repository
+
+3. **Configure environment variables**
+
+   In the Vercel dashboard, add these environment variables:
+   | Variable | Description |
+   |----------|-------------|
+   | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (keep secret!) |
+   | `GOOGLE_GEMINI_API_KEY` | Google AI Studio API key |
+   | `GEMINI_MODEL` | AI model name (default: `gemini-2.0-flash`) |
+   | `NEXT_PUBLIC_APP_URL` | Your Vercel deployment URL (e.g., `https://your-app.vercel.app`) |
+
+4. **Configure Supabase for production**
+   - Go to Supabase Dashboard → Authentication → URL Configuration
+   - Add your Vercel URL to **Site URL**: `https://your-app.vercel.app`
+   - Add redirect URLs:
+     - `https://your-app.vercel.app/auth/callback`
+     - `https://your-app.vercel.app/**`
+
+5. **Deploy**
+   - Click "Deploy" in Vercel
+   - Wait for the build to complete (~1-2 minutes)
+
+6. **Verify deployment**
+   - Visit your deployed URL
+   - Test the magic link login flow
+   - Upload a test photo
+
+### Post-Deployment Checklist
+
+- [ ] Magic link emails are received and work correctly
+- [ ] Images upload and display properly
+- [ ] AI descriptions generate for new uploads
+- [ ] Dark/light mode toggle works
+- [ ] All three gallery views render correctly
 
 ## Tech Stack
 
