@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { ViewSwitcher, PhotoCardSkeleton } from '@/components/ui';
 import { BottomNav } from '@/components/layout';
 import { PhotoModal } from './photo-modal';
@@ -9,9 +10,46 @@ import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
 
 const VIEW_STORAGE_KEY = 'love-on-the-plate-view';
 
+// View transition variants
+const viewTransitionVariants = {
+  initial: (direction: number) => ({
+    opacity: 0,
+    scale: direction === 0 ? 0.95 : 1,
+    x: direction * 30,
+  }),
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    transition: {
+      duration: 0.35,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    scale: direction === 0 ? 0.95 : 1,
+    x: direction * -30,
+    transition: {
+      duration: 0.25,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  }),
+};
+
+// Get direction for view transitions
+function getViewDirection(from: GalleryView, to: GalleryView): number {
+  const order: GalleryView[] = ['floating', 'masonry', 'timeline'];
+  const fromIndex = order.indexOf(from);
+  const toIndex = order.indexOf(to);
+  if (fromIndex === toIndex) return 0;
+  return toIndex > fromIndex ? 1 : -1;
+}
+
 export function Gallery() {
   const [photos, setPhotos] = useState<PhotoWithUrls[]>([]);
   const [view, setView] = useState<GalleryView>('floating');
+  const [prevView, setPrevView] = useState<GalleryView>('floating');
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithUrls | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,8 +68,11 @@ export function Gallery() {
 
   // Save view preference
   const handleViewChange = (newView: GalleryView) => {
-    setView(newView);
-    localStorage.setItem(VIEW_STORAGE_KEY, newView);
+    if (newView !== view) {
+      setPrevView(view);
+      setView(newView);
+      localStorage.setItem(VIEW_STORAGE_KEY, newView);
+    }
   };
 
   // Fetch photos
@@ -113,11 +154,34 @@ export function Gallery() {
     setSelectedPhoto(photo);
   };
 
+  // Navigation handlers for modal
+  const selectedIndex = selectedPhoto 
+    ? photos.findIndex(p => p.id === selectedPhoto.id) 
+    : -1;
+  
+  const handlePrevPhoto = useCallback(() => {
+    if (selectedIndex > 0) {
+      setSelectedPhoto(photos[selectedIndex - 1]);
+    }
+  }, [selectedIndex, photos]);
+
+  const handleNextPhoto = useCallback(() => {
+    if (selectedIndex < photos.length - 1) {
+      setSelectedPhoto(photos[selectedIndex + 1]);
+    }
+  }, [selectedIndex, photos]);
+
+  const direction = getViewDirection(prevView, view);
+
   const renderGallery = () => {
     if (photos.length === 0 && !loading) {
       return (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-20 h-20 text-accent mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 text-center"
+        >
+          <div className="w-20 h-20 text-love mb-4">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path
                 strokeLinecap="round"
@@ -131,22 +195,41 @@ export function Gallery() {
               />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">No photos yet</h3>
-          <p className="text-muted">Start documenting your culinary journey!</p>
-        </div>
+          <h3 className="text-display font-display font-semibold text-ink mb-2">No photos yet</h3>
+          <p className="text-ink-secondary">Start documenting your culinary journey!</p>
+        </motion.div>
       );
     }
 
-    switch (view) {
-      case 'floating':
-        return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
-      case 'masonry':
-        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
-      case 'timeline':
-        return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />;
-      default:
-        return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
-    }
+    const GalleryComponent = () => {
+      switch (view) {
+        case 'floating':
+          return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
+        case 'masonry':
+          return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
+        case 'timeline':
+          return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />;
+        default:
+          return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
+      }
+    };
+
+    return (
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={view}
+          custom={direction}
+          variants={viewTransitionVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
+          <LayoutGroup>
+            <GalleryComponent />
+          </LayoutGroup>
+        </motion.div>
+      </AnimatePresence>
+    );
   };
 
   const renderSkeletons = () => {
@@ -209,6 +292,10 @@ export function Gallery() {
         photo={selectedPhoto}
         open={!!selectedPhoto}
         onClose={() => setSelectedPhoto(null)}
+        onPrev={handlePrevPhoto}
+        onNext={handleNextPhoto}
+        hasPrev={selectedIndex > 0}
+        hasNext={selectedIndex < photos.length - 1}
       />
 
       {/* Mobile Bottom Navigation */}

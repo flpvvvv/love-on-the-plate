@@ -6,13 +6,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Header, Footer } from '@/components/layout';
 import { UploadZone, ImagePreview } from '@/components/upload';
-import { Button, Dialog } from '@/components/ui';
+import { Button, Dialog, useToast } from '@/components/ui';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
 import type { PhotoWithUrls } from '@/types';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [descriptionEn, setDescriptionEn] = useState('');
   const [descriptionCn, setDescriptionCn] = useState('');
@@ -205,16 +206,19 @@ export default function AdminPage() {
       setSelectedFile(null);
       setDescriptionEn('');
       setDescriptionCn('');
+
+      // Show success toast with heartbeat
+      showToast('Photo uploaded with love!', 'success');
       
       // Redirect to main gallery after successful upload
       router.push('/');
     } catch (error) {
       console.error('Upload error:', error);
-      alert(error instanceof Error ? error.message : 'Upload failed');
+      showToast(error instanceof Error ? error.message : 'Upload failed', 'error');
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, descriptionEn, descriptionCn, router]);
+  }, [selectedFile, descriptionEn, descriptionCn, router, showToast]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
@@ -252,13 +256,14 @@ export default function AdminPage() {
       setRecentPhotos((prev) => prev.filter((photo) => photo.id !== photoToDelete.id));
       setDeleteModalOpen(false);
       setPhotoToDelete(null);
+      showToast('Photo deleted', 'info');
     } catch (error) {
       console.error('Delete error:', error);
-      alert(error instanceof Error ? error.message : 'Delete failed');
+      showToast(error instanceof Error ? error.message : 'Delete failed', 'error');
     } finally {
       setDeletingPhotoId(null);
     }
-  }, [photoToDelete]);
+  }, [photoToDelete, showToast]);
 
   const handleDeleteCancel = useCallback(() => {
     setDeleteModalOpen(false);

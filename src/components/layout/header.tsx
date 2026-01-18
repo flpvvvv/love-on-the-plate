@@ -13,13 +13,14 @@ export function Header({ showAdminLink = true }: HeaderProps) {
     <header className="sticky top-0 z-40 w-full border-b border-stroke glass">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 text-love transition-transform duration-300 ease-spring group-hover:scale-110">
+          <div className="w-10 h-10 text-ink transition-transform duration-300 ease-spring group-hover:scale-110">
             <Image
               src="/logo.svg"
               alt="Love on the Plate"
               width={40}
               height={40}
               className="w-full h-full"
+              style={{ filter: 'var(--logo-filter, none)' }}
             />
           </div>
           <div className="flex flex-col">

@@ -81,6 +81,9 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
   
+  /* Logo filter - no filter needed in light mode */
+  --logo-filter: none;
+  
   /* Legacy compatibility tokens */
   --background: var(--canvas);
   --foreground: var(--ink);
@@ -126,6 +129,9 @@
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 32px rgba(255, 123, 104, 0.25);
   --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  
+  /* Logo filter - invert for dark mode visibility */
+  --logo-filter: invert(1) brightness(0.95);
   
   /* Legacy compatibility */
   --background: var(--canvas);

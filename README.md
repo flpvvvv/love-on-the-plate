@@ -58,6 +58,29 @@ Fluid scale using `clamp()` for responsive sizing without breakpoints.
 - **Glass morphism** for floating UI elements
 - **Dynamic viewport units** (`dvh`) for true mobile heights
 
+### Interaction Design
+
+#### Typewriter Effect
+
+AI-generated descriptions animate character-by-character in the photo modal, creating an intimate "letter being written" experience. Click to skip the animation.
+
+#### Envelope Modal
+
+Photo modals feature a smooth, elegant opening animation:
+
+- Spring physics for natural feeling motion
+- Content slides up with staged reveal
+- Typewriter effect for descriptions
+- Decorative "With love" signature
+
+#### View Transitions
+
+Gallery views morph smoothly between layouts using Framer Motion's `AnimatePresence` and `LayoutGroup`. Directional animations slide based on view order.
+
+#### Toast Notifications
+
+Success/error feedback with heartbeat animation on the icon. Toasts appear from the bottom with spring physics.
+
 ## Bilingual Descriptions
 
 Each photo automatically receives two AI-generated descriptions:

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ThemeProvider } from '@/components/ui';
+import { ThemeProvider, ToastProvider } from '@/components/ui';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen flex flex-col">
         <ThemeProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

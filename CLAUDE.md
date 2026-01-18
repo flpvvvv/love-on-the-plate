@@ -120,6 +120,77 @@ Use these CSS custom properties (not raw colors):
 | `.hide-mobile`  | Hidden on mobile           |
 | `.hide-desktop` | Hidden on desktop          |
 
+## Custom Hooks
+
+Located in `src/lib/hooks/`:
+
+### useTypewriter / useDualTypewriter
+
+Animated text reveal with configurable options:
+
+```tsx
+import { useTypewriter, useDualTypewriter } from "@/lib/hooks/use-typewriter";
+
+// Single language
+const { displayedText, isComplete, skip, reset } = useTypewriter(text, {
+  speed: 30, // ms per character
+  delay: 500, // initial delay
+  jitter: 10, // random variation
+});
+
+// Dual language (synchronized)
+const { en, cn, isComplete, skip, reset } = useDualTypewriter(enText, cnText);
+```
+
+### useHeartbeat
+
+Trigger heartbeat animation on success actions:
+
+```tsx
+import { useHeartbeat } from "@/lib/hooks/use-heartbeat";
+
+const { isBeating, triggerHeartbeat } = useHeartbeat(1000); // duration in ms
+
+<Heart className={isBeating ? "animate-heartbeat text-love" : ""} />;
+```
+
+## Toast System
+
+Feedback notifications with heart animation:
+
+```tsx
+import { useToast } from "@/components/ui";
+
+const { showToast } = useToast();
+
+showToast("Photo uploaded!", "success"); // Green with heart
+showToast("Failed to upload", "error"); // Red
+showToast("Processing...", "info"); // Blue
+```
+
+**Note:** Wrap app in `<ToastProvider>` (already in root layout).
+
+## Interaction Patterns
+
+### Envelope Modal
+
+Photo modal uses envelope metaphor:
+
+- **Flap Animation**: 3D transform on open (180° rotation)
+- **Staged Reveal**: Image → Title → Description with delays
+- **Typewriter Effect**: AI descriptions type out character-by-character
+- **Signature**: "With love" handwritten accent at bottom
+
+### View Transitions
+
+Gallery view switching uses directional morphing:
+
+- **Horizontal**: Masonry ↔ Floating (slide left/right)
+- **Vertical**: Masonry ↔ Timeline (slide up/down)
+- **Diagonal**: Floating ↔ Timeline (combined)
+
+AnimatePresence with LayoutGroup ensures smooth layout animations.
+
 ### Responsive Architecture
 
 - **Mobile (<768px)**: Bottom navigation for view switching

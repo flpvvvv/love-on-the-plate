@@ -135,6 +135,7 @@ export default function LoginPage() {
               width={80}
               height={80}
               className="w-full h-full"
+              style={{ filter: 'var(--logo-filter, none)' }}
             />
           </div>
           <h1 className="font-serif text-2xl font-semibold text-foreground">
