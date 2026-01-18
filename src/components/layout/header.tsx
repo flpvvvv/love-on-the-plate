@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ThemeToggle } from '@/components/ui';
+import { ThemeToggle, Button } from '@/components/ui';
 
 interface HeaderProps {
   showAdminLink?: boolean;
+  onSignOut?: () => void;
+  userEmail?: string | null;
 }
 
-export function Header({ showAdminLink = true }: HeaderProps) {
+export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stroke glass">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -45,6 +47,19 @@ export function Header({ showAdminLink = true }: HeaderProps) {
               </svg>
               <span>Upload</span>
             </Link>
+          )}
+
+          {onSignOut && (
+            <div className="flex items-center gap-2">
+              {userEmail && (
+                <span className="text-caption text-ink-secondary max-w-[10rem] truncate hidden sm:inline">
+                  {userEmail}
+                </span>
+              )}
+              <Button variant="ghost" size="sm" onClick={onSignOut}>
+                Sign Out
+              </Button>
+            </div>
           )}
           <ThemeToggle />
         </div>

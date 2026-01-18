@@ -315,8 +315,10 @@ export default function AdminPage() {
               <Button variant="ghost" onClick={handleLogout} className="w-full">
                 Sign Out
               </Button>
-              <Link href="/" className="block text-accent hover:text-accent-hover transition-colors">
-                View Gallery
+              <Link href="/">
+                <Button variant="secondary" className="w-full">
+                  View Gallery
+                </Button>
               </Link>
             </div>
           </div>
@@ -328,26 +330,20 @@ export default function AdminPage() {
 
   return (
     <>
-      <Header showAdminLink={false} />
+      <Header showAdminLink={false} onSignOut={handleLogout} userEmail={userEmail} />
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          {/* Top bar with navigation and sign out */}
-          <div className="flex items-center justify-between mb-6">
-            <Link href="/" className="inline-flex items-center gap-2 text-accent hover:text-accent-hover transition-colors">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-              </svg>
-              View Gallery
-            </Link>
-            <div className="flex items-center gap-4">
-              {userEmail && (
-                <span className="text-sm text-ink-secondary hidden sm:inline">{userEmail}</span>
-              )}
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Sign Out
+          {/* Top bar with navigation and user info */}
+          <div className="flex items-center mb-6">
+            <Link href="/">
+              <Button variant="secondary" size="sm">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                View Gallery
               </Button>
-            </div>
+            </Link>
           </div>
 
           {/* Header */}
