@@ -54,14 +54,14 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                   <p className="text-xs text-muted mb-1">
                     {formatDate(photo.created_at)}
                   </p>
-                  {photo.description_en && (
+                  {photo.description_cn && (
                     <p className="text-sm text-foreground line-clamp-2">
-                      {photo.description_en}
+                      {photo.description_cn}
                     </p>
                   )}
-                  {photo.description_cn && (
+                  {photo.description_en && (
                     <p className="text-sm text-foreground/70 line-clamp-2 mt-1">
-                      {photo.description_cn}
+                      {photo.description_en}
                     </p>
                   )}
                 </div>

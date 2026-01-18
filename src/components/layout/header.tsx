@@ -32,13 +32,16 @@ export function Header({ showAdminLink = true }: HeaderProps) {
           </div>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {showAdminLink && (
             <Link
               href="/admin"
-              className="text-sm text-muted hover:text-foreground transition-colors hidden sm:block"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors"
             >
-              Upload
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span>Upload</span>
             </Link>
           )}
           <ThemeToggle />

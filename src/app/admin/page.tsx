@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Header, Footer } from '@/components/layout';
 import { UploadZone, ImagePreview } from '@/components/upload';
-import { Button } from '@/components/ui';
+import { Button, Dialog } from '@/components/ui';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
 import type { PhotoWithUrls } from '@/types';
@@ -22,6 +22,8 @@ export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // null = loading
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [photoToDelete, setPhotoToDelete] = useState<PhotoWithUrls | null>(null);
 
   // Check if user is admin
   useEffect(() => {
@@ -203,13 +205,16 @@ export default function AdminPage() {
       setSelectedFile(null);
       setDescriptionEn('');
       setDescriptionCn('');
+      
+      // Redirect to main gallery after successful upload
+      router.push('/');
     } catch (error) {
       console.error('Upload error:', error);
       alert(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, descriptionEn, descriptionCn]);
+  }, [selectedFile, descriptionEn, descriptionCn, router]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
@@ -223,15 +228,18 @@ export default function AdminPage() {
     router.push('/admin/login');
   };
 
-  const handleDelete = useCallback(async (photoId: string) => {
-    if (!confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteClick = useCallback((photo: PhotoWithUrls) => {
+    setPhotoToDelete(photo);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!photoToDelete) return;
 
     try {
-      setDeletingPhotoId(photoId);
+      setDeletingPhotoId(photoToDelete.id);
       
-      const response = await fetch(`/api/photos?id=${photoId}`, {
+      const response = await fetch(`/api/photos?id=${photoToDelete.id}`, {
         method: 'DELETE',
       });
 
@@ -241,13 +249,20 @@ export default function AdminPage() {
       }
 
       // Remove from recent photos list
-      setRecentPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+      setRecentPhotos((prev) => prev.filter((photo) => photo.id !== photoToDelete.id));
+      setDeleteModalOpen(false);
+      setPhotoToDelete(null);
     } catch (error) {
       console.error('Delete error:', error);
       alert(error instanceof Error ? error.message : 'Delete failed');
     } finally {
       setDeletingPhotoId(null);
     }
+  }, [photoToDelete]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteModalOpen(false);
+    setPhotoToDelete(null);
   }, []);
 
   // Loading state
@@ -312,6 +327,16 @@ export default function AdminPage() {
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
+          {/* Link to gallery at top */}
+          <div className="mb-6">
+            <Link href="/" className="inline-flex items-center gap-2 text-accent hover:text-accent-hover transition-colors">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+              </svg>
+              View Gallery
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -363,7 +388,7 @@ export default function AdminPage() {
                     {/* Delete button overlay */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                       <button
-                        onClick={() => handleDelete(photo.id)}
+                        onClick={() => handleDeleteClick(photo)}
                         disabled={deletingPhotoId === photo.id}
                         className="opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Delete photo"
@@ -385,15 +410,47 @@ export default function AdminPage() {
               </div>
             </div>
           )}
-
-          {/* Link back to gallery */}
-          <div className="mt-8 text-center">
-            <Link href="/" className="text-accent hover:text-accent-hover transition-colors">
-              View Gallery
-            </Link>
-          </div>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteModalOpen} onClose={handleDeleteCancel} className="max-w-md w-full mx-4">
+        <div className="p-6">
+          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
+            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-foreground text-center mb-2">Delete Photo</h3>
+          <p className="text-muted text-center mb-6">
+            Are you sure you want to delete this photo? This action cannot be undone.
+          </p>
+          {photoToDelete && (
+            <div className="mb-6 rounded-lg overflow-hidden border border-border">
+              <div className="aspect-video relative">
+                <Image
+                  src={photoToDelete.thumbnailUrl}
+                  alt={photoToDelete.description_cn || photoToDelete.description_en || 'Photo to delete'}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={handleDeleteCancel} className="flex-1">
+              Cancel
+            </Button>
+            <button
+              onClick={handleDeleteConfirm}
+              disabled={deletingPhotoId !== null}
+              className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deletingPhotoId ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      </Dialog>
 
       <Footer />
     </>

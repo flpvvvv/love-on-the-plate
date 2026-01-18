@@ -55,20 +55,11 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={cn(
-        'relative border-2 border-dashed rounded-2xl p-12 transition-colors text-center',
+        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-colors text-center',
         isDragging ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50',
         disabled && 'opacity-50 pointer-events-none'
       )}
     >
-      <input
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-        onChange={handleFileChange}
-        disabled={disabled}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        aria-label="Choose a photo"
-      />
-
       <AnimatePresence mode="wait">
         {isDragging ? (
           <motion.div
@@ -108,16 +99,17 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             </div>
             <div>
               <p className="text-lg font-medium text-foreground mb-1">
-                Drop a photo or click to browse
+                Upload a photo
               </p>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-muted mb-4">
                 Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically
               </p>
             </div>
 
-            {/* Camera capture on mobile */}
+            {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg cursor-pointer hover:bg-accent-hover transition-colors">
+              {/* Camera capture button - primary on mobile */}
+              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white text-base font-medium rounded-xl cursor-pointer hover:bg-accent-hover transition-colors shadow-sm">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path
                     strokeLinecap="round"
@@ -140,7 +132,31 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
                   className="hidden"
                 />
               </label>
+              
+              {/* Choose from gallery button */}
+              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-surface border border-border text-foreground text-base font-medium rounded-xl cursor-pointer hover:bg-muted/10 transition-colors">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                  />
+                </svg>
+                <span>Choose from Gallery</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                  onChange={handleFileChange}
+                  disabled={disabled}
+                  className="hidden"
+                />
+              </label>
             </div>
+            
+            {/* Desktop drag and drop hint */}
+            <p className="text-xs text-muted pt-2 hidden sm:block">
+              or drag and drop an image here
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

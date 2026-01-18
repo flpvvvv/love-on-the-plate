@@ -33,11 +33,11 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
         </div>
         {(photo.description_en || photo.description_cn) && (
           <div className="p-3 space-y-1">
-            {photo.description_en && (
-              <p className="text-sm text-muted line-clamp-2">{photo.description_en}</p>
-            )}
             {photo.description_cn && (
-              <p className="text-sm text-muted/70 line-clamp-2">{photo.description_cn}</p>
+              <p className="text-sm text-muted line-clamp-2">{photo.description_cn}</p>
+            )}
+            {photo.description_en && (
+              <p className="text-sm text-muted/70 line-clamp-2">{photo.description_en}</p>
             )}
           </div>
         )}

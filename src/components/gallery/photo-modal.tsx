@@ -39,17 +39,17 @@ export function PhotoModal({ photo, open, onClose }: PhotoModalProps) {
                 {formatDate(photo.created_at)}
               </p>
 
-              {/* English Description */}
-              {photo.description_en ? (
+              {/* Chinese Description */}
+              {photo.description_cn ? (
                 <div className="mb-3">
-                  <p className="text-foreground leading-relaxed">{photo.description_en}</p>
+                  <p className="text-foreground leading-relaxed">{photo.description_cn}</p>
                 </div>
               ) : null}
 
-              {/* Chinese Description */}
-              {photo.description_cn ? (
+              {/* English Description */}
+              {photo.description_en ? (
                 <div className="pt-3 border-t border-border">
-                  <p className="text-foreground/80 leading-relaxed">{photo.description_cn}</p>
+                  <p className="text-foreground/80 leading-relaxed">{photo.description_en}</p>
                 </div>
               ) : null}
 

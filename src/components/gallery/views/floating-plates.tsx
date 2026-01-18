@@ -72,11 +72,11 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
             >
               {(photo.description_en || photo.description_cn) && (
                 <div className="text-white text-sm text-center px-4">
-                  {photo.description_en && (
-                    <p className="line-clamp-2">{photo.description_en}</p>
-                  )}
                   {photo.description_cn && (
-                    <p className="line-clamp-2 mt-1 text-white/80">{photo.description_cn}</p>
+                    <p className="line-clamp-2">{photo.description_cn}</p>
+                  )}
+                  {photo.description_en && (
+                    <p className="line-clamp-2 mt-1 text-white/80">{photo.description_en}</p>
                   )}
                 </div>
               )}

@@ -73,22 +73,6 @@ export function ImagePreview({
           </Button>
         </div>
 
-        {/* English Description */}
-        <div>
-          <label htmlFor="descriptionEn" className="block text-sm font-medium text-foreground mb-2">
-            English Description
-          </label>
-          <textarea
-            id="descriptionEn"
-            value={descriptionEn}
-            onChange={(e) => onDescriptionEnChange(e.target.value)}
-            placeholder="AI is generating an English description..."
-            rows={3}
-            disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
-          />
-        </div>
-
         {/* Chinese Description */}
         <div>
           <label htmlFor="descriptionCn" className="block text-sm font-medium text-foreground mb-2">
@@ -99,6 +83,22 @@ export function ImagePreview({
             value={descriptionCn}
             onChange={(e) => onDescriptionCnChange(e.target.value)}
             placeholder="AI 正在生成中文描述..."
+            rows={3}
+            disabled={uploading}
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
+          />
+        </div>
+
+        {/* English Description */}
+        <div>
+          <label htmlFor="descriptionEn" className="block text-sm font-medium text-foreground mb-2">
+            English Description
+          </label>
+          <textarea
+            id="descriptionEn"
+            value={descriptionEn}
+            onChange={(e) => onDescriptionEnChange(e.target.value)}
+            placeholder="AI is generating an English description..."
             rows={3}
             disabled={uploading}
             className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
