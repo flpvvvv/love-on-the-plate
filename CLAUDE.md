@@ -38,11 +38,13 @@ src/
 │       ├── describe/      # Gemini description
 │       └── photos/        # CRUD operations
 ├── components/
-│   ├── ui/                # Reusable UI components
-│   ├── layout/            # Header, Footer
+│   ├── ui/                # Reusable UI components (Button, Dialog, Toast, ViewSwitcher)
+│   ├── layout/            # Header, Footer, BottomNav
 │   ├── gallery/           # Gallery, PhotoCard, PhotoModal
+│   │   └── views/         # FloatingPlates, MasonryGrid, LoveTimeline
 │   └── upload/            # UploadZone, ImagePreview
 ├── lib/
+│   ├── hooks/             # Custom React hooks (useHeartbeat)
 │   ├── supabase/          # Client + server utilities
 │   ├── gemini.ts          # AI integration
 │   └── image-processing.ts
@@ -63,9 +65,12 @@ src/
 - **Bilingual AI descriptions** (English + Chinese)
 - Image optimization (2000px full, 400px thumbnail)
 - Infinite scroll pagination
-- Dark/light mode
+- Dark/light mode with logo adaptation
 - Mobile-first bottom navigation
+- Photo modal with prev/next navigation (keyboard and touch support)
+- Directional view transitions with blur effects
 - Semantic design token system
+- Toast notification system with heartbeat animation
 
 ## Design System v2.0
 
@@ -124,24 +129,6 @@ Use these CSS custom properties (not raw colors):
 
 Located in `src/lib/hooks/`:
 
-### useTypewriter / useDualTypewriter
-
-Animated text reveal with configurable options:
-
-```tsx
-import { useTypewriter, useDualTypewriter } from "@/lib/hooks/use-typewriter";
-
-// Single language
-const { displayedText, isComplete, skip, reset } = useTypewriter(text, {
-  speed: 30, // ms per character
-  delay: 500, // initial delay
-  jitter: 10, // random variation
-});
-
-// Dual language (synchronized)
-const { en, cn, isComplete, skip, reset } = useDualTypewriter(enText, cnText);
-```
-
 ### useHeartbeat
 
 Trigger heartbeat animation on success actions:
@@ -172,22 +159,24 @@ showToast("Processing...", "info"); // Blue
 
 ## Interaction Patterns
 
-### Envelope Modal
+### Photo Modal
 
-Photo modal uses envelope metaphor:
+Photo modal features smooth entrance animations and navigation:
 
-- **Flap Animation**: 3D transform on open (180° rotation)
-- **Staged Reveal**: Image → Title → Description with delays
-- **Typewriter Effect**: AI descriptions type out character-by-character
-- **Signature**: "With love" handwritten accent at bottom
+- **Spring Animation**: Natural feeling entrance with spring physics
+- **Staged Reveal**: Image → Date → Descriptions with staggered delays
+- **Fade-in Text**: Descriptions animate in with smooth fade and slide
+- **Navigation**: Prev/next buttons and keyboard arrows for browsing photos
+- **Responsive**: Touch-friendly on mobile, enhanced controls on desktop
 
 ### View Transitions
 
-Gallery view switching uses directional morphing:
+Gallery view switching uses directional morphing animations:
 
-- **Horizontal**: Masonry ↔ Floating (slide left/right)
+- **Horizontal**: Floating ↔ Masonry (slide left/right)
 - **Vertical**: Masonry ↔ Timeline (slide up/down)
-- **Diagonal**: Floating ↔ Timeline (combined)
+- **Diagonal**: Floating ↔ Timeline (combined movement)
+- **Blur Effect**: Subtle blur during transition for polish
 
 AnimatePresence with LayoutGroup ensures smooth layout animations.
 

@@ -60,22 +60,23 @@ Fluid scale using `clamp()` for responsive sizing without breakpoints.
 
 ### Interaction Design
 
-#### Typewriter Effect
+#### Photo Modal
 
-AI-generated descriptions animate character-by-character in the photo modal, creating an intimate "letter being written" experience. Click to skip the animation.
-
-#### Envelope Modal
-
-Photo modals feature a smooth, elegant opening animation:
+The photo modal provides an immersive viewing experience:
 
 - Spring physics for natural feeling motion
-- Content slides up with staged reveal
-- Typewriter effect for descriptions
-- Decorative "With love" signature
+- Staggered fade-in for descriptions (Chinese first, then English)
+- Previous/Next navigation with keyboard support (arrow keys)
+- Touch-friendly on mobile devices
 
 #### View Transitions
 
-Gallery views morph smoothly between layouts using Framer Motion's `AnimatePresence` and `LayoutGroup`. Directional animations slide based on view order.
+Gallery views morph smoothly between layouts using Framer Motion's `AnimatePresence` and `LayoutGroup`. Directional animations:
+
+- **Horizontal**: Floating ↔ Masonry (left/right slide)
+- **Vertical**: Masonry ↔ Timeline (up/down slide)
+- **Diagonal**: Floating ↔ Timeline (combined movement)
+- **Blur effect**: Subtle blur during transition for polish
 
 #### Toast Notifications
 

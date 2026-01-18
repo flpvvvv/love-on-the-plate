@@ -332,25 +332,28 @@ export default function AdminPage() {
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          {/* Link to gallery at top */}
-          <div className="mb-6">
+          {/* Top bar with navigation and sign out */}
+          <div className="flex items-center justify-between mb-6">
             <Link href="/" className="inline-flex items-center gap-2 text-accent hover:text-accent-hover transition-colors">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
               </svg>
               View Gallery
             </Link>
+            <div className="flex items-center gap-4">
+              {userEmail && (
+                <span className="text-sm text-ink-secondary hidden sm:inline">{userEmail}</span>
+              )}
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                Sign Out
+              </Button>
+            </div>
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="font-serif text-3xl font-semibold text-foreground">Upload Photo</h1>
-              <p className="text-muted mt-1">Share your culinary creations</p>
-            </div>
-            <Button variant="ghost" onClick={handleLogout}>
-              Sign Out
-            </Button>
+          <div className="mb-8">
+            <h1 className="font-serif text-3xl font-semibold text-foreground">Upload Photo</h1>
+            <p className="text-muted mt-1">Share your culinary creations</p>
           </div>
 
           {/* Upload Area */}

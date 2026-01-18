@@ -10,41 +10,71 @@ import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
 
 const VIEW_STORAGE_KEY = 'love-on-the-plate-view';
 
+// View order for directional transitions
+const VIEW_ORDER: GalleryView[] = ['floating', 'masonry', 'timeline'];
+
+// Get directional offset for view transitions
+function getViewTransition(from: GalleryView, to: GalleryView): { x: number; y: number } {
+  const fromIndex = VIEW_ORDER.indexOf(from);
+  const toIndex = VIEW_ORDER.indexOf(to);
+  
+  if (fromIndex === toIndex) return { x: 0, y: 0 };
+  
+  // floating -> masonry: horizontal right
+  // masonry -> floating: horizontal left
+  // masonry -> timeline: vertical down
+  // timeline -> masonry: vertical up
+  // floating -> timeline: diagonal (right + down)
+  // timeline -> floating: diagonal (left + up)
+  
+  const isForward = toIndex > fromIndex;
+  const isTimeline = to === 'timeline' || from === 'timeline';
+  const isFloating = to === 'floating' || from === 'floating';
+  
+  if (isTimeline && isFloating) {
+    // Diagonal transition
+    return { x: isForward ? 20 : -20, y: isForward ? 20 : -20 };
+  } else if (isTimeline) {
+    // Vertical transition (masonry <-> timeline)
+    return { x: 0, y: isForward ? 30 : -30 };
+  } else {
+    // Horizontal transition (floating <-> masonry)
+    return { x: isForward ? 30 : -30, y: 0 };
+  }
+}
+
 // View transition variants
 const viewTransitionVariants = {
-  initial: (direction: number) => ({
+  initial: (transition: { x: number; y: number }) => ({
     opacity: 0,
-    scale: direction === 0 ? 0.95 : 1,
-    x: direction * 30,
+    scale: 0.98,
+    x: transition.x,
+    y: transition.y,
+    filter: 'blur(4px)',
   }),
   animate: {
     opacity: 1,
     scale: 1,
     x: 0,
+    y: 0,
+    filter: 'blur(0px)',
     transition: {
-      duration: 0.35,
+      duration: 0.4,
       ease: [0.4, 0, 0.2, 1] as const,
     },
   },
-  exit: (direction: number) => ({
+  exit: (transition: { x: number; y: number }) => ({
     opacity: 0,
-    scale: direction === 0 ? 0.95 : 1,
-    x: direction * -30,
+    scale: 0.98,
+    x: -transition.x,
+    y: -transition.y,
+    filter: 'blur(4px)',
     transition: {
-      duration: 0.25,
+      duration: 0.3,
       ease: [0.4, 0, 0.2, 1] as const,
     },
   }),
 };
-
-// Get direction for view transitions
-function getViewDirection(from: GalleryView, to: GalleryView): number {
-  const order: GalleryView[] = ['floating', 'masonry', 'timeline'];
-  const fromIndex = order.indexOf(from);
-  const toIndex = order.indexOf(to);
-  if (fromIndex === toIndex) return 0;
-  return toIndex > fromIndex ? 1 : -1;
-}
 
 export function Gallery() {
   const [photos, setPhotos] = useState<PhotoWithUrls[]>([]);
@@ -171,7 +201,7 @@ export function Gallery() {
     }
   }, [selectedIndex, photos]);
 
-  const direction = getViewDirection(prevView, view);
+  const transition = getViewTransition(prevView, view);
 
   const renderGallery = () => {
     if (photos.length === 0 && !loading) {
@@ -215,10 +245,10 @@ export function Gallery() {
     };
 
     return (
-      <AnimatePresence mode="wait" custom={direction}>
+      <AnimatePresence mode="wait" custom={transition}>
         <motion.div
           key={view}
-          custom={direction}
+          custom={transition}
           variants={viewTransitionVariants}
           initial="initial"
           animate="animate"
