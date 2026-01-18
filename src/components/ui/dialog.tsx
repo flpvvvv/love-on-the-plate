@@ -49,12 +49,12 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
 
           {/* Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
-              'relative bg-background rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden',
+              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden',
               className
             )}
           >
@@ -70,7 +70,7 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
   return (
     <button
       onClick={onClose}
-      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-colors z-10"
+      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10 backdrop-blur-sm"
       aria-label="Close"
     >
       <svg

@@ -34,17 +34,17 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
             initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
             animate={{ opacity: 1, scale: scale, rotate: rotation }}
             whileHover={{
-              scale: 1.05,
+              scale: 1.08,
               rotate: 0,
               zIndex: 10,
-              transition: { duration: 0.2 },
+              transition: { duration: 0.25, ease: [0.34, 1.56, 0.64, 1] },
             }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
             onClick={() => onPhotoClick(photo)}
-            className="relative aspect-square focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-4 rounded-full"
+            className="relative aspect-square focus:outline-none focus-ring rounded-full"
           >
             {/* Plate shadow */}
-            <div className="absolute -inset-2 bg-black/10 dark:bg-black/30 rounded-full blur-lg transform translate-y-2" />
+            <div className="absolute -inset-2 bg-black/10 dark:bg-black/40 rounded-full blur-xl transform translate-y-3" />
 
             {/* Plate rim (outer ring) */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-gray-100 dark:from-gray-200 dark:to-gray-300 p-2 shadow-xl">
@@ -71,7 +71,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
             >
               {(photo.description_en || photo.description_cn) && (
-                <div className="text-white text-sm text-center px-4">
+                <div className="text-white text-caption text-center px-4">
                   {photo.description_cn && (
                     <p className="line-clamp-2">{photo.description_cn}</p>
                   )}

@@ -14,7 +14,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
   return (
     <div className="relative max-w-3xl mx-auto px-4 py-8">
       {/* Timeline line */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-accent/30 transform -translate-x-1/2" />
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-love/20 transform -translate-x-1/2" />
 
       {photos.map((photo, index) => {
         const isLeft = index % 2 === 0;
@@ -32,13 +32,13 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
             {/* Content */}
             <button
               onClick={() => onPhotoClick(photo)}
-              className={`w-5/12 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded-xl ${
+              className={`w-5/12 focus:outline-none focus-ring rounded-xl ${
                 isLeft ? 'pr-8 text-right' : 'pl-8 text-left'
               }`}
             >
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
+                className="bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 <div className="relative aspect-[4/3]">
                   <Image
@@ -51,16 +51,16 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                   />
                 </div>
                 <div className="p-4">
-                  <p className="text-xs text-muted mb-1">
+                  <p className="text-micro text-ink-tertiary mb-1">
                     {formatDate(photo.created_at)}
                   </p>
                   {photo.description_cn && (
-                    <p className="text-sm text-foreground line-clamp-2">
+                    <p className="text-caption text-ink line-clamp-2">
                       {photo.description_cn}
                     </p>
                   )}
                   {photo.description_en && (
-                    <p className="text-sm text-foreground/70 line-clamp-2 mt-1">
+                    <p className="text-caption text-ink-secondary line-clamp-2 mt-1">
                       {photo.description_en}
                     </p>
                   )}
@@ -74,7 +74,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
-                className="w-8 h-8 bg-accent rounded-full flex items-center justify-center shadow-lg"
+                className="w-8 h-8 bg-love rounded-full flex items-center justify-center shadow-lg"
               >
                 <svg
                   viewBox="0 0 24 24"

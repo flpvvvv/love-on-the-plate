@@ -64,6 +64,67 @@ src/
 - Image optimization (2000px full, 400px thumbnail)
 - Infinite scroll pagination
 - Dark/light mode
+- Mobile-first bottom navigation
+- Semantic design token system
+
+## Design System v2.0
+
+### Philosophy: "Intimate Minimalism Meets Culinary Poetry"
+
+Every pixel serves a purpose. Warmth over coldness. Motion as emotion.
+
+### Semantic Tokens
+
+Use these CSS custom properties (not raw colors):
+
+| Category    | Tokens                                                               |
+| ----------- | -------------------------------------------------------------------- |
+| **Canvas**  | `--canvas`, `--canvas-elevated`, `--canvas-recessed`                 |
+| **Ink**     | `--ink`, `--ink-secondary`, `--ink-tertiary`                         |
+| **Stroke**  | `--stroke`, `--stroke-emphasis`                                      |
+| **Brand**   | `--love`, `--love-soft`, `--love-intense`, `--warmth`, `--freshness` |
+| **Shadows** | `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-glow`         |
+
+### Typography Classes
+
+| Class           | Purpose                       |
+| --------------- | ----------------------------- |
+| `.font-display` | Headlines (Fraunces)          |
+| `.font-body`    | Body text (Plus Jakarta Sans) |
+| `.font-accent`  | Handwritten (Caveat)          |
+| `.text-hero`    | Largest display text          |
+| `.text-display` | Section headers               |
+| `.text-heading` | Card titles                   |
+| `.text-body`    | Primary content               |
+| `.text-caption` | Timestamps, metadata          |
+| `.text-micro`   | Badges, labels                |
+
+### Animation Classes
+
+| Class                 | Effect             |
+| --------------------- | ------------------ |
+| `.animate-heartbeat`  | Heart pulse effect |
+| `.animate-pulse-glow` | Glowing ring       |
+| `.animate-float`      | Gentle floating    |
+| `.animate-shimmer`    | Loading skeleton   |
+| `.animate-fade-in-up` | Entrance animation |
+| `.animate-scale-in`   | Scale entrance     |
+
+### Layout Utilities
+
+| Class           | Purpose                    |
+| --------------- | -------------------------- |
+| `.glass`        | Glass morphism background  |
+| `.focus-ring`   | Accessible focus indicator |
+| `.safe-bottom`  | Safe area inset for mobile |
+| `.hide-mobile`  | Hidden on mobile           |
+| `.hide-desktop` | Hidden on desktop          |
+
+### Responsive Architecture
+
+- **Mobile (<768px)**: Bottom navigation for view switching
+- **Desktop (≥768px)**: Header with sticky view switcher
+- Footer has `mb-16 md:mb-0` to accommodate bottom nav
 
 ## Bilingual Descriptions
 

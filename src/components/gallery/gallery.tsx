@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ViewSwitcher, PhotoCardSkeleton } from '@/components/ui';
+import { BottomNav } from '@/components/layout';
 import { PhotoModal } from './photo-modal';
 import { FloatingPlates, MasonryGrid, LoveTimeline } from './views';
 import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
@@ -159,9 +160,9 @@ export function Gallery() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* View Switcher */}
-      <div className="sticky top-16 z-30 bg-background/80 backdrop-blur-md border-b border-border py-3">
+    <div className="min-h-screen pb-20 md:pb-0">
+      {/* View Switcher - Desktop only */}
+      <div className="sticky top-16 z-30 glass border-b border-stroke py-3 hidden md:block">
         <div className="container mx-auto px-4 flex justify-center">
           <ViewSwitcher currentView={view} onViewChange={handleViewChange} />
         </div>
@@ -175,7 +176,7 @@ export function Gallery() {
         {hasMore && !loading && (
           <div ref={loadMoreRef} className="py-8 flex justify-center">
             {loadingMore && (
-              <div className="flex items-center gap-2 text-muted">
+              <div className="flex items-center gap-2 text-ink-secondary">
                 <svg
                   className="animate-spin h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
@@ -208,6 +209,13 @@ export function Gallery() {
         photo={selectedPhoto}
         open={!!selectedPhoto}
         onClose={() => setSelectedPhoto(null)}
+      />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav
+        currentView={view}
+        onViewChange={handleViewChange}
+        showViewSwitcher={true}
       />
     </div>
   );

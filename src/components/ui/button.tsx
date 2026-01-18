@@ -19,16 +19,16 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover',
-  secondary: 'bg-surface text-foreground hover:bg-surface-hover border border-border',
-  ghost: 'hover:bg-surface-hover text-foreground',
-  danger: 'bg-red-500 text-white hover:bg-red-600',
+  primary: 'bg-love text-white hover:bg-love-intense shadow-sm hover:shadow-md',
+  secondary: 'bg-canvas-elevated text-ink hover:bg-canvas-recessed border border-stroke',
+  ghost: 'hover:bg-canvas-recessed text-ink',
+  danger: 'bg-red-500 text-white hover:bg-red-600 shadow-sm',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  sm: 'px-3 py-1.5 text-caption',
+  md: 'px-4 py-2 text-body',
+  lg: 'px-6 py-3 text-subheading',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -40,7 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
         whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
         className={cn(
-          'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2',
+          'rounded-xl font-medium transition-all duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2',
           variantStyles[variant],
           sizeStyles[size],
           className

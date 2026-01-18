@@ -9,7 +9,54 @@ A beautiful webapp to document and celebrate homemade meals with AI-generated de
 - **Magic Link Auth**: Passwordless authentication for admin access
 - **Image Optimization**: Automatic resizing and thumbnail generation
 - **Dark/Light Mode**: Beautiful themes for any time of day
-- **Responsive Design**: Works great on mobile and desktop
+- **Responsive Design**: Mobile-first with premium desktop experience
+- **Modern Design System**: Semantic tokens, fluid typography, and refined animations
+
+## Design System v2.0
+
+### Philosophy: "Intimate Minimalism Meets Culinary Poetry"
+
+The design system balances radical minimalism with high-end functionality, creating an interface that feels like a love letter to home cooking.
+
+### Color Palette
+
+#### Light Mode: "Morning Kitchen"
+
+| Token               | Value     | Purpose                      |
+| ------------------- | --------- | ---------------------------- |
+| `--canvas`          | `#FFFBF8` | Warm white background        |
+| `--canvas-elevated` | `#FFFFFF` | Card surfaces                |
+| `--ink`             | `#1C1512` | Primary text                 |
+| `--ink-secondary`   | `#6B5B4F` | Secondary text               |
+| `--love`            | `#D94B38` | Primary accent (terracotta)  |
+| `--warmth`          | `#E8A86C` | Secondary accent (honey)     |
+| `--freshness`       | `#7BA085` | Tertiary accent (herb green) |
+
+#### Dark Mode: "Candlelit Dinner"
+
+| Token               | Value     | Purpose                        |
+| ------------------- | --------- | ------------------------------ |
+| `--canvas`          | `#0F0C0A` | Deep espresso background       |
+| `--canvas-elevated` | `#1A1512` | Elevated surfaces              |
+| `--ink`             | `#F5EEE8` | Primary text (cream)           |
+| `--love`            | `#FF7B68` | Brighter accent for visibility |
+
+### Typography
+
+| Font                  | Purpose                               |
+| --------------------- | ------------------------------------- |
+| **Fraunces**          | Display/headlines with optical sizing |
+| **Plus Jakarta Sans** | Body text and UI                      |
+| **Caveat**            | Handwritten accents                   |
+
+Fluid scale using `clamp()` for responsive sizing without breakpoints.
+
+### Responsive Architecture
+
+- **Mobile**: Bottom navigation with view switching, safe area support
+- **Desktop**: Traditional header with sticky view switcher
+- **Glass morphism** for floating UI elements
+- **Dynamic viewport units** (`dvh`) for true mobile heights
 
 ## Bilingual Descriptions
 

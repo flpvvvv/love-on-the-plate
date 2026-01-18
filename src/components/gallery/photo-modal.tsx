@@ -32,39 +32,39 @@ export function PhotoModal({ photo, open, onClose }: PhotoModalProps) {
         </div>
 
         {/* Details */}
-        <div className="w-full md:w-80 p-6 bg-background overflow-y-auto">
+        <div className="w-full md:w-80 p-6 bg-canvas overflow-y-auto">
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-muted uppercase tracking-wide mb-2">
+              <p className="text-micro text-ink-tertiary uppercase tracking-widest mb-3">
                 {formatDate(photo.created_at)}
               </p>
 
               {/* Chinese Description */}
               {photo.description_cn ? (
-                <div className="mb-3">
-                  <p className="text-foreground leading-relaxed">{photo.description_cn}</p>
+                <div className="mb-4">
+                  <p className="text-body text-ink leading-relaxed">{photo.description_cn}</p>
                 </div>
               ) : null}
 
               {/* English Description */}
               {photo.description_en ? (
-                <div className="pt-3 border-t border-border">
-                  <p className="text-foreground/80 leading-relaxed">{photo.description_en}</p>
+                <div className="pt-4 border-t border-stroke">
+                  <p className="text-body text-ink-secondary leading-relaxed">{photo.description_en}</p>
                 </div>
               ) : null}
 
               {/* No description fallback */}
               {!photo.description_en && !photo.description_cn && (
-                <p className="text-muted italic">No description yet</p>
+                <p className="text-ink-tertiary italic">No description yet</p>
               )}
             </div>
 
             {photo.captured_at && (
-              <div>
-                <p className="text-xs text-muted uppercase tracking-wide mb-1">
+              <div className="pt-4 border-t border-stroke">
+                <p className="text-micro text-ink-tertiary uppercase tracking-widest mb-1">
                   Photo taken
                 </p>
-                <p className="text-sm text-foreground">
+                <p className="text-caption text-ink">
                   {formatDate(photo.captured_at)}
                 </p>
               </div>

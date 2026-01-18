@@ -55,8 +55,8 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={cn(
-        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-colors text-center',
-        isDragging ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50',
+        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-all duration-200 text-center',
+        isDragging ? 'border-love bg-love-soft shadow-glow' : 'border-stroke hover:border-love/50',
         disabled && 'opacity-50 pointer-events-none'
       )}
     >
@@ -154,7 +154,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             </div>
             
             {/* Desktop drag and drop hint */}
-            <p className="text-xs text-muted pt-2 hidden sm:block">
+            <p className="text-micro text-ink-tertiary pt-2 hidden sm:block">
               or drag and drop an image here
             </p>
           </motion.div>

@@ -61,21 +61,21 @@ const views: { id: GalleryView; label: string; icon: ReactNode }[] = [
 
 export function ViewSwitcher({ currentView, onViewChange }: ViewSwitcherProps) {
   return (
-    <div className="inline-flex bg-surface border border-border rounded-xl p-1 gap-1">
+    <div className="inline-flex bg-canvas-elevated border border-stroke rounded-xl p-1 gap-1 shadow-sm">
       {views.map((view) => (
         <button
           key={view.id}
           onClick={() => onViewChange(view.id)}
           className={cn(
             'relative px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2',
-            currentView === view.id ? 'text-white' : 'text-muted hover:text-foreground'
+            currentView === view.id ? 'text-white' : 'text-ink-tertiary hover:text-ink'
           )}
           aria-label={`Switch to ${view.label} view`}
         >
           {currentView === view.id && (
             <motion.div
               layoutId="viewIndicator"
-              className="absolute inset-0 bg-accent rounded-lg"
+              className="absolute inset-0 bg-love rounded-lg shadow-sm"
               transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
             />
           )}
