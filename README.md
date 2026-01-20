@@ -64,10 +64,11 @@ Fluid scale using `clamp()` for responsive sizing without breakpoints.
 
 The photo modal provides an immersive viewing experience:
 
-- Spring physics for natural feeling motion
-- Staggered fade-in for descriptions (Chinese first, then English)
+- Unified spring physics for synchronized image and text transitions
+- Smooth swipe gestures on mobile with optimized drag elasticity
 - Previous/Next navigation with keyboard support (arrow keys)
 - Touch-friendly on mobile devices
+- Cohesive card animation (image and content move together)
 
 #### View Transitions
 

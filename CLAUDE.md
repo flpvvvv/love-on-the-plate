@@ -161,13 +161,13 @@ showToast("Processing...", "info"); // Blue
 
 ### Photo Modal
 
-Photo modal features smooth entrance animations and navigation:
+Photo modal features smooth, unified animations and navigation:
 
-- **Spring Animation**: Natural feeling entrance with spring physics
-- **Staged Reveal**: Image → Date → Descriptions with staggered delays
-- **Fade-in Text**: Descriptions animate in with smooth fade and slide
+- **Unified Spring Animation**: Image and text animate together as a cohesive unit (damping: 28, stiffness: 350, mass: 0.8)
+- **Smooth Swipe**: Optimized drag elasticity (0.15) with subtle rotate, scale, and opacity transforms
+- **Synchronized Transitions**: No staggered delays between elements for seamless photo switching
 - **Navigation**: Prev/next buttons and keyboard arrows for browsing photos
-- **Responsive**: Touch-friendly on mobile, enhanced controls on desktop
+- **Responsive**: Touch-friendly swipe on mobile, button controls on desktop
 
 ### View Transitions
 
