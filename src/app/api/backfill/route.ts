@@ -34,9 +34,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Otherwise, backfill all photos without dish names or descriptions
+    // Only fetch necessary fields for filtering
     const { data: photos, error: fetchError } = await serviceClient
       .from('photos')
-      .select('id, storage_path, dish_name, description_cn, description_en')
+      .select('id, dish_name, description_cn, description_en')
+      .or('dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.')
       .order('created_at', { ascending: false });
 
     if (fetchError) {
@@ -44,20 +46,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });
     }
 
-    // Filter to photos that need backfill (missing dish_name or descriptions)
-    const photosToBackfill = photos.filter(p => 
-      !p.dish_name || !p.description_cn || !p.description_en
-    );
-
     const results = {
-      total: photosToBackfill.length,
+      total: photos.length,
       success: 0,
       failed: 0,
       errors: [] as string[],
     };
 
     // Process photos one by one to avoid rate limiting
-    for (const photo of photosToBackfill) {
+    for (const photo of photos) {
       try {
         await backfillSinglePhoto(serviceClient, photo.id);
         results.success++;
@@ -150,26 +147,26 @@ export async function GET() {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    // Get all photos to check which need backfill
-    const { data: photos, error: fetchError } = await serviceClient
+    // Use efficient database counting instead of fetching all records
+    const { count: totalCount } = await serviceClient
       .from('photos')
-      .select('id, dish_name, description_cn, description_en');
+      .select('*', { count: 'exact', head: true });
 
-    if (fetchError) {
-      return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });
-    }
+    // Count photos missing ANY required field (dish_name, description_cn, or description_en)
+    // Using database-level filtering for efficiency with large datasets
+    const { count: needsBackfillCount } = await serviceClient
+      .from('photos')
+      .select('*', { count: 'exact', head: true })
+      .or('dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.');
 
-    // Count photos that need backfill (missing dish_name OR missing descriptions)
-    const needsBackfill = photos.filter(p => 
-      !p.dish_name || !p.description_cn || !p.description_en
-    ).length;
-
-    const complete = photos.length - needsBackfill;
+    const total = totalCount || 0;
+    const needsBackfill = needsBackfillCount || 0;
+    const complete = total - needsBackfill;
 
     return NextResponse.json({
       withDishName: complete,
       withoutDishName: needsBackfill,
-      total: photos.length,
+      total,
     });
   } catch (error) {
     console.error('Backfill status error:', error);
