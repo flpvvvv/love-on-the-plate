@@ -16,6 +16,14 @@ interface PhotoModalProps {
   hasNext?: boolean;
 }
 
+// Unified transition for smoother synchronized animations
+const cardTransition = {
+  type: 'spring' as const,
+  damping: 28,
+  stiffness: 350,
+  mass: 0.8,
+};
+
 // Navigation button component - only shown on desktop
 function NavButton({ 
   direction, 
@@ -69,15 +77,15 @@ export function PhotoModal({
   hasPrev = false, 
   hasNext = false 
 }: PhotoModalProps) {
-  const [showContent, setShowContent] = useState(false);
+  const [isFirstOpen, setIsFirstOpen] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const constraintsRef = useRef(null);
   
   // Motion values for swipe
   const x = useMotionValue(0);
-  const opacity = useTransform(x, [-200, 0, 200], [0.5, 1, 0.5]);
-  const scale = useTransform(x, [-200, 0, 200], [0.95, 1, 0.95]);
-  const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
+  const opacity = useTransform(x, [-200, 0, 200], [0.6, 1, 0.6]);
+  const scale = useTransform(x, [-200, 0, 200], [0.97, 1, 0.97]);
+  const rotate = useTransform(x, [-200, 0, 200], [-3, 0, 3]);
 
   // Swipe threshold
   const SWIPE_THRESHOLD = 80;
@@ -122,8 +130,8 @@ export function PhotoModal({
     if (open) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      // Delay content reveal for envelope animation
-      const timer = setTimeout(() => setShowContent(true), 400);
+      // Mark first open animation complete after initial animation
+      const timer = setTimeout(() => setIsFirstOpen(false), 500);
       return () => {
         clearTimeout(timer);
         document.removeEventListener('keydown', handleKeyDown);
@@ -133,35 +141,11 @@ export function PhotoModal({
     return undefined;
   }, [open, handleKeyDown]);
 
-  // Reset state when photo changes
-  useEffect(() => {
-    // Use timeout to avoid sync setState warning
-    const resetTimer = setTimeout(() => {
-      setShowContent(false);
-    }, 0);
-    
-    // Delay content reveal when switching photos
-    let showTimer: NodeJS.Timeout | undefined;
-    if (open && photo) {
-      showTimer = setTimeout(() => setShowContent(true), 200);
-    }
-    
-    return () => {
-      clearTimeout(resetTimer);
-      if (showTimer) clearTimeout(showTimer);
-    };
-  }, [photo, open]);
-
-  // Reset state when modal closes
+  // Reset first open state when modal closes
   useEffect(() => {
     if (!open) {
-      // Use timeout to avoid sync setState in render
-      const timer = setTimeout(() => {
-        setShowContent(false);
-      }, 0);
-      return () => clearTimeout(timer);
+      setIsFirstOpen(true);
     }
-    return undefined;
   }, [open]);
 
   if (!photo) return null;
@@ -222,23 +206,18 @@ export function PhotoModal({
           <motion.div
             key={photo.id}
             initial={{ 
-              y: 100, 
+              y: isFirstOpen ? 60 : 0, 
               opacity: 0, 
-              scale: 0.9,
-              x: swipeDirection === 'left' ? 100 : swipeDirection === 'right' ? -100 : 0
+              scale: 0.95,
+              x: swipeDirection === 'left' ? 50 : swipeDirection === 'right' ? -50 : 0
             }}
             animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
             exit={{ 
-              y: 50, 
               opacity: 0, 
-              scale: 0.95,
-              x: swipeDirection === 'left' ? -100 : swipeDirection === 'right' ? 100 : 0
+              scale: 0.98,
+              x: swipeDirection === 'left' ? -80 : swipeDirection === 'right' ? 80 : 0
             }}
-            transition={{
-              type: 'spring',
-              damping: 25,
-              stiffness: 300,
-            }}
+            transition={cardTransition}
             style={{ 
               x,
               opacity,
@@ -247,16 +226,13 @@ export function PhotoModal({
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
+            dragElastic={0.15}
             onDragEnd={handleDragEnd}
             dragListener={true}
             className="relative w-full max-w-4xl mx-2 md:mx-16 cursor-grab active:cursor-grabbing"
           >
             {/* Main Content Card - touchAction ensures swipe works on entire modal */}
-            <motion.div
-              initial={{ y: 30 }}
-              animate={{ y: 0 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
+            <div
               className="relative bg-canvas rounded-2xl shadow-xl overflow-hidden"
               style={{ touchAction: 'pan-y' }}
             >
@@ -280,10 +256,7 @@ export function PhotoModal({
 
               <div className="flex flex-col md:flex-row max-h-[85vh]">
                 {/* Image Section */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                <div
                   className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-black select-none"
                   style={{ touchAction: 'pan-y' }}
                 >
@@ -296,70 +269,40 @@ export function PhotoModal({
                     priority
                     draggable={false}
                   />
-                </motion.div>
+                </div>
 
                 {/* Details Section - "Letter" */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: showContent ? 1 : 0, x: showContent ? 0 : 20 }}
-                  transition={{ delay: 0.4, duration: 0.4 }}
+                <div
                   className="w-full md:w-80 p-6 bg-canvas overflow-y-auto select-none"
                   style={{ touchAction: 'pan-y' }}
                 >
                   <div className="space-y-4">
                     {/* Dish name - prominent display */}
-                    {photo.dish_name && showContent && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: 0.1 }}
-                      >
-                        <h2 className="font-display text-xl md:text-2xl font-semibold text-ink leading-snug">
-                          {photo.dish_name}
-                        </h2>
-                      </motion.div>
+                    {photo.dish_name && (
+                      <h2 className="font-display text-xl md:text-2xl font-semibold text-ink leading-snug">
+                        {photo.dish_name}
+                      </h2>
                     )}
 
                     {/* Date stamp */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: showContent ? 1 : 0, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="inline-block"
-                    >
-                      <p className="text-caption text-ink-tertiary">
-                        {formatDate(photo.created_at)}
-                      </p>
-                    </motion.div>
+                    <p className="text-caption text-ink-tertiary inline-block">
+                      {formatDate(photo.created_at)}
+                    </p>
 
                     {/* Descriptions - simple text display */}
                     <div className="space-y-4">
                       {/* Chinese Description */}
-                      {photo.description_cn && showContent && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: 0.2 }}
-                          className="mb-4"
-                        >
-                          <span className="text-body text-ink leading-relaxed block">
-                            {photo.description_cn}
-                          </span>
-                        </motion.div>
+                      {photo.description_cn && (
+                        <span className="text-body text-ink leading-relaxed block">
+                          {photo.description_cn}
+                        </span>
                       )}
 
                       {/* English Description */}
-                      {photo.description_en && showContent && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: photo.description_cn ? 0.4 : 0.2 }}
-                          className={photo.description_cn ? "pt-4 border-t border-stroke" : ""}
-                        >
-                          <span className="text-body text-ink-secondary leading-relaxed block">
-                            {photo.description_en}
-                          </span>
-                        </motion.div>
+                      {photo.description_en && (
+                        <span className={`text-body text-ink-secondary leading-relaxed block ${photo.description_cn ? "pt-4 border-t border-stroke" : ""}`}>
+                          {photo.description_en}
+                        </span>
                       )}
 
                       {/* No description fallback */}
@@ -369,20 +312,15 @@ export function PhotoModal({
                     </div>
 
                     {/* Decorative signature */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : 10 }}
-                      transition={{ delay: 1.2 }}
-                      className="pt-4 text-right"
-                    >
+                    <div className="pt-4 text-right">
                       <span className="font-accent text-lg text-ink-tertiary">
                         With love ♡
                       </span>
-                    </motion.div>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       )}
