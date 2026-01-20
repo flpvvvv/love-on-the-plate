@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -16,7 +16,7 @@ interface PhotoModalProps {
   hasNext?: boolean;
 }
 
-// Navigation button component
+// Navigation button component - only shown on desktop
 function NavButton({ 
   direction, 
   onClick, 
@@ -37,12 +37,12 @@ function NavButton({
       disabled={disabled}
       className={`
         absolute top-1/2 -translate-y-1/2 z-30
-        w-10 h-10 md:w-12 md:h-12
+        w-12 h-12
         rounded-full bg-black/40 hover:bg-black/60 
-        flex items-center justify-center 
+        hidden md:flex items-center justify-center 
         transition-all backdrop-blur-sm
         disabled:opacity-30 disabled:cursor-not-allowed
-        ${isPrev ? 'left-2 md:left-4' : 'right-2 md:right-4'}
+        ${isPrev ? 'left-4' : 'right-4'}
       `}
       aria-label={isPrev ? 'Previous photo' : 'Next photo'}
     >
@@ -52,9 +52,9 @@ function NavButton({
         viewBox="0 0 24 24"
         strokeWidth={2}
         stroke="white"
-        className={`w-5 h-5 md:w-6 md:h-6 ${isPrev ? '' : 'rotate-180'}`}
+        className="w-6 h-6"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d={isPrev ? "M15.75 19.5L8.25 12l7.5-7.5" : "M8.25 4.5l7.5 7.5-7.5 7.5"} />
       </svg>
     </button>
   );
@@ -70,6 +70,39 @@ export function PhotoModal({
   hasNext = false 
 }: PhotoModalProps) {
   const [showContent, setShowContent] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const constraintsRef = useRef(null);
+  
+  // Motion values for swipe
+  const x = useMotionValue(0);
+  const opacity = useTransform(x, [-200, 0, 200], [0.5, 1, 0.5]);
+  const scale = useTransform(x, [-200, 0, 200], [0.95, 1, 0.95]);
+  const rotate = useTransform(x, [-200, 0, 200], [-5, 0, 5]);
+
+  // Swipe threshold
+  const SWIPE_THRESHOLD = 80;
+
+  const handleDragEnd = useCallback(
+    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const offset = info.offset.x;
+      const velocity = info.velocity.x;
+      
+      // Combine offset and velocity for better UX
+      const swipe = offset + velocity * 0.2;
+      
+      if (swipe > SWIPE_THRESHOLD && hasPrev && onPrev) {
+        setSwipeDirection('right');
+        onPrev();
+      } else if (swipe < -SWIPE_THRESHOLD && hasNext && onNext) {
+        setSwipeDirection('left');
+        onNext();
+      }
+      
+      // Reset swipe direction after animation
+      setTimeout(() => setSwipeDirection(null), 300);
+    },
+    [hasPrev, hasNext, onPrev, onNext]
+  );
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
@@ -147,7 +180,7 @@ export function PhotoModal({
             onClick={onClose}
           />
 
-          {/* Navigation Buttons - Outside the card for better touch targets on mobile */}
+          {/* Navigation Buttons - Only visible on desktop */}
           {onPrev && (
             <NavButton direction="prev" onClick={onPrev} disabled={!hasPrev} />
           )}
@@ -155,17 +188,68 @@ export function PhotoModal({
             <NavButton direction="next" onClick={onNext} disabled={!hasNext} />
           )}
 
-          {/* Envelope Container */}
+          {/* Swipe hint indicators for mobile */}
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none md:hidden z-20">
+            {hasPrev && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                className="text-white/60"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+              </motion.div>
+            )}
+            <div className="flex-1" />
+            {hasNext && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                className="text-white/60"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Swipe constraints container */}
+          <div ref={constraintsRef} className="absolute inset-0 pointer-events-none" />
+
+          {/* Envelope Container - Swipeable on mobile */}
           <motion.div
-            initial={{ y: 100, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 50, opacity: 0, scale: 0.95 }}
+            key={photo.id}
+            initial={{ 
+              y: 100, 
+              opacity: 0, 
+              scale: 0.9,
+              x: swipeDirection === 'left' ? 100 : swipeDirection === 'right' ? -100 : 0
+            }}
+            animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
+            exit={{ 
+              y: 50, 
+              opacity: 0, 
+              scale: 0.95,
+              x: swipeDirection === 'left' ? -100 : swipeDirection === 'right' ? 100 : 0
+            }}
             transition={{
               type: 'spring',
               damping: 25,
               stiffness: 300,
             }}
-            className="relative w-full max-w-4xl mx-12 md:mx-16"
+            style={{ 
+              x,
+              opacity,
+              scale,
+              rotate,
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
+            className="relative w-full max-w-4xl mx-2 md:mx-16 touch-pan-y cursor-grab active:cursor-grabbing"
           >
             {/* Main Content Card */}
             <motion.div
