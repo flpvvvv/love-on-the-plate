@@ -161,13 +161,43 @@ showToast("Processing...", "info"); // Blue
 
 ### Photo Modal
 
-Photo modal features smooth, unified animations and navigation:
+Photo modal features smooth, unified animations and 3D card interactions:
 
-- **Unified Spring Animation**: Image and text animate together as a cohesive unit (damping: 28, stiffness: 350, mass: 0.8)
-- **Smooth Swipe**: Optimized drag elasticity (0.15) with subtle rotate, scale, and opacity transforms
-- **Synchronized Transitions**: No staggered delays between elements for seamless photo switching
+**Mobile Swipe Effects:**
+
+- **3D Perspective Rotation**: Card rotates on Y-axis (-15° to 15°) and Z-axis (-8° to 8°) during swipe, creating a realistic page-flip effect
+- **Dynamic Lift Effect**: Card rises (translateY: -15px) at drag midpoints, simulating physical card lift
+- **Responsive Shadow**: Shadow offset, blur, and opacity respond to swipe direction in real-time using `useTransform`
+- **Spring Physics**: Uses `useSpring` with damping: 25, stiffness: 400, mass: 0.5 for smooth 3D transforms
+- **Optimized Drag**: Elastic coefficient of 0.12 with 80px swipe threshold
+
+**Desktop Hover Effects:**
+
+- **3D Hover Tilt**: Card tilts based on mouse position (rotateY: ±8°, rotateX: ±6°) for an interactive, premium feel
+- **Spring-smoothed Mouse Tracking**: Mouse position smoothed with damping: 30, stiffness: 300, mass: 0.5
+- **Combined Transforms**: Hover tilt adds to swipe rotation for seamless interaction
+- **Auto-reset**: Card smoothly returns to neutral when mouse leaves
+
+**Shared:**
+
+- **Unified Animation**: Image and text animate together (damping: 28, stiffness: 350, mass: 0.8)
 - **Navigation**: Prev/next buttons and keyboard arrows for browsing photos
-- **Responsive**: Touch-friendly swipe on mobile, button controls on desktop
+- **Responsive**: Touch-friendly 3D swipe on mobile, hover tilt + button controls on desktop
+
+```tsx
+// Mobile swipe rotation
+const swipeRotateY = useTransform(smoothX, [-300, 0, 300], [-15, 0, 15]);
+
+// Desktop hover tilt
+const hoverRotateY = useTransform(smoothMouseX, [-0.5, 0.5], [8, -8]);
+const hoverRotateX = useTransform(smoothMouseY, [-0.5, 0.5], [-6, 6]);
+
+// Combined effect
+const combinedRotateY = useTransform(
+  [swipeRotateY, hoverRotateY],
+  ([swipe, hover]) => swipe + hover,
+);
+```
 
 ### View Transitions
 

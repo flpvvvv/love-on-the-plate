@@ -64,6 +64,10 @@ Fluid scale using `clamp()` for responsive sizing without breakpoints.
 
 The photo modal provides an immersive viewing experience:
 
+- **3D Card Rotation Effect**: Swipe gestures trigger realistic perspective rotation (rotateY + rotateZ) like flipping a physical card
+- **Desktop Hover Tilt**: Mouse position creates subtle 3D tilt effect (rotateY: ±8°, rotateX: ±6°) for interactive premium feel
+- **Dynamic Lift & Scale**: Cards rise and scale dynamically during drag for a tactile feel
+- **Responsive Shadow**: Shadow direction and intensity respond to swipe direction in real-time
 - Unified spring physics for synchronized image and text transitions
 - Smooth swipe gestures on mobile with optimized drag elasticity
 - Previous/Next navigation with keyboard support (arrow keys)

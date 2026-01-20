@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useState, useRef } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -22,6 +22,13 @@ const cardTransition = {
   damping: 28,
   stiffness: 350,
   mass: 0.8,
+};
+
+// Spring config for smooth 3D transforms
+const springConfig = {
+  damping: 25,
+  stiffness: 400,
+  mass: 0.5,
 };
 
 // Navigation button component - only shown on desktop
@@ -79,16 +86,106 @@ export function PhotoModal({
 }: PhotoModalProps) {
   const [isFirstOpen, setIsFirstOpen] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const constraintsRef = useRef(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   
-  // Motion values for swipe
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  // Motion values for swipe - raw values
   const x = useMotionValue(0);
-  const opacity = useTransform(x, [-200, 0, 200], [0.6, 1, 0.6]);
-  const scale = useTransform(x, [-200, 0, 200], [0.97, 1, 0.97]);
-  const rotate = useTransform(x, [-200, 0, 200], [-3, 0, 3]);
+  
+  // Desktop hover tilt effect - motion values for mouse position
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Smooth spring-based transforms for 3D card effect (mobile swipe)
+  const smoothX = useSpring(x, springConfig);
+  
+  // Desktop hover tilt - spring smoothed
+  const smoothMouseX = useSpring(mouseX, { damping: 30, stiffness: 300, mass: 0.5 });
+  const smoothMouseY = useSpring(mouseY, { damping: 30, stiffness: 300, mass: 0.5 });
+  
+  // Desktop hover rotations (subtle tilt based on mouse position)
+  const hoverRotateY = useTransform(smoothMouseX, [-0.5, 0.5], [8, -8]);
+  const hoverRotateX = useTransform(smoothMouseY, [-0.5, 0.5], [-6, 6]);
+  
+  // 3D perspective rotation - card rotates like flipping a page (mobile swipe)
+  const swipeRotateY = useTransform(smoothX, [-300, 0, 300], [-15, 0, 15]);
+  
+  // Combined rotateY: swipe effect + hover effect (hover is additive)
+  const combinedRotateY = useTransform(
+    [swipeRotateY, hoverRotateY],
+    ([swipe, hover]) => (swipe as number) + (hover as number)
+  );
+  
+  // Subtle tilt for natural feel
+  const rotateZ = useTransform(smoothX, [-300, 0, 300], [-8, 0, 8]);
+  
+  // Lift effect - card rises when dragged
+  const y = useTransform(
+    smoothX,
+    [-300, -100, 0, 100, 300],
+    [20, -15, 0, -15, 20]
+  );
+  
+  // Scale with asymmetry - slightly larger at center
+  const scale = useTransform(
+    smoothX,
+    [-300, -100, 0, 100, 300],
+    [0.92, 0.98, 1, 0.98, 0.92]
+  );
+  
+  // Opacity fade as card moves away
+  const opacity = useTransform(smoothX, [-300, 0, 300], [0.5, 1, 0.5]);
+  
+  // Dynamic shadow based on swipe direction
+  const shadowX = useTransform(smoothX, [-200, 0, 200], [40, 0, -40]);
+  const shadowBlur = useTransform(
+    smoothX, 
+    [-200, -50, 0, 50, 200], 
+    [60, 30, 20, 30, 60]
+  );
+  const shadowOpacity = useTransform(
+    smoothX,
+    [-200, -50, 0, 50, 200],
+    [0.4, 0.25, 0.15, 0.25, 0.4]
+  );
+  
+  // Pre-computed filter and background for shadow (avoids hook in JSX)
+  const shadowFilter = useTransform(shadowBlur, (blur) => `blur(${blur}px)`);
+  const shadowBackground = useTransform(shadowOpacity, (op) => `rgba(0, 0, 0, ${op})`);
 
   // Swipe threshold
   const SWIPE_THRESHOLD = 80;
+
+  // Desktop hover handler - track mouse position relative to card center
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Normalize to -0.5 to 0.5 range
+    const normalizedX = (e.clientX - centerX) / rect.width;
+    const normalizedY = (e.clientY - centerY) / rect.height;
+    
+    mouseX.set(normalizedX);
+    mouseY.set(normalizedY);
+  }, [mouseX, mouseY]);
+
+  const handleMouseLeave = useCallback(() => {
+    // Reset to center when mouse leaves
+    mouseX.set(0);
+    mouseY.set(0);
+  }, [mouseX, mouseY]);
 
   const handleDragEnd = useCallback(
     (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -112,15 +209,36 @@ export function PhotoModal({
     [hasPrev, hasNext, onPrev, onNext]
   );
 
+  // Handle button navigation with 3D effect
+  const handlePrevClick = useCallback(() => {
+    if (hasPrev && onPrev) {
+      setSwipeDirection('right');
+      onPrev();
+      setTimeout(() => setSwipeDirection(null), 300);
+    }
+  }, [hasPrev, onPrev]);
+
+  const handleNextClick = useCallback(() => {
+    if (hasNext && onNext) {
+      setSwipeDirection('left');
+      onNext();
+      setTimeout(() => setSwipeDirection(null), 300);
+    }
+  }, [hasNext, onNext]);
+
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       } else if (e.key === 'ArrowLeft' && hasPrev && onPrev) {
+        setSwipeDirection('right');
         onPrev();
+        setTimeout(() => setSwipeDirection(null), 300);
       } else if (e.key === 'ArrowRight' && hasNext && onNext) {
+        setSwipeDirection('left');
         onNext();
+        setTimeout(() => setSwipeDirection(null), 300);
       }
     },
     [onClose, onPrev, onNext, hasPrev, hasNext]
@@ -161,10 +279,10 @@ export function PhotoModal({
 
           {/* Navigation Buttons - Only visible on desktop */}
           {onPrev && (
-            <NavButton direction="prev" onClick={onPrev} disabled={!hasPrev} />
+            <NavButton direction="prev" onClick={handlePrevClick} disabled={!hasPrev} />
           )}
           {onNext && (
-            <NavButton direction="next" onClick={onNext} disabled={!hasNext} />
+            <NavButton direction="next" onClick={handleNextClick} disabled={!hasNext} />
           )}
 
           {/* Swipe hint indicators for mobile */}
@@ -197,40 +315,67 @@ export function PhotoModal({
           {/* Swipe constraints container */}
           <div ref={constraintsRef} className="absolute inset-0 pointer-events-none" />
 
-          {/* Envelope Container - Swipeable on mobile */}
-          <motion.div
-            key={photo.id}
-            initial={{ 
-              y: isFirstOpen ? 60 : 0, 
-              opacity: 0, 
-              scale: 0.95,
-              x: swipeDirection === 'left' ? 50 : swipeDirection === 'right' ? -50 : 0
-            }}
-            animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.98,
-              x: swipeDirection === 'left' ? -80 : swipeDirection === 'right' ? 80 : 0
-            }}
-            transition={cardTransition}
-            style={{ 
-              x,
-              opacity,
-              scale,
-              rotate,
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            onDragEnd={handleDragEnd}
-            dragListener={true}
-            className="relative w-full max-w-4xl mx-2 md:mx-16 cursor-grab active:cursor-grabbing"
+          {/* 3D Perspective Container */}
+          <div 
+            ref={cardRef}
+            className="relative w-full max-w-4xl mx-2 md:mx-16"
+            style={{ perspective: 1200 }}
+            onMouseMove={!isMobile ? handleMouseMove : undefined}
+            onMouseLeave={!isMobile ? handleMouseLeave : undefined}
           >
-            {/* Main Content Card - touchAction ensures swipe works on entire modal */}
-            <div
-              className="relative bg-canvas rounded-2xl shadow-xl overflow-hidden"
-              style={{ touchAction: 'pan-y' }}
+            {/* Envelope Container - 3D swipe on mobile, 3D button navigation + hover tilt on desktop */}
+            <motion.div
+              key={photo.id}
+              initial={{ 
+                y: isFirstOpen ? 60 : 0, 
+                opacity: 0, 
+                scale: 0.95,
+                rotateY: swipeDirection === 'left' ? 8 : swipeDirection === 'right' ? -8 : 0,
+                x: swipeDirection === 'left' ? 50 : swipeDirection === 'right' ? -50 : 0
+              }}
+              animate={{ y: 0, opacity: 1, scale: 1, rotateY: 0, rotateX: 0, x: 0 }}
+              exit={{ 
+                opacity: 0, 
+                scale: 0.95,
+                rotateY: swipeDirection === 'left' ? -15 : swipeDirection === 'right' ? 15 : 0,
+                x: swipeDirection === 'left' ? -120 : swipeDirection === 'right' ? 120 : 0
+              }}
+              transition={cardTransition}
+              style={{ 
+                // Mobile: apply swipe-based transforms; Desktop: apply hover tilt only
+                x: isMobile ? smoothX : 0,
+                y: isMobile ? y : 0,
+                opacity: isMobile ? opacity : 1,
+                scale: isMobile ? scale : 1,
+                rotateY: isMobile ? combinedRotateY : hoverRotateY,
+                rotateX: isMobile ? 0 : hoverRotateX,
+                rotateZ: isMobile ? rotateZ : 0,
+                transformStyle: 'preserve-3d',
+              }}
+              drag={isMobile ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.12}
+              onDragEnd={isMobile ? handleDragEnd : undefined}
+              className={`relative ${isMobile ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
             >
+              {/* Dynamic shadow layer - only on mobile during swipe */}
+              {isMobile && (
+                <motion.div
+                  className="absolute inset-0 rounded-2xl pointer-events-none"
+                  style={{
+                    x: shadowX,
+                    filter: shadowFilter,
+                    background: shadowBackground,
+                    transform: 'translateZ(-1px)',
+                  }}
+                />
+              )}
+              
+              {/* Main Content Card - touchAction ensures swipe works on entire modal */}
+              <div
+                className="relative bg-canvas rounded-2xl shadow-xl overflow-hidden"
+                style={{ touchAction: 'pan-y', transformStyle: 'preserve-3d' }}
+              >
               {/* Close Button */}
               <button
                 onClick={onClose}
@@ -317,6 +462,7 @@ export function PhotoModal({
               </div>
             </div>
           </motion.div>
+          </div>
         </div>
       )}
     </AnimatePresence>
