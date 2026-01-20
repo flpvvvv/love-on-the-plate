@@ -26,10 +26,10 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-display text-xl font-semibold text-ink leading-tight tracking-tight">
+            <span className="font-display text-lg sm:text-xl font-semibold text-ink leading-tight tracking-tight">
               Love on the Plate
             </span>
-            <span className="font-accent text-sm text-ink-secondary hidden sm:block">
+            <span className="font-accent text-caption text-ink-secondary hidden sm:block">
               Happy wife, happy life
             </span>
           </div>

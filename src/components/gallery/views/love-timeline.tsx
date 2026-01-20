@@ -51,16 +51,16 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                   />
                 </div>
                 <div className="p-4">
-                  <p className="text-micro text-ink-tertiary mb-1">
+                  <p className="text-caption text-ink-tertiary mb-1">
                     {formatDate(photo.created_at)}
                   </p>
                   {photo.dish_name && (
-                    <p className="text-sm font-medium text-ink mb-2 line-clamp-1">
+                    <p className="font-medium text-ink mb-2 line-clamp-1">
                       {photo.dish_name}
                     </p>
                   )}
                   {photo.description_cn && (
-                    <p className="text-caption text-ink line-clamp-2">
+                    <p className="text-caption text-ink-secondary line-clamp-2">
                       {photo.description_cn}
                     </p>
                   )}

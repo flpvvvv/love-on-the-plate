@@ -34,12 +34,12 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
         </div>
         <div className="p-3 space-y-1">
           {/* Date */}
-          <p className="text-micro text-ink-tertiary">
+          <p className="text-caption text-ink-tertiary">
             {formatDate(photo.created_at)}
           </p>
           {/* Dish name */}
           {photo.dish_name && (
-            <p className="text-sm font-medium text-ink line-clamp-1">{photo.dish_name}</p>
+            <p className="font-medium text-ink line-clamp-1">{photo.dish_name}</p>
           )}
           {/* Descriptions */}
           {photo.description_cn && (

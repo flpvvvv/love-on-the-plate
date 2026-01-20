@@ -314,20 +314,20 @@ export function PhotoModal({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: 0.1 }}
                       >
-                        <h2 className="font-serif text-2xl font-semibold text-ink">
+                        <h2 className="font-display text-xl md:text-2xl font-semibold text-ink leading-snug">
                           {photo.dish_name}
                         </h2>
                       </motion.div>
                     )}
 
-                    {/* Date stamp - like a postmark */}
+                    {/* Date stamp */}
                     <motion.div
-                      initial={{ opacity: 0, rotate: -5 }}
-                      animate={{ opacity: showContent ? 0.8 : 0, rotate: 0 }}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: showContent ? 1 : 0, y: 0 }}
                       transition={{ delay: 0.5 }}
                       className="inline-block"
                     >
-                      <p className="text-micro text-ink-tertiary uppercase tracking-widest font-accent text-lg">
+                      <p className="text-caption text-ink-tertiary">
                         {formatDate(photo.created_at)}
                       </p>
                     </motion.div>
@@ -375,7 +375,7 @@ export function PhotoModal({
                       transition={{ delay: 1.2 }}
                       className="pt-4 text-right"
                     >
-                      <span className="font-accent text-xl text-ink-tertiary">
+                      <span className="font-accent text-lg text-ink-tertiary">
                         With love ♡
                       </span>
                     </motion.div>

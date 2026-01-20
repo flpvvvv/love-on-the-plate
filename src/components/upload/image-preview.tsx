@@ -79,7 +79,7 @@ export function ImagePreview({
 
         {/* Dish Name */}
         <div>
-          <label htmlFor="dishName" className="block text-sm font-medium text-foreground mb-2">
+          <label htmlFor="dishName" className="block text-caption font-medium text-foreground mb-2">
             菜名 / Dish Name
           </label>
           <input
@@ -89,13 +89,13 @@ export function ImagePreview({
             onChange={(e) => onDishNameChange(e.target.value)}
             placeholder="AI 正在识别菜名..."
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted text-lg font-medium"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
           />
         </div>
 
         {/* Chinese Description */}
         <div>
-          <label htmlFor="descriptionCn" className="block text-sm font-medium text-foreground mb-2">
+          <label htmlFor="descriptionCn" className="block text-caption font-medium text-foreground mb-2">
             中文描述
           </label>
           <textarea
@@ -105,13 +105,13 @@ export function ImagePreview({
             placeholder="AI 正在生成中文描述..."
             rows={3}
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted leading-relaxed"
           />
         </div>
 
         {/* English Description */}
         <div>
-          <label htmlFor="descriptionEn" className="block text-sm font-medium text-foreground mb-2">
+          <label htmlFor="descriptionEn" className="block text-caption font-medium text-foreground mb-2">
             English Description
           </label>
           <textarea
@@ -121,7 +121,7 @@ export function ImagePreview({
             placeholder="AI is generating an English description..."
             rows={3}
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted leading-relaxed"
           />
         </div>
 

@@ -74,12 +74,12 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                 className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
               >
                 {(photo.dish_name || photo.description_cn || photo.description_en) && (
-                  <div className="text-white text-caption text-center px-4">
+                  <div className="text-white text-center px-4">
                     {photo.dish_name && (
-                      <p className="font-medium text-sm mb-1">{photo.dish_name}</p>
+                      <p className="font-medium mb-1">{photo.dish_name}</p>
                     )}
                     {photo.description_cn && (
-                      <p className="line-clamp-2 text-white/90">{photo.description_cn}</p>
+                      <p className="text-caption line-clamp-2 text-white/90">{photo.description_cn}</p>
                     )}
                   </div>
                 )}
@@ -89,9 +89,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
             {/* Dish name and date below plate */}
             <div className="mt-3 text-center">
               {photo.dish_name && (
-                <p className="text-sm font-medium text-ink line-clamp-1">{photo.dish_name}</p>
+                <p className="font-medium text-ink line-clamp-1">{photo.dish_name}</p>
               )}
-              <p className="text-micro text-ink-tertiary mt-0.5">
+              <p className="text-caption text-ink-tertiary mt-0.5">
                 {formatDate(photo.created_at)}
               </p>
             </div>
