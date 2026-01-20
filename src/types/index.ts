@@ -9,7 +9,7 @@ export interface Photo {
   file_size: number | null;
   width: number | null;
   height: number | null;
-  captured_at: string | null;
+
   created_at: string;
   updated_at: string;
   uploaded_by: string | null;

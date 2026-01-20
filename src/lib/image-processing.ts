@@ -5,7 +5,6 @@ interface ProcessedImage {
   thumbBuffer: Buffer;
   width: number;
   height: number;
-  capturedAt: Date | null;
 }
 
 const MAX_FULL_SIZE = 2000;
@@ -13,21 +12,8 @@ const THUMB_SIZE = 400;
 const JPEG_QUALITY = 80;
 
 export async function processImage(buffer: Buffer): Promise<ProcessedImage> {
-  // Get image metadata (includes EXIF)
+  // Get image metadata
   const metadata = await sharp(buffer).metadata();
-
-  // Extract capture date from EXIF if available
-  let capturedAt: Date | null = null;
-  if (metadata.exif) {
-    try {
-      // Sharp doesn't directly expose EXIF dates, but we can try to parse
-      // For production, consider using exif-reader package
-      // For now, we'll fall back to null
-      capturedAt = null;
-    } catch {
-      capturedAt = null;
-    }
-  }
 
   // Calculate dimensions for full image (maintain aspect ratio)
   const originalWidth = metadata.width || MAX_FULL_SIZE;
@@ -71,7 +57,6 @@ export async function processImage(buffer: Buffer): Promise<ProcessedImage> {
     thumbBuffer,
     width: fullWidth,
     height: fullHeight,
-    capturedAt,
   };
 }
 

@@ -54,7 +54,7 @@ src/
 ## Database Schema
 
 - `photos` table with RLS policies
-- Fields: `id`, `storage_path`, `thumbnail_path`, `description_en`, `description_cn`, `original_filename`, `file_size`, `width`, `height`, `captured_at`, `created_at`, `updated_at`, `uploaded_by`
+- Fields: `id`, `storage_path`, `thumbnail_path`, `description_en`, `description_cn`, `original_filename`, `file_size`, `width`, `height`, `created_at`, `updated_at`, `uploaded_by`
 - Public SELECT, authenticated INSERT/UPDATE/DELETE
 - Cursor-based pagination on `created_at`
 

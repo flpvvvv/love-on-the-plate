@@ -363,23 +363,6 @@ export function PhotoModal({
                       )}
                     </div>
 
-                    {/* Captured at */}
-                    {photo.captured_at && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: showContent ? 1 : 0 }}
-                        transition={{ delay: 0.8 }}
-                        className="pt-4 border-t border-stroke"
-                      >
-                        <p className="text-micro text-ink-tertiary uppercase tracking-widest mb-1">
-                          Photo taken
-                        </p>
-                        <p className="text-caption text-ink font-accent text-lg">
-                          {formatDate(photo.captured_at)}
-                        </p>
-                      </motion.div>
-                    )}
-
                     {/* Decorative signature */}
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}

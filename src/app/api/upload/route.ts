@@ -124,7 +124,6 @@ export async function POST(request: NextRequest) {
         file_size: fullBuffer.length,
         width,
         height,
-        captured_at: capturedAt?.toISOString() || null,
         uploaded_by: user.id,
       })
       .select()
