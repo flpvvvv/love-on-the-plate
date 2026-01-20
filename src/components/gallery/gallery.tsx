@@ -116,6 +116,14 @@ export function Gallery() {
       const response = await fetch(url.toString());
       if (!response.ok) throw new Error('Failed to fetch photos');
 
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 100));
+        throw new Error('Invalid response format');
+      }
+
       const data: PaginatedPhotos = await response.json();
       return data;
     } catch (error) {

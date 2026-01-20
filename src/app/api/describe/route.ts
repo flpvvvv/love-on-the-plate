@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { generateDescription } from '@/lib/gemini';
 
+// Allow longer processing time for AI description generation
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

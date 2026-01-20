@@ -97,10 +97,11 @@ export default function AdminPage() {
       setDescriptionCn('正在生成中文描述...');
 
       // Compress image on client side before sending
+      // Compress image for API - use smaller size to avoid request entity too large errors
       const compressedBase64 = await compressImage(file, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.85,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.7,
         format: 'image/jpeg',
       });
 
@@ -115,12 +116,22 @@ export default function AdminPage() {
         body: JSON.stringify({ imageBase64: compressedBase64 }),
       });
 
+      // Check content type before parsing JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response from describe:', text.substring(0, 200));
+        throw new Error('Server returned an invalid response. Image may be too large.');
+      }
+
       if (response.ok) {
         const data = await response.json();
         setDishName(data.dishName || '');
         setDescriptionEn(data.descriptionEn || '');
         setDescriptionCn(data.descriptionCn || '');
       } else {
+        const errorData = await response.json();
+        console.error('Describe API error:', errorData);
         setDishName('');
         setDescriptionEn('');
         setDescriptionCn('');
@@ -141,11 +152,11 @@ export default function AdminPage() {
     try {
       setRegenerating(true);
       
-      // Compress image before sending
+      // Compress image before sending - use smaller size for API
       const compressedBase64 = await compressImage(selectedFile, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.85,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.7,
         format: 'image/jpeg',
       });
 
@@ -154,6 +165,14 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64: compressedBase64 }),
       });
+
+      // Check content type before parsing JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response from describe:', text.substring(0, 200));
+        throw new Error('Server returned an invalid response. Image may be too large.');
+      }
 
       if (response.ok) {
         const data = await response.json();
