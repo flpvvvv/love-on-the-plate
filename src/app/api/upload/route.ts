@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Process image (resize and create thumbnail)
-    const { fullBuffer, thumbBuffer, width, height, capturedAt } = await processImage(buffer);
+    const { fullBuffer, thumbBuffer, width, height } = await processImage(buffer);
 
     // Generate unique ID for the photo
     const photoId = randomUUID();
