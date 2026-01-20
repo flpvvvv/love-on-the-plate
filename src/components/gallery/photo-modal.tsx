@@ -136,17 +136,12 @@ export function PhotoModal({
         clearTimeout(timer);
         document.removeEventListener('keydown', handleKeyDown);
         document.body.style.overflow = '';
+        // Reset first open state when modal closes
+        setIsFirstOpen(true);
       };
     }
     return undefined;
   }, [open, handleKeyDown]);
-
-  // Reset first open state when modal closes
-  useEffect(() => {
-    if (!open) {
-      setIsFirstOpen(true);
-    }
-  }, [open]);
 
   if (!photo) return null;
 
@@ -257,7 +252,7 @@ export function PhotoModal({
               <div className="flex flex-col md:flex-row max-h-[85vh]">
                 {/* Image Section */}
                 <div
-                  className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-black select-none"
+                  className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-canvas-recessed border-y-4 border-canvas-recessed select-none"
                   style={{ touchAction: 'pan-y' }}
                 >
                   <Image
