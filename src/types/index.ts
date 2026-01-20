@@ -2,6 +2,7 @@ export interface Photo {
   id: string;
   storage_path: string;
   thumbnail_path: string;
+  dish_name: string | null;
   description_en: string | null;
   description_cn: string | null;
   original_filename: string | null;

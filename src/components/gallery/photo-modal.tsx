@@ -286,7 +286,7 @@ export function PhotoModal({
                 >
                   <Image
                     src={photo.imageUrl}
-                    alt={photo.description_en || photo.description_cn || 'A homemade meal'}
+                    alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
                     fill
                     sizes="(max-width: 768px) 100vw, 60vw"
                     className="object-contain"
@@ -302,6 +302,19 @@ export function PhotoModal({
                   className="w-full md:w-80 p-6 bg-canvas overflow-y-auto"
                 >
                   <div className="space-y-4">
+                    {/* Dish name - prominent display */}
+                    {photo.dish_name && showContent && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                      >
+                        <h2 className="font-serif text-2xl font-semibold text-ink">
+                          {photo.dish_name}
+                        </h2>
+                      </motion.div>
+                    )}
+
                     {/* Date stamp - like a postmark */}
                     <motion.div
                       initial={{ opacity: 0, rotate: -5 }}

@@ -15,6 +15,7 @@ export default function AdminPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dishName, setDishName] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
   const [descriptionCn, setDescriptionCn] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -25,6 +26,8 @@ export default function AdminPage() {
   const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState<PhotoWithUrls | null>(null);
+  const [backfillStatus, setBackfillStatus] = useState<{ withDishName: number; withoutDishName: number; total: number } | null>(null);
+  const [backfilling, setBackfilling] = useState(false);
 
   // Check if user is admin
   useEffect(() => {
@@ -80,6 +83,7 @@ export default function AdminPage() {
 
   const handleFileSelect = useCallback(async (file: File) => {
     setSelectedFile(file);
+    setDishName('');
     setDescriptionEn('');
     setDescriptionCn('');
 
@@ -88,6 +92,7 @@ export default function AdminPage() {
       setRegenerating(true);
 
       // We'll generate descriptions during upload, just show preview for now
+      setDishName('识别菜名中...');
       setDescriptionEn('Generating English description...');
       setDescriptionCn('正在生成中文描述...');
 
@@ -112,14 +117,17 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json();
+        setDishName(data.dishName || '');
         setDescriptionEn(data.descriptionEn || '');
         setDescriptionCn(data.descriptionCn || '');
       } else {
+        setDishName('');
         setDescriptionEn('');
         setDescriptionCn('');
       }
     } catch (error) {
       console.error('Preview generation error:', error);
+      setDishName('');
       setDescriptionEn('');
       setDescriptionCn('');
     } finally {
@@ -149,6 +157,7 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json();
+        setDishName(data.dishName || '');
         setDescriptionEn(data.descriptionEn || '');
         setDescriptionCn(data.descriptionCn || '');
       }
@@ -182,6 +191,7 @@ export default function AdminPage() {
 
       // If user edited descriptions, update them
       const needsUpdate =
+        (dishName && dishName !== photo.dish_name) ||
         (descriptionEn && descriptionEn !== photo.description_en) ||
         (descriptionCn && descriptionCn !== photo.description_cn);
 
@@ -191,10 +201,12 @@ export default function AdminPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             photoId: photo.id,
+            dishName,
             descriptionEn,
             descriptionCn,
           }),
         });
+        photo.dish_name = dishName;
         photo.description_en = descriptionEn;
         photo.description_cn = descriptionCn;
       }
@@ -204,6 +216,7 @@ export default function AdminPage() {
 
       // Reset form
       setSelectedFile(null);
+      setDishName('');
       setDescriptionEn('');
       setDescriptionCn('');
 
@@ -218,10 +231,11 @@ export default function AdminPage() {
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, descriptionEn, descriptionCn, router, showToast]);
+  }, [selectedFile, dishName, descriptionEn, descriptionCn, router, showToast]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
+    setDishName('');
     setDescriptionEn('');
     setDescriptionCn('');
   }, []);
@@ -269,6 +283,51 @@ export default function AdminPage() {
     setDeleteModalOpen(false);
     setPhotoToDelete(null);
   }, []);
+
+  // Backfill handlers
+  const fetchBackfillStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/backfill');
+      if (response.ok) {
+        const data = await response.json();
+        setBackfillStatus(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch backfill status:', error);
+    }
+  }, []);
+
+  const handleBackfill = useCallback(async () => {
+    try {
+      setBackfilling(true);
+      const response = await fetch('/api/backfill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Backfill failed');
+      }
+
+      const result = await response.json();
+      showToast(`Backfill complete: ${result.success} succeeded, ${result.failed} failed`, 'success');
+      fetchBackfillStatus();
+    } catch (error) {
+      console.error('Backfill error:', error);
+      showToast(error instanceof Error ? error.message : 'Backfill failed', 'error');
+    } finally {
+      setBackfilling(false);
+    }
+  }, [showToast, fetchBackfillStatus]);
+
+  // Fetch backfill status when admin loads
+  useEffect(() => {
+    if (isAdmin) {
+      fetchBackfillStatus();
+    }
+  }, [isAdmin, fetchBackfillStatus]);
 
   // Loading state
   if (isAdmin === null) {
@@ -356,8 +415,10 @@ export default function AdminPage() {
           {selectedFile ? (
             <ImagePreview
               file={selectedFile}
+              dishName={dishName}
               descriptionEn={descriptionEn}
               descriptionCn={descriptionCn}
+              onDishNameChange={setDishName}
               onDescriptionEnChange={setDescriptionEn}
               onDescriptionCnChange={setDescriptionCn}
               onRegenerateDescription={handleRegenerateDescription}
@@ -412,6 +473,31 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Backfill Section */}
+          {backfillStatus && backfillStatus.withoutDishName > 0 && (
+            <div className="mt-12 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+              <h2 className="font-serif text-xl font-semibold text-foreground mb-2">
+                Backfill Missing Data
+              </h2>
+              <p className="text-muted mb-4">
+                {backfillStatus.withoutDishName} photo{backfillStatus.withoutDishName > 1 ? 's' : ''} missing dish name or descriptions
+                (out of {backfillStatus.total} total).
+              </p>
+              <Button 
+                onClick={handleBackfill} 
+                loading={backfilling}
+                disabled={backfilling}
+              >
+                {backfilling ? 'Generating with AI...' : 'Generate Missing Data with AI'}
+              </Button>
+              {backfilling && (
+                <p className="text-sm text-muted mt-2">
+                  This may take a while. Please don&apos;t close this page.
+                </p>
+              )}
             </div>
           )}
         </div>

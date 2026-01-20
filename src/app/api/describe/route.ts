@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     if (imageBase64) {
       const descriptions = await generateDescription(imageBase64);
       return NextResponse.json({
+        dishName: descriptions.dishName,
         descriptionEn: descriptions.en,
         descriptionCn: descriptions.cn,
       });
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await serviceClient
       .from('photos')
       .update({
+        dish_name: descriptions.dishName,
         description_en: descriptions.en,
         description_cn: descriptions.cn,
       })
@@ -76,6 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
+      dishName: descriptions.dishName,
       descriptionEn: descriptions.en,
       descriptionCn: descriptions.cn,
     });

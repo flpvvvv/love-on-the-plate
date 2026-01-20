@@ -97,10 +97,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate AI descriptions (English and Chinese)
+    let dishName = '';
     let descriptionEn = '';
     let descriptionCn = '';
     try {
       const descriptions = await generateDescription(bufferToBase64(fullBuffer));
+      dishName = descriptions.dishName;
       descriptionEn = descriptions.en;
       descriptionCn = descriptions.cn;
     } catch (descError) {
@@ -115,6 +117,7 @@ export async function POST(request: NextRequest) {
         id: photoId,
         storage_path: fullPath,
         thumbnail_path: thumbPath,
+        dish_name: dishName,
         description_en: descriptionEn,
         description_cn: descriptionCn,
         original_filename: file.name,

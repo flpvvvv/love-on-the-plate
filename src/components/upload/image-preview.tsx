@@ -7,8 +7,10 @@ import { Button } from '@/components/ui';
 
 interface ImagePreviewProps {
   file: File;
+  dishName: string;
   descriptionEn: string;
   descriptionCn: string;
+  onDishNameChange: (dishName: string) => void;
   onDescriptionEnChange: (description: string) => void;
   onDescriptionCnChange: (description: string) => void;
   onRegenerateDescription: () => void;
@@ -20,8 +22,10 @@ interface ImagePreviewProps {
 
 export function ImagePreview({
   file,
+  dishName,
   descriptionEn,
   descriptionCn,
+  onDishNameChange,
   onDescriptionEnChange,
   onDescriptionCnChange,
   onRegenerateDescription,
@@ -69,8 +73,24 @@ export function ImagePreview({
                 d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
               />
             </svg>
-            Regenerate Both
+            Regenerate All
           </Button>
+        </div>
+
+        {/* Dish Name */}
+        <div>
+          <label htmlFor="dishName" className="block text-sm font-medium text-foreground mb-2">
+            菜名 / Dish Name
+          </label>
+          <input
+            id="dishName"
+            type="text"
+            value={dishName}
+            onChange={(e) => onDishNameChange(e.target.value)}
+            placeholder="AI 正在识别菜名..."
+            disabled={uploading}
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted text-lg font-medium"
+          />
         </div>
 
         {/* Chinese Description */}

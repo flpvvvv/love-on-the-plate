@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface FloatingPlatesProps {
@@ -41,46 +42,59 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
             }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
             onClick={() => onPhotoClick(photo)}
-            className="relative aspect-square focus:outline-none focus-ring rounded-full"
+            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center"
           >
-            {/* Plate shadow */}
-            <div className="absolute -inset-2 bg-black/10 dark:bg-black/40 rounded-full blur-xl transform translate-y-3" />
+            {/* Plate container */}
+            <div className="relative aspect-square w-full">
+              {/* Plate shadow */}
+              <div className="absolute -inset-2 bg-black/10 dark:bg-black/40 rounded-full blur-xl transform translate-y-3" />
 
-            {/* Plate rim (outer ring) */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-gray-100 dark:from-gray-200 dark:to-gray-300 p-2 shadow-xl">
-              {/* Inner plate ring */}
-              <div className="absolute inset-3 rounded-full border-2 border-gray-200 dark:border-gray-300 opacity-50" />
+              {/* Plate rim (outer ring) */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-gray-100 dark:from-gray-200 dark:to-gray-300 p-2 shadow-xl">
+                {/* Inner plate ring */}
+                <div className="absolute inset-3 rounded-full border-2 border-gray-200 dark:border-gray-300 opacity-50" />
 
-              {/* Food image */}
-              <div className="relative w-full h-full rounded-full overflow-hidden">
-                <Image
-                  src={photo.thumbnailUrl}
-                  alt={photo.description_en || photo.description_cn || 'A homemade meal'}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover"
-                  priority={index < 4}
-                />
+                {/* Food image */}
+                <div className="relative w-full h-full rounded-full overflow-hidden">
+                  <Image
+                    src={photo.thumbnailUrl}
+                    alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover"
+                    priority={index < 4}
+                  />
+                </div>
               </div>
+
+              {/* Hover overlay with description */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
+              >
+                {(photo.dish_name || photo.description_cn || photo.description_en) && (
+                  <div className="text-white text-caption text-center px-4">
+                    {photo.dish_name && (
+                      <p className="font-medium text-sm mb-1">{photo.dish_name}</p>
+                    )}
+                    {photo.description_cn && (
+                      <p className="line-clamp-2 text-white/90">{photo.description_cn}</p>
+                    )}
+                  </div>
+                )}
+              </motion.div>
             </div>
 
-            {/* Hover overlay with description */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
-            >
-              {(photo.description_en || photo.description_cn) && (
-                <div className="text-white text-caption text-center px-4">
-                  {photo.description_cn && (
-                    <p className="line-clamp-2">{photo.description_cn}</p>
-                  )}
-                  {photo.description_en && (
-                    <p className="line-clamp-2 mt-1 text-white/80">{photo.description_en}</p>
-                  )}
-                </div>
+            {/* Dish name and date below plate */}
+            <div className="mt-3 text-center">
+              {photo.dish_name && (
+                <p className="text-sm font-medium text-ink line-clamp-1">{photo.dish_name}</p>
               )}
-            </motion.div>
+              <p className="text-micro text-ink-tertiary mt-0.5">
+                {formatDate(photo.created_at)}
+              </p>
+            </div>
           </motion.button>
         );
       })}

@@ -43,7 +43,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                 <div className="relative aspect-[4/3]">
                   <Image
                     src={photo.thumbnailUrl}
-                    alt={photo.description_en || photo.description_cn || 'A homemade meal'}
+                    alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
                     fill
                     sizes="(max-width: 768px) 100vw, 40vw"
                     className="object-cover"
@@ -54,14 +54,14 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                   <p className="text-micro text-ink-tertiary mb-1">
                     {formatDate(photo.created_at)}
                   </p>
+                  {photo.dish_name && (
+                    <p className="text-sm font-medium text-ink mb-2 line-clamp-1">
+                      {photo.dish_name}
+                    </p>
+                  )}
                   {photo.description_cn && (
                     <p className="text-caption text-ink line-clamp-2">
                       {photo.description_cn}
-                    </p>
-                  )}
-                  {photo.description_en && (
-                    <p className="text-caption text-ink-secondary line-clamp-2 mt-1">
-                      {photo.description_en}
                     </p>
                   )}
                 </div>

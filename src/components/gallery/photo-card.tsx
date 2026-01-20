@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface PhotoCardProps {
@@ -24,23 +25,27 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
         <div className="aspect-square relative overflow-hidden">
           <Image
             src={photo.thumbnailUrl}
-            alt={photo.description_en || photo.description_cn || 'A homemade meal'}
+            alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             priority={priority}
           />
         </div>
-        {(photo.description_en || photo.description_cn) && (
-          <div className="p-3 space-y-1">
-            {photo.description_cn && (
-              <p className="text-caption text-ink-secondary line-clamp-2">{photo.description_cn}</p>
-            )}
-            {photo.description_en && (
-              <p className="text-caption text-ink-tertiary line-clamp-2">{photo.description_en}</p>
-            )}
-          </div>
-        )}
+        <div className="p-3 space-y-1">
+          {/* Date */}
+          <p className="text-micro text-ink-tertiary">
+            {formatDate(photo.created_at)}
+          </p>
+          {/* Dish name */}
+          {photo.dish_name && (
+            <p className="text-sm font-medium text-ink line-clamp-1">{photo.dish_name}</p>
+          )}
+          {/* Descriptions */}
+          {photo.description_cn && (
+            <p className="text-caption text-ink-secondary line-clamp-2">{photo.description_cn}</p>
+          )}
+        </div>
       </div>
     </motion.button>
   );
