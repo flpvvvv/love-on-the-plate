@@ -50,9 +50,18 @@ export async function generateDescription(imageBase64: string): Promise<Bilingua
     ]);
 
     const response = await result.response;
-    const text = response.text().trim();
+    let text = response.text().trim();
 
   try {
+    // Remove markdown code blocks if present (LLM sometimes wraps JSON in ```json ... ```)
+    if (text.startsWith('```')) {
+      // Extract content between code blocks
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (match) {
+        text = match[1].trim();
+      }
+    }
+
     // Parse the JSON response
     const parsed = JSON.parse(text);
     return {

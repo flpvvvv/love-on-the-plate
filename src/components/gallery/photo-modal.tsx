@@ -249,14 +249,16 @@ export function PhotoModal({
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
-            className="relative w-full max-w-4xl mx-2 md:mx-16 touch-pan-y cursor-grab active:cursor-grabbing"
+            dragListener={true}
+            className="relative w-full max-w-4xl mx-2 md:mx-16 cursor-grab active:cursor-grabbing"
           >
-            {/* Main Content Card */}
+            {/* Main Content Card - touchAction ensures swipe works on entire modal */}
             <motion.div
               initial={{ y: 30 }}
               animate={{ y: 0 }}
               transition={{ delay: 0.2, duration: 0.4 }}
               className="relative bg-canvas rounded-2xl shadow-xl overflow-hidden"
+              style={{ touchAction: 'pan-y' }}
             >
               {/* Close Button */}
               <button
@@ -282,15 +284,17 @@ export function PhotoModal({
                   initial={{ opacity: 0, scale: 1.02 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-black"
+                  className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-black select-none"
+                  style={{ touchAction: 'pan-y' }}
                 >
                   <Image
                     src={photo.imageUrl}
                     alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
                     fill
                     sizes="(max-width: 768px) 100vw, 60vw"
-                    className="object-contain"
+                    className="object-contain pointer-events-none"
                     priority
+                    draggable={false}
                   />
                 </motion.div>
 
@@ -299,7 +303,8 @@ export function PhotoModal({
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: showContent ? 1 : 0, x: showContent ? 0 : 20 }}
                   transition={{ delay: 0.4, duration: 0.4 }}
-                  className="w-full md:w-80 p-6 bg-canvas overflow-y-auto"
+                  className="w-full md:w-80 p-6 bg-canvas overflow-y-auto select-none"
+                  style={{ touchAction: 'pan-y' }}
                 >
                   <div className="space-y-4">
                     {/* Dish name - prominent display */}
