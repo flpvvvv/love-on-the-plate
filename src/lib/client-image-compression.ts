@@ -11,9 +11,9 @@ export interface CompressionOptions {
 }
 
 const DEFAULT_OPTIONS: Required<CompressionOptions> = {
-  maxWidth: 1280,
-  maxHeight: 1280,
-  quality: 0.7,
+  maxWidth: 1920,
+  maxHeight: 1920,
+  quality: 0.8,
   format: 'image/jpeg',
 };
 
@@ -70,10 +70,22 @@ export async function compressImage(
 
         // Convert to compressed format
         const dataUrl = canvas.toDataURL(opts.format, opts.quality);
-        
+
+        // Validate dataUrl format
+        if (!dataUrl || !dataUrl.includes(',')) {
+          reject(new Error('Failed to compress image. Please try a different image or refresh the page.'));
+          return;
+        }
+
         // Remove the "data:image/jpeg;base64," prefix
         const base64 = dataUrl.split(',')[1];
-        
+
+        // Validate base64 extraction
+        if (!base64 || base64.length === 0) {
+          reject(new Error('Failed to process image data. Please try again.'));
+          return;
+        }
+
         resolve(base64);
       };
 

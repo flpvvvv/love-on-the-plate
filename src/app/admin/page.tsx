@@ -96,12 +96,11 @@ export default function AdminPage() {
       setDescriptionEn('Generating English description...');
       setDescriptionCn('正在生成中文描述...');
 
-      // Compress image on client side before sending
-      // Compress image for API - use smaller size to avoid request entity too large errors
+      // Compress image on client side before sending to API
       const compressedBase64 = await compressImage(file, {
-        maxWidth: 1280,
-        maxHeight: 1280,
-        quality: 0.7,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.8,
         format: 'image/jpeg',
       });
 
@@ -121,7 +120,7 @@ export default function AdminPage() {
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('Non-JSON response from describe:', text.substring(0, 200));
-        throw new Error('Server returned an invalid response. Image may be too large.');
+        throw new Error('Server returned an invalid response. Please try again.');
       }
 
       if (response.ok) {
@@ -132,31 +131,46 @@ export default function AdminPage() {
       } else {
         const errorData = await response.json();
         console.error('Describe API error:', errorData);
+
+        // Show user-friendly error message
+        const errorMessage = errorData.error || 'Failed to generate description';
+
+        // Special handling for rate limit
+        if (errorData.code === 'RATE_LIMIT') {
+          showToast(errorMessage, 'error');
+        } else if (errorData.isRetryable) {
+          showToast(`${errorMessage} Try again in a moment.`, 'error');
+        } else {
+          showToast(errorMessage, 'error');
+        }
+
         setDishName('');
         setDescriptionEn('');
         setDescriptionCn('');
       }
     } catch (error) {
       console.error('Preview generation error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process image';
+      showToast(errorMessage, 'error');
       setDishName('');
       setDescriptionEn('');
       setDescriptionCn('');
     } finally {
       setRegenerating(false);
     }
-  }, []);
+  }, [showToast]);
 
   const handleRegenerateDescription = useCallback(async () => {
     if (!selectedFile) return;
 
     try {
       setRegenerating(true);
-      
+
       // Compress image before sending - use smaller size for API
       const compressedBase64 = await compressImage(selectedFile, {
-        maxWidth: 1280,
-        maxHeight: 1280,
-        quality: 0.7,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.8,
         format: 'image/jpeg',
       });
 
@@ -171,7 +185,7 @@ export default function AdminPage() {
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('Non-JSON response from describe:', text.substring(0, 200));
-        throw new Error('Server returned an invalid response. Image may be too large.');
+        throw new Error('Server returned an invalid response. Please try again.');
       }
 
       if (response.ok) {
@@ -179,13 +193,21 @@ export default function AdminPage() {
         setDishName(data.dishName || '');
         setDescriptionEn(data.descriptionEn || '');
         setDescriptionCn(data.descriptionCn || '');
+        showToast('Descriptions regenerated!', 'success');
+      } else {
+        const errorData = await response.json();
+        console.error('Regenerate API error:', errorData);
+        const errorMessage = errorData.error || 'Failed to regenerate description';
+        showToast(errorMessage, 'error');
       }
     } catch (error) {
       console.error('Regenerate error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to regenerate description';
+      showToast(errorMessage, 'error');
     } finally {
       setRegenerating(false);
     }
-  }, [selectedFile]);
+  }, [selectedFile, showToast]);
 
   const handleUpload = useCallback(async () => {
     if (!selectedFile) return;
@@ -201,12 +223,35 @@ export default function AdminPage() {
         body: formData,
       });
 
+      // Check content type before parsing JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response from upload:', text.substring(0, 200));
+
+        // Check for common HTTP errors
+        if (response.status === 413) {
+          throw new Error('Image file is too large. Please try a smaller image.');
+        } else if (response.status === 401) {
+          throw new Error('Session expired. Please sign in again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to upload photos.');
+        } else {
+          throw new Error('Upload failed. Please check your connection and try again.');
+        }
+      }
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
       }
 
       const photo: PhotoWithUrls = await response.json();
+
+      // Show warning if AI description was skipped
+      if ('warning' in photo && photo.warning) {
+        showToast(photo.warning as string, 'info');
+      }
 
       // If user edited descriptions, update them
       const needsUpdate =
@@ -215,19 +260,30 @@ export default function AdminPage() {
         (descriptionCn && descriptionCn !== photo.description_cn);
 
       if (needsUpdate) {
-        await fetch('/api/photos', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            photoId: photo.id,
-            dishName,
-            descriptionEn,
-            descriptionCn,
-          }),
-        });
-        photo.dish_name = dishName;
-        photo.description_en = descriptionEn;
-        photo.description_cn = descriptionCn;
+        try {
+          const patchResponse = await fetch('/api/photos', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              photoId: photo.id,
+              dishName,
+              descriptionEn,
+              descriptionCn,
+            }),
+          });
+
+          if (patchResponse.ok) {
+            photo.dish_name = dishName;
+            photo.description_en = descriptionEn;
+            photo.description_cn = descriptionCn;
+          } else {
+            console.error('Failed to update descriptions');
+            // Don't fail the whole upload, just log it
+          }
+        } catch (patchError) {
+          console.error('Description update error:', patchError);
+          // Don't fail the whole upload, just log it
+        }
       }
 
       // Add to recent photos
@@ -241,12 +297,13 @@ export default function AdminPage() {
 
       // Show success toast with heartbeat
       showToast('Photo uploaded with love!', 'success');
-      
+
       // Redirect to main gallery after successful upload
       router.push('/');
     } catch (error) {
       console.error('Upload error:', error);
-      showToast(error instanceof Error ? error.message : 'Upload failed', 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed. Please try again.';
+      showToast(errorMessage, 'error');
     } finally {
       setUploading(false);
     }

@@ -279,3 +279,95 @@ Required environment variables (see `.env.example`):
 - API routes validate authentication before mutations
 - File uploads are validated for type and size
 - Image processing uses Sharp for secure handling
+
+## Error Handling
+
+### Gemini API Errors
+
+The `GeminiError` class (`src/lib/gemini.ts`) provides structured error handling for AI operations:
+
+```tsx
+import { GeminiError } from '@/lib/gemini';
+
+// Error properties
+error.code;        // Error code (e.g., 'RATE_LIMIT')
+error.userMessage; // User-friendly message
+error.isRetryable; // Whether the operation can be retried
+```
+
+**Error Codes:**
+
+| Code | Description | User Message |
+|------|-------------|--------------|
+| `RATE_LIMIT` | Free tier quota exceeded | "AI service is temporarily busy. Free tier limit reached. Please wait a moment and try again." |
+| `AUTH_ERROR` | Invalid API key | "AI service authentication failed. Please contact support." |
+| `CONTENT_BLOCKED` | Safety filter triggered | "Image could not be analyzed. Please try a different photo." |
+| `SERVICE_UNAVAILABLE` | Gemini API down (503) | "AI service is temporarily unavailable. Please try again later." |
+| `PAYLOAD_TOO_LARGE` | Request too large | "Image is too large to process. Please try a smaller image." |
+| `TIMEOUT` | Request timeout | "AI service took too long to respond. Please try again." |
+| `NETWORK_ERROR` | Connection issues | "Network connection issue. Please check your internet and try again." |
+| `INVALID_INPUT` | Missing/invalid base64 | "No image data provided." |
+| `EMPTY_RESPONSE` | AI returned nothing | "AI returned an empty response. Please try again." |
+| `UNKNOWN_ERROR` | Catch-all | "Failed to generate description. Please try again." |
+
+### API Error Response Format
+
+All API routes return consistent error responses:
+
+```json
+{
+  "error": "User-friendly error message",
+  "code": "ERROR_CODE",
+  "isRetryable": true
+}
+```
+
+**HTTP Status Codes:**
+
+- `400` - Bad request (invalid input, missing data)
+- `401` - Unauthorized (session expired)
+- `403` - Forbidden (not admin)
+- `404` - Not found
+- `429` - Rate limit exceeded (Gemini free tier)
+- `500` - Server error
+
+### Client-Side Image Compression
+
+Located in `src/lib/client-image-compression.ts`:
+
+```tsx
+import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
+
+const base64 = await compressImage(file, {
+  maxWidth: 1920,   // Default: 1920px
+  maxHeight: 1920,  // Default: 1920px
+  quality: 0.8,     // Default: 0.8 (80%)
+  format: 'image/jpeg',
+});
+```
+
+**Validation:** The compression function validates:
+- Canvas context creation success
+- DataURL format (must contain comma separator)
+- Base64 extraction (must not be empty)
+
+Throws descriptive errors on failure for user feedback.
+
+### Frontend Error Display
+
+Errors are displayed via the Toast system:
+
+```tsx
+const { showToast } = useToast();
+
+// API errors are parsed and displayed
+if (response.status === 429) {
+  showToast('AI service is temporarily busy. Free tier limit reached.', 'error');
+}
+```
+
+**Rate Limit Handling:** When Gemini rate limits are hit:
+1. Description generation is skipped
+2. Photo still uploads successfully
+3. User sees info toast: "AI description skipped (rate limit). You can regenerate it later."
+4. User can regenerate descriptions later from admin panel

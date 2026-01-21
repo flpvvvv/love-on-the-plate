@@ -108,6 +108,32 @@ The bilingual descriptions are displayed throughout the app:
 
 Both descriptions can be edited before upload and regenerated using the "Regenerate Both" button.
 
+## Error Handling & Rate Limits
+
+### Gemini Free Tier
+
+If using Google Gemini's free tier, you may encounter rate limits. The app handles this gracefully:
+
+- **During preview**: Shows a clear error message: "AI service is temporarily busy. Free tier limit reached."
+- **During upload**: Photo uploads successfully, with a note that AI descriptions can be regenerated later
+- **All errors** are displayed with user-friendly messages via toast notifications
+
+### Common Error Messages
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "AI service is temporarily busy..." | Gemini rate limit | Wait a moment and try again |
+| "Session expired. Please sign in again." | Auth cookie lost | Re-login via magic link |
+| "Image file is too large." | File > 10MB | Use a smaller image |
+| "Failed to compress image..." | Browser issue | Try a different browser or refresh |
+
+### Mobile Upload
+
+Mobile uploads are fully supported with:
+- Client-side image compression (1920x1920 @ 80% quality)
+- Robust error handling for network issues
+- Clear feedback for all error states
+
 ## Getting Started
 
 ### Prerequisites

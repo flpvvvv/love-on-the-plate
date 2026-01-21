@@ -2,6 +2,101 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
 
+/**
+ * Custom error class for Gemini API errors with user-friendly messages
+ */
+export class GeminiError extends Error {
+  public readonly code: string;
+  public readonly userMessage: string;
+  public readonly isRetryable: boolean;
+
+  constructor(code: string, userMessage: string, isRetryable: boolean = false) {
+    super(userMessage);
+    this.name = 'GeminiError';
+    this.code = code;
+    this.userMessage = userMessage;
+    this.isRetryable = isRetryable;
+  }
+}
+
+/**
+ * Parse Gemini API errors and return user-friendly error messages
+ */
+function parseGeminiError(error: unknown): GeminiError {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const errorString = errorMessage.toLowerCase();
+
+  // Rate limit errors
+  if (errorString.includes('429') || errorString.includes('rate limit') || errorString.includes('quota') || errorString.includes('resource exhausted')) {
+    return new GeminiError(
+      'RATE_LIMIT',
+      'AI service is temporarily busy. Free tier limit reached. Please wait a moment and try again.',
+      true
+    );
+  }
+
+  // Invalid API key
+  if (errorString.includes('401') || errorString.includes('api key') || errorString.includes('unauthorized') || errorString.includes('invalid_api_key')) {
+    return new GeminiError(
+      'AUTH_ERROR',
+      'AI service authentication failed. Please contact support.',
+      false
+    );
+  }
+
+  // Content safety / blocked
+  if (errorString.includes('blocked') || errorString.includes('safety') || errorString.includes('harm')) {
+    return new GeminiError(
+      'CONTENT_BLOCKED',
+      'Image could not be analyzed. Please try a different photo.',
+      false
+    );
+  }
+
+  // Model unavailable
+  if (errorString.includes('503') || errorString.includes('unavailable') || errorString.includes('overloaded')) {
+    return new GeminiError(
+      'SERVICE_UNAVAILABLE',
+      'AI service is temporarily unavailable. Please try again later.',
+      true
+    );
+  }
+
+  // Request too large
+  if (errorString.includes('413') || errorString.includes('too large') || errorString.includes('payload')) {
+    return new GeminiError(
+      'PAYLOAD_TOO_LARGE',
+      'Image is too large to process. Please try a smaller image.',
+      false
+    );
+  }
+
+  // Timeout
+  if (errorString.includes('timeout') || errorString.includes('deadline')) {
+    return new GeminiError(
+      'TIMEOUT',
+      'AI service took too long to respond. Please try again.',
+      true
+    );
+  }
+
+  // Network errors
+  if (errorString.includes('network') || errorString.includes('econnrefused') || errorString.includes('fetch')) {
+    return new GeminiError(
+      'NETWORK_ERROR',
+      'Network connection issue. Please check your internet and try again.',
+      true
+    );
+  }
+
+  // Generic/unknown error
+  return new GeminiError(
+    'UNKNOWN_ERROR',
+    'Failed to generate description. Please try again.',
+    true
+  );
+}
+
 const DESCRIPTION_PROMPT = `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
 
 Analyze this food photo and provide:
@@ -36,13 +131,19 @@ export interface BilingualDescription {
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 
 export async function generateDescription(imageBase64: string): Promise<BilingualDescription> {
+  // Validate input
+  if (!imageBase64 || imageBase64.length === 0) {
+    throw new GeminiError('INVALID_INPUT', 'No image data provided.', false);
+  }
+
   const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL;
   const model = genAI.getGenerativeModel({ model: modelName });
 
-  const result = await model.generateContent([
-    DESCRIPTION_PROMPT,
-    {
-      inlineData: {
+  try {
+    const result = await model.generateContent([
+      DESCRIPTION_PROMPT,
+      {
+        inlineData: {
           mimeType: 'image/jpeg',
           data: imageBase64,
         },
@@ -52,29 +153,43 @@ export async function generateDescription(imageBase64: string): Promise<Bilingua
     const response = await result.response;
     let text = response.text().trim();
 
-  try {
-    // Remove markdown code blocks if present (LLM sometimes wraps JSON in ```json ... ```)
-    if (text.startsWith('```')) {
-      // Extract content between code blocks
-      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (match) {
-        text = match[1].trim();
-      }
+    // Handle empty response
+    if (!text) {
+      throw new GeminiError('EMPTY_RESPONSE', 'AI returned an empty response. Please try again.', true);
     }
 
-    // Parse the JSON response
-    const parsed = JSON.parse(text);
-    return {
-      dishName: parsed.dishName || '',
-      en: parsed.en || '',
-      cn: parsed.cn || '',
-    };
-  } catch {
-    // Fallback: if parsing fails, use the text as English description
-    return {
-      dishName: '',
-      en: text,
-      cn: '',
-    };
+    try {
+      // Remove markdown code blocks if present (LLM sometimes wraps JSON in ```json ... ```)
+      if (text.startsWith('```')) {
+        // Extract content between code blocks
+        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (match) {
+          text = match[1].trim();
+        }
+      }
+
+      // Parse the JSON response
+      const parsed = JSON.parse(text);
+      return {
+        dishName: parsed.dishName || '',
+        en: parsed.en || '',
+        cn: parsed.cn || '',
+      };
+    } catch {
+      // Fallback: if parsing fails, use the text as English description
+      return {
+        dishName: '',
+        en: text,
+        cn: '',
+      };
+    }
+  } catch (error) {
+    // If it's already a GeminiError, rethrow it
+    if (error instanceof GeminiError) {
+      throw error;
+    }
+
+    // Parse and convert to GeminiError
+    throw parseGeminiError(error);
   }
 }
