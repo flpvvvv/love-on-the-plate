@@ -8,13 +8,14 @@ import { Header, Footer } from '@/components/layout';
 import { UploadZone, ImagePreview } from '@/components/upload';
 import { Button, Dialog, useToast } from '@/components/ui';
 import { createClient } from '@/lib/supabase/client';
-import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
+import { compressImage, formatFileSize, getBase64Size, COMPRESSION_PRESETS, base64ToBlob } from '@/lib/client-image-compression';
 import type { PhotoWithUrls } from '@/types';
 
 export default function AdminPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [compressedForUpload, setCompressedForUpload] = useState<string | null>(null);
   const [dishName, setDishName] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
   const [descriptionCn, setDescriptionCn] = useState('');
@@ -83,6 +84,7 @@ export default function AdminPage() {
 
   const handleFileSelect = useCallback(async (file: File) => {
     setSelectedFile(file);
+    setCompressedForUpload(null);
     setDishName('');
     setDescriptionEn('');
     setDescriptionCn('');
@@ -96,23 +98,23 @@ export default function AdminPage() {
       setDescriptionEn('Generating English description...');
       setDescriptionCn('正在生成中文描述...');
 
-      // Compress image on client side before sending to API
-      const compressedBase64 = await compressImage(file, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.8,
-        format: 'image/jpeg',
-      });
+      // Compress for upload (1920px - higher quality for storage)
+      const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
+      setCompressedForUpload(uploadBase64);
+
+      // Compress for AI (1280px - smaller/faster for description)
+      const aiBase64 = await compressImage(file, COMPRESSION_PRESETS.ai);
 
       const originalSize = formatFileSize(file.size);
-      const compressedSize = formatFileSize(getBase64Size(compressedBase64));
-      console.log(`Image compressed: ${originalSize} → ${compressedSize}`);
+      const uploadSize = formatFileSize(getBase64Size(uploadBase64));
+      const aiSize = formatFileSize(getBase64Size(aiBase64));
+      console.log(`Image compressed: ${originalSize} → upload: ${uploadSize}, AI: ${aiSize}`);
 
-      // Call describe endpoint with compressed base64 image
+      // Call describe endpoint with AI-compressed base64 image (smaller/faster)
       const response = await fetch('/api/describe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: compressedBase64 }),
+        body: JSON.stringify({ imageBase64: aiBase64 }),
       });
 
       // Check content type before parsing JSON
@@ -210,13 +212,23 @@ export default function AdminPage() {
   }, [selectedFile, showToast]);
 
   const handleUpload = useCallback(async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !compressedForUpload) return;
 
     try {
       setUploading(true);
 
+      // Convert compressed base64 to File for upload
+      const blob = base64ToBlob(compressedForUpload, 'image/jpeg');
+      const compressedFile = new File(
+        [blob],
+        selectedFile.name.replace(/\.[^.]+$/, '.jpg'),
+        { type: 'image/jpeg' }
+      );
+
+      console.log(`Uploading compressed file: ${formatFileSize(compressedFile.size)}`);
+
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('file', compressedFile);
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -291,6 +303,7 @@ export default function AdminPage() {
 
       // Reset form
       setSelectedFile(null);
+      setCompressedForUpload(null);
       setDishName('');
       setDescriptionEn('');
       setDescriptionCn('');
@@ -307,10 +320,11 @@ export default function AdminPage() {
     } finally {
       setUploading(false);
     }
-  }, [selectedFile, dishName, descriptionEn, descriptionCn, router, showToast]);
+  }, [selectedFile, compressedForUpload, dishName, descriptionEn, descriptionCn, router, showToast]);
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
+    setCompressedForUpload(null);
     setDishName('');
     setDescriptionEn('');
     setDescriptionCn('');

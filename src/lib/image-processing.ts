@@ -7,7 +7,7 @@ interface ProcessedImage {
   height: number;
 }
 
-const MAX_FULL_SIZE = 2000;
+const MAX_FULL_SIZE = 1920; // Match client-side compression preset
 const THUMB_SIZE = 400;
 const JPEG_QUALITY = 80;
 

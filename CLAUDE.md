@@ -63,7 +63,7 @@ src/
 - Three gallery views: Floating Plates, Masonry Grid, Love Timeline
 - Magic link authentication
 - **Bilingual AI descriptions** (English + Chinese)
-- Image optimization (2000px full, 400px thumbnail)
+- Image optimization (1920px full, 400px thumbnail) with two-tier client-side compression
 - Infinite scroll pagination
 - Dark/light mode with logo adaptation
 - Mobile-first bottom navigation
@@ -335,16 +335,30 @@ All API routes return consistent error responses:
 
 Located in `src/lib/client-image-compression.ts`:
 
-```tsx
-import { compressImage, formatFileSize, getBase64Size } from '@/lib/client-image-compression';
+**Two-Tier Compression Presets:**
 
-const base64 = await compressImage(file, {
-  maxWidth: 1920,   // Default: 1920px
-  maxHeight: 1920,  // Default: 1920px
-  quality: 0.8,     // Default: 0.8 (80%)
-  format: 'image/jpeg',
-});
+| Preset | Resolution | Quality | Purpose | Typical Size |
+|--------|------------|---------|---------|--------------|
+| `upload` | 1920x1920 | 0.8 | Stored in Supabase | ~500KB-1.5MB |
+| `ai` | 1280x1280 | 0.7 | Sent to Gemini API | ~200-600KB |
+
+```tsx
+import { compressImage, COMPRESSION_PRESETS, base64ToBlob, formatFileSize } from '@/lib/client-image-compression';
+
+// Compress for storage (higher quality)
+const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
+
+// Compress for AI (smaller/faster)
+const aiBase64 = await compressImage(file, COMPRESSION_PRESETS.ai);
+
+// Convert base64 to Blob for FormData upload
+const blob = base64ToBlob(uploadBase64, 'image/jpeg');
+const compressedFile = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
 ```
+
+**Why Two Tiers?**
+- **Upload tier**: High-quality images stored in Supabase for gallery display
+- **AI tier**: Smaller images for faster AI description generation and reduced API costs
 
 **Validation:** The compression function validates:
 - Canvas context creation success

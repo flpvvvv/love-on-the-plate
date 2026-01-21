@@ -18,6 +18,31 @@ const DEFAULT_OPTIONS: Required<CompressionOptions> = {
 };
 
 /**
+ * Compression presets for different use cases
+ */
+export const COMPRESSION_PRESETS = {
+  /** For uploading to Supabase storage - higher quality */
+  upload: { maxWidth: 1920, maxHeight: 1920, quality: 0.8, format: 'image/jpeg' as const },
+  /** For AI description generation - smaller/faster */
+  ai: { maxWidth: 1280, maxHeight: 1280, quality: 0.7, format: 'image/jpeg' as const },
+} as const;
+
+/**
+ * Convert base64 string to Blob for FormData upload
+ * @param base64 Base64 encoded string (without data:image prefix)
+ * @param mimeType MIME type of the image
+ * @returns Blob object
+ */
+export function base64ToBlob(base64: string, mimeType: string = 'image/jpeg'): Blob {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Uint8Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  return new Blob([byteNumbers], { type: mimeType });
+}
+
+/**
  * Compress an image file on the client side
  * @param file Original image file
  * @param options Compression options

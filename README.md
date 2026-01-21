@@ -7,7 +7,7 @@ A beautiful webapp to document and celebrate homemade meals with AI-generated de
 - **Three Gallery Views**: Floating Plates, Masonry Grid, and Love Timeline
 - **Bilingual AI Descriptions**: Automatically generate warm, descriptive captions in both English and Chinese using Google Gemini
 - **Magic Link Auth**: Passwordless authentication for admin access
-- **Image Optimization**: Automatic resizing and thumbnail generation
+- **Image Optimization**: Two-tier client-side compression + server thumbnail generation
 - **Dark/Light Mode**: Beautiful themes for any time of day
 - **Responsive Design**: Mobile-first with premium desktop experience
 - **Modern Design System**: Semantic tokens, fluid typography, and refined animations
@@ -127,12 +127,20 @@ If using Google Gemini's free tier, you may encounter rate limits. The app handl
 | "Image file is too large." | File > 10MB | Use a smaller image |
 | "Failed to compress image..." | Browser issue | Try a different browser or refresh |
 
-### Mobile Upload
+### Mobile Upload & Image Compression
 
-Mobile uploads are fully supported with:
-- Client-side image compression (1920x1920 @ 80% quality)
-- Robust error handling for network issues
-- Clear feedback for all error states
+Mobile uploads are fully supported with two-tier client-side compression:
+
+| Tier | Resolution | Quality | Purpose |
+|------|------------|---------|---------|
+| **Upload** | 1920x1920 | 80% | Stored in Supabase (~500KB-1.5MB) |
+| **AI** | 1280x1280 | 70% | Sent to Gemini API (~200-600KB) |
+
+This approach:
+- Prevents 413 errors on Vercel (4.5MB body limit)
+- Reduces bandwidth usage on mobile
+- Speeds up AI description generation
+- Maintains high-quality stored images
 
 ## Getting Started
 
