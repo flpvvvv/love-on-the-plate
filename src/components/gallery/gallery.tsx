@@ -334,6 +334,8 @@ export function Gallery() {
         onNext={handleNextPhoto}
         hasPrev={selectedIndex > 0}
         hasNext={selectedIndex < photos.length - 1}
+        prevPhotoUrl={selectedIndex > 0 ? photos[selectedIndex - 1]?.imageUrl : undefined}
+        nextPhotoUrl={selectedIndex < photos.length - 1 ? photos[selectedIndex + 1]?.imageUrl : undefined}
       />
 
       {/* Mobile Bottom Navigation */}
