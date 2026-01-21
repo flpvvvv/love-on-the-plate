@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { isValidUUID } from '@/lib/validation';
 
 const PAGE_SIZE = 12;
 
@@ -81,6 +82,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Photo ID required' }, { status: 400 });
     }
 
+    // Validate UUID format
+    if (!isValidUUID(photoId)) {
+      return NextResponse.json({ error: 'Invalid photo ID format' }, { status: 400 });
+    }
+
     // Use service client for the update
     const serviceClient = await createServiceClient();
 
@@ -139,6 +145,11 @@ export async function DELETE(request: NextRequest) {
 
     if (!photoId) {
       return NextResponse.json({ error: 'Photo ID required' }, { status: 400 });
+    }
+
+    // Validate UUID format
+    if (!isValidUUID(photoId)) {
+      return NextResponse.json({ error: 'Invalid photo ID format' }, { status: 400 });
     }
 
     const serviceClient = await createServiceClient();

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { generateDescription } from '@/lib/gemini';
+import { isValidUUID } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +30,10 @@ export async function POST(request: NextRequest) {
 
     // If a specific photoId is provided, only backfill that one
     if (photoId) {
+      // Validate UUID format
+      if (!isValidUUID(photoId)) {
+        return NextResponse.json({ error: 'Invalid photo ID format' }, { status: 400 });
+      }
       const result = await backfillSinglePhoto(serviceClient, photoId);
       return NextResponse.json(result);
     }
@@ -60,9 +65,14 @@ export async function POST(request: NextRequest) {
         results.success++;
       } catch (error) {
         results.failed++;
-        results.errors.push(`${photo.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        // Sanitize error message - only include safe, expected errors
+        const safeErrors = ['Photo not found', 'Failed to fetch image', 'Failed to update photo'];
+        const errorMsg = error instanceof Error && safeErrors.includes(error.message)
+          ? error.message
+          : 'Processing failed';
+        results.errors.push(`Photo ${results.failed}: ${errorMsg}`);
       }
-      
+
       // Add a small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 500));
     }

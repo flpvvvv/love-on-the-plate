@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { generateDescription, GeminiError } from '@/lib/gemini';
+import { isValidUUID, isValidBase64Image, MAX_BASE64_LENGTH } from '@/lib/validation';
 
 // Allow longer processing time for AI description generation
 export const maxDuration = 60;
@@ -15,6 +16,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Please sign in to continue.', code: 'UNAUTHORIZED' },
         { status: 401 }
+      );
+    }
+
+    // Check if user is admin (required for AI description generation)
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required.', code: 'FORBIDDEN' },
+        { status: 403 }
       );
     }
 
@@ -33,10 +48,14 @@ export async function POST(request: NextRequest) {
 
     // Option 1: Generate description from base64 image (for preview)
     if (imageBase64) {
-      // Validate base64 data
-      if (typeof imageBase64 !== 'string' || imageBase64.length === 0) {
+      // Validate base64 data with size limit
+      if (!isValidBase64Image(imageBase64)) {
+        const sizeError = typeof imageBase64 === 'string' && imageBase64.length > MAX_BASE64_LENGTH;
         return NextResponse.json(
-          { error: 'Invalid image data provided.', code: 'INVALID_IMAGE' },
+          {
+            error: sizeError ? 'Image too large to process.' : 'Invalid image data provided.',
+            code: sizeError ? 'PAYLOAD_TOO_LARGE' : 'INVALID_IMAGE'
+          },
           { status: 400 }
         );
       }
@@ -69,6 +88,14 @@ export async function POST(request: NextRequest) {
     if (!photoId) {
       return NextResponse.json(
         { error: 'Photo ID or image data required.', code: 'MISSING_DATA' },
+        { status: 400 }
+      );
+    }
+
+    // Validate UUID format
+    if (!isValidUUID(photoId)) {
+      return NextResponse.json(
+        { error: 'Invalid photo ID format.', code: 'INVALID_ID' },
         { status: 400 }
       );
     }

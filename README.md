@@ -255,6 +255,19 @@ This approach:
 - **Storage**: Supabase Storage
 - **AI**: Google Gemini (gemini-2.0-flash)
 
+## Security
+
+This application implements several security measures:
+
+- **Input Validation**: UUID format validation for all photo IDs, base64 size limits
+- **Authentication**: Magic link auth via Supabase with admin role verification
+- **Authorization**: Role-based access control (admin required for uploads/AI generation)
+- **Open Redirect Prevention**: Auth callback validates redirect URLs against allowlist
+- **File Validation**: Type and size limits on uploads
+- **Error Sanitization**: Internal errors are sanitized before client response
+- **Parameterized Queries**: Supabase client prevents SQL injection
+- **RLS Policies**: Database-level access control
+
 ## License
 
 MIT

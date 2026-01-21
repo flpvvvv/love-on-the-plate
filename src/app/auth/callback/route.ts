@@ -1,10 +1,31 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+// Allowlist of valid redirect paths to prevent open redirect attacks
+const ALLOWED_PATHS = ['/', '/admin', '/admin/login'];
+
+function getSafeRedirectPath(next: string | null): string {
+  const defaultPath = '/admin';
+
+  if (!next) return defaultPath;
+
+  // Must start with / but not // (which would redirect to external site)
+  if (!next.startsWith('/') || next.startsWith('//')) {
+    return defaultPath;
+  }
+
+  // Check against allowlist (exact match or starts with allowed path + /)
+  const isAllowed = ALLOWED_PATHS.some(
+    (path) => next === path || next.startsWith(`${path}/`) || next.startsWith(`${path}?`)
+  );
+
+  return isAllowed ? next : defaultPath;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/admin';
+  const next = getSafeRedirectPath(searchParams.get('next'));
 
   if (code) {
     const supabase = await createClient();

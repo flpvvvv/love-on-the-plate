@@ -280,6 +280,47 @@ Required environment variables (see `.env.example`):
 - File uploads are validated for type and size
 - Image processing uses Sharp for secure handling
 
+## Security
+
+### Input Validation
+
+Located in `src/lib/validation.ts`:
+
+```tsx
+import { isValidUUID, isValidBase64Image, MAX_BASE64_LENGTH } from '@/lib/validation';
+
+// UUID validation
+if (!isValidUUID(photoId)) {
+  return NextResponse.json({ error: 'Invalid photo ID format' }, { status: 400 });
+}
+
+// Base64 image validation with size limit (~10MB)
+if (!isValidBase64Image(imageBase64)) {
+  return NextResponse.json({ error: 'Invalid image data' }, { status: 400 });
+}
+```
+
+### Auth Callback Security
+
+The `/auth/callback` route validates redirect URLs against an allowlist to prevent open redirect attacks:
+
+```tsx
+const ALLOWED_PATHS = ['/', '/admin', '/admin/login'];
+// Validates: starts with /, not //, matches allowlist
+```
+
+### Authorization Matrix
+
+| Endpoint | Auth Required | Admin Required |
+|----------|--------------|----------------|
+| `GET /api/photos` | No | No |
+| `PATCH /api/photos` | Yes | No (owner only) |
+| `DELETE /api/photos` | Yes | Yes or owner |
+| `POST /api/upload` | Yes | Yes |
+| `POST /api/describe` | Yes | Yes |
+| `POST /api/backfill` | Yes | Yes |
+| `GET /api/backfill` | Yes | Yes |
+
 ## Error Handling
 
 ### Gemini API Errors
