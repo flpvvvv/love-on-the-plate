@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useState, useRef } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, useAnimation, PanInfo } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -16,18 +16,27 @@ interface PhotoModalProps {
   hasNext?: boolean;
 }
 
-// Unified transition for smoother synchronized animations
-const cardTransition = {
+// Buttery smooth spring - feels like iOS
+const fluidSpring = {
   type: 'spring' as const,
-  damping: 28,
-  stiffness: 350,
+  damping: 30,
+  stiffness: 200,
+  mass: 1,
+};
+
+// Snappy spring for quick responses
+const snappySpring = {
+  type: 'spring' as const,
+  damping: 40,
+  stiffness: 400,
   mass: 0.8,
 };
 
-// Spring config for smooth 3D transforms
-const springConfig = {
-  damping: 25,
-  stiffness: 400,
+// Exit animation - fast and smooth
+const exitSpring = {
+  type: 'spring' as const,
+  damping: 50,
+  stiffness: 300,
   mass: 0.5,
 };
 
@@ -75,21 +84,22 @@ function NavButton({
   );
 }
 
-export function PhotoModal({ 
-  photo, 
-  open, 
-  onClose, 
-  onPrev, 
-  onNext, 
-  hasPrev = false, 
-  hasNext = false 
+export function PhotoModal({
+  photo,
+  open,
+  onClose,
+  onPrev,
+  onNext,
+  hasPrev = false,
+  hasNext = false
 }: PhotoModalProps) {
   const [isFirstOpen, setIsFirstOpen] = useState(true);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [exitDirection, setExitDirection] = useState<number>(0);
   const [isMobile, setIsMobile] = useState(false);
-  const constraintsRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  
+  const controls = useAnimation();
+
   // Detect mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -97,165 +107,222 @@ export function PhotoModal({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
-  // Motion values for swipe - raw values
+
+  // Motion value for drag position - this is the raw input
   const x = useMotionValue(0);
-  
-  // Desktop hover tilt effect - motion values for mouse position
+
+  // Much smoother spring for following the drag
+  const smoothX = useSpring(x, {
+    damping: 50,    // High damping = less oscillation
+    stiffness: 500, // High stiffness = responsive
+    mass: 0.3       // Low mass = snappy
+  });
+
+  // Desktop hover tilt effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
-  // Smooth spring-based transforms for 3D card effect (mobile swipe)
-  const smoothX = useSpring(x, springConfig);
-  
-  // Desktop hover tilt - spring smoothed
   const smoothMouseX = useSpring(mouseX, { damping: 30, stiffness: 300, mass: 0.5 });
   const smoothMouseY = useSpring(mouseY, { damping: 30, stiffness: 300, mass: 0.5 });
-  
-  // Desktop hover rotations (subtle tilt based on mouse position)
+
+  // Desktop hover rotations
   const hoverRotateY = useTransform(smoothMouseX, [-0.5, 0.5], [8, -8]);
   const hoverRotateX = useTransform(smoothMouseY, [-0.5, 0.5], [-6, 6]);
-  
-  // 3D perspective rotation - card rotates like flipping a page (mobile swipe)
-  const swipeRotateY = useTransform(smoothX, [-300, 0, 300], [-15, 0, 15]);
-  
-  // Combined rotateY: swipe effect + hover effect (hover is additive)
-  const combinedRotateY = useTransform(
-    [swipeRotateY, hoverRotateY],
-    ([swipe, hover]) => (swipe as number) + (hover as number)
-  );
-  
-  // Subtle tilt for natural feel
-  const rotateZ = useTransform(smoothX, [-300, 0, 300], [-8, 0, 8]);
-  
-  // Lift effect - card rises when dragged
-  const y = useTransform(
-    smoothX,
-    [-300, -100, 0, 100, 300],
-    [20, -15, 0, -15, 20]
-  );
-  
-  // Scale with asymmetry - slightly larger at center
+
+  // Get screen width for calculations
+  const getScreenWidth = () => typeof window !== 'undefined' ? window.innerWidth : 400;
+
+  // 3D rotation based on swipe - more subtle and smooth
+  const rotateY = useTransform(smoothX, [-getScreenWidth(), 0, getScreenWidth()], [-25, 0, 25]);
+  const rotateZ = useTransform(smoothX, [-getScreenWidth(), 0, getScreenWidth()], [-12, 0, 12]);
+
+  // Smooth scale - card shrinks slightly as it moves away
   const scale = useTransform(
     smoothX,
-    [-300, -100, 0, 100, 300],
-    [0.92, 0.98, 1, 0.98, 0.92]
+    [-getScreenWidth() * 0.5, -100, 0, 100, getScreenWidth() * 0.5],
+    [0.85, 0.95, 1, 0.95, 0.85]
   );
-  
-  // Opacity fade as card moves away
-  const opacity = useTransform(smoothX, [-300, 0, 300], [0.5, 1, 0.5]);
-  
-  // Dynamic shadow based on swipe direction
-  const shadowX = useTransform(smoothX, [-200, 0, 200], [40, 0, -40]);
-  const shadowBlur = useTransform(
-    smoothX, 
-    [-200, -50, 0, 50, 200], 
-    [60, 30, 20, 30, 60]
-  );
-  const shadowOpacity = useTransform(
+
+  // Opacity - gentle fade
+  const opacity = useTransform(
     smoothX,
-    [-200, -50, 0, 50, 200],
-    [0.4, 0.25, 0.15, 0.25, 0.4]
+    [-getScreenWidth() * 0.6, 0, getScreenWidth() * 0.6],
+    [0, 1, 0]
   );
-  
-  // Pre-computed filter and background for shadow (avoids hook in JSX)
-  const shadowFilter = useTransform(shadowBlur, (blur) => `blur(${blur}px)`);
-  const shadowBackground = useTransform(shadowOpacity, (op) => `rgba(0, 0, 0, ${op})`);
 
-  // Swipe threshold
-  const SWIPE_THRESHOLD = 80;
+  // Background indicators showing swipe direction
+  const leftIndicatorOpacity = useTransform(smoothX, [0, 100], [0, 1]);
+  const rightIndicatorOpacity = useTransform(smoothX, [-100, 0], [1, 0]);
 
-  // Desktop hover handler - track mouse position relative to card center
+  // Threshold configuration - velocity is key for app-like feel
+  const DISTANCE_THRESHOLD = 80;  // Minimum distance
+  const VELOCITY_THRESHOLD = 300; // px/s - quick flicks trigger at lower distance
+
+  // Desktop hover handler
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    
+    if (!cardRef.current || isDragging) return;
+
     const rect = cardRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
-    // Normalize to -0.5 to 0.5 range
+
     const normalizedX = (e.clientX - centerX) / rect.width;
     const normalizedY = (e.clientY - centerY) / rect.height;
-    
+
     mouseX.set(normalizedX);
     mouseY.set(normalizedY);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, isDragging]);
 
   const handleMouseLeave = useCallback(() => {
-    // Reset to center when mouse leaves
     mouseX.set(0);
     mouseY.set(0);
   }, [mouseX, mouseY]);
 
+  // Handle drag end with momentum-based navigation
   const handleDragEnd = useCallback(
-    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    async (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       const offset = info.offset.x;
       const velocity = info.velocity.x;
-      
-      // Combine offset and velocity for better UX
-      const swipe = offset + velocity * 0.2;
-      
-      if (swipe > SWIPE_THRESHOLD && hasPrev && onPrev) {
-        setSwipeDirection('right');
-        onPrev();
-      } else if (swipe < -SWIPE_THRESHOLD && hasNext && onNext) {
-        setSwipeDirection('left');
-        onNext();
+
+      // App-like logic: trigger on distance OR velocity
+      const shouldNavigate = Math.abs(offset) > DISTANCE_THRESHOLD || Math.abs(velocity) > VELOCITY_THRESHOLD;
+      const direction = offset > 0 ? 1 : -1; // 1 = right (prev), -1 = left (next)
+
+      if (shouldNavigate) {
+        const canNavigate = (direction > 0 && hasPrev) || (direction < 0 && hasNext);
+
+        if (canNavigate) {
+          // Calculate exit position based on velocity
+          const exitX = direction * (getScreenWidth() + 200);
+          const exitRotateY = direction * -30;
+          const exitRotateZ = direction * -15;
+
+          // Set exit direction for incoming card animation
+          setExitDirection(direction);
+
+          // Animate card out with momentum
+          await controls.start({
+            x: exitX,
+            rotateY: exitRotateY,
+            rotateZ: exitRotateZ,
+            scale: 0.8,
+            opacity: 0,
+            transition: {
+              ...exitSpring,
+              // Use velocity for more natural exit
+              velocity: velocity,
+            }
+          });
+
+          // Trigger navigation
+          if (direction > 0 && onPrev) {
+            onPrev();
+          } else if (direction < 0 && onNext) {
+            onNext();
+          }
+        } else {
+          // Rubber band back - can't navigate in this direction
+          await controls.start({
+            x: 0,
+            rotateY: 0,
+            rotateZ: 0,
+            scale: 1,
+            opacity: 1,
+            transition: fluidSpring
+          });
+        }
+      } else {
+        // Didn't meet threshold - snap back with bounce
+        await controls.start({
+          x: 0,
+          rotateY: 0,
+          rotateZ: 0,
+          scale: 1,
+          opacity: 1,
+          transition: fluidSpring
+        });
       }
-      
-      // Reset swipe direction after animation
-      setTimeout(() => setSwipeDirection(null), 300);
+
+      setIsDragging(false);
     },
-    [hasPrev, hasNext, onPrev, onNext]
+    [hasPrev, hasNext, onPrev, onNext, controls]
   );
 
-  // Handle button navigation with 3D effect
-  const handlePrevClick = useCallback(() => {
-    if (hasPrev && onPrev) {
-      setSwipeDirection('right');
-      onPrev();
-      setTimeout(() => setSwipeDirection(null), 300);
-    }
-  }, [hasPrev, onPrev]);
+  // Handle drag start
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
 
-  const handleNextClick = useCallback(() => {
-    if (hasNext && onNext) {
-      setSwipeDirection('left');
-      onNext();
-      setTimeout(() => setSwipeDirection(null), 300);
+  // Handle button navigation with animation
+  const handlePrevClick = useCallback(async () => {
+    if (hasPrev && onPrev) {
+      setExitDirection(1);
+      await controls.start({
+        x: getScreenWidth() + 100,
+        rotateY: -25,
+        scale: 0.85,
+        opacity: 0,
+        transition: snappySpring
+      });
+      onPrev();
     }
-  }, [hasNext, onNext]);
+  }, [hasPrev, onPrev, controls]);
+
+  const handleNextClick = useCallback(async () => {
+    if (hasNext && onNext) {
+      setExitDirection(-1);
+      await controls.start({
+        x: -(getScreenWidth() + 100),
+        rotateY: 25,
+        scale: 0.85,
+        opacity: 0,
+        transition: snappySpring
+      });
+      onNext();
+    }
+  }, [hasNext, onNext, controls]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
-      } else if (e.key === 'ArrowLeft' && hasPrev && onPrev) {
-        setSwipeDirection('right');
-        onPrev();
-        setTimeout(() => setSwipeDirection(null), 300);
-      } else if (e.key === 'ArrowRight' && hasNext && onNext) {
-        setSwipeDirection('left');
-        onNext();
-        setTimeout(() => setSwipeDirection(null), 300);
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevClick();
+      } else if (e.key === 'ArrowRight') {
+        handleNextClick();
       }
     },
-    [onClose, onPrev, onNext, hasPrev, hasNext]
+    [onClose, handlePrevClick, handleNextClick]
   );
+
+  // Reset controls when photo changes
+  useEffect(() => {
+    if (photo) {
+      // Reset motion value
+      x.set(0);
+      // Animate in from the opposite direction of exit
+      controls.start({
+        x: 0,
+        rotateY: 0,
+        rotateZ: 0,
+        scale: 1,
+        opacity: 1,
+        transition: fluidSpring
+      });
+    }
+  }, [photo?.id, controls, x]);
 
   useEffect(() => {
     if (open) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
-      // Mark first open animation complete after initial animation
       const timer = setTimeout(() => setIsFirstOpen(false), 500);
       return () => {
         clearTimeout(timer);
         document.removeEventListener('keydown', handleKeyDown);
         document.body.style.overflow = '';
-        // Reset first open state when modal closes
         setIsFirstOpen(true);
+        setExitDirection(0);
       };
     }
     return undefined;
@@ -264,16 +331,21 @@ export function PhotoModal({
   if (!photo) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            transition={{ duration: 0.25 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-lg"
             onClick={onClose}
           />
 
@@ -285,185 +357,159 @@ export function PhotoModal({
             <NavButton direction="next" onClick={handleNextClick} disabled={!hasNext} />
           )}
 
-          {/* Swipe hint indicators for mobile */}
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none md:hidden z-20">
-            {hasPrev && (
+          {/* Swipe direction indicators for mobile */}
+          {isMobile && (
+            <>
+              {/* Left indicator (next) */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                className="text-white/60"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+                style={{ opacity: rightIndicatorOpacity }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
+                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
+                </div>
               </motion.div>
-            )}
-            <div className="flex-1" />
-            {hasNext && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                className="text-white/60"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </motion.div>
-            )}
-          </div>
 
-          {/* Swipe constraints container */}
-          <div ref={constraintsRef} className="absolute inset-0 pointer-events-none" />
+              {/* Right indicator (prev) */}
+              <motion.div
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+                style={{ opacity: leftIndicatorOpacity }}
+              >
+                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </div>
+              </motion.div>
+            </>
+          )}
 
           {/* 3D Perspective Container */}
-          <div 
+          <div
             ref={cardRef}
             className="relative w-full max-w-4xl mx-2 md:mx-16"
             style={{ perspective: 1200 }}
             onMouseMove={!isMobile ? handleMouseMove : undefined}
             onMouseLeave={!isMobile ? handleMouseLeave : undefined}
           >
-            {/* Envelope Container - 3D swipe on mobile, 3D button navigation + hover tilt on desktop */}
+            {/* Main Card - uses useAnimation for programmatic control */}
             <motion.div
               key={photo.id}
-              initial={{ 
-                y: isFirstOpen ? 60 : 0, 
-                opacity: 0, 
-                scale: 0.95,
-                rotateY: swipeDirection === 'left' ? 8 : swipeDirection === 'right' ? -8 : 0,
-                x: swipeDirection === 'left' ? 50 : swipeDirection === 'right' ? -50 : 0
+              animate={controls}
+              initial={{
+                y: isFirstOpen ? 80 : 0,
+                x: exitDirection !== 0 ? exitDirection * -100 : 0,
+                opacity: 0,
+                scale: 0.9,
+                rotateY: exitDirection !== 0 ? exitDirection * 15 : 0,
               }}
-              animate={{ y: 0, opacity: 1, scale: 1, rotateY: 0, rotateX: 0, x: 0 }}
-              exit={{ 
-                opacity: 0, 
-                scale: 0.95,
-                rotateY: swipeDirection === 'left' ? -15 : swipeDirection === 'right' ? 15 : 0,
-                x: swipeDirection === 'left' ? -120 : swipeDirection === 'right' ? 120 : 0
-              }}
-              transition={cardTransition}
-              style={{ 
-                // Mobile: apply swipe-based transforms; Desktop: apply hover tilt only
-                x: isMobile ? smoothX : 0,
-                y: isMobile ? y : 0,
-                opacity: isMobile ? opacity : 1,
-                scale: isMobile ? scale : 1,
-                rotateY: isMobile ? combinedRotateY : hoverRotateY,
-                rotateX: isMobile ? 0 : hoverRotateX,
-                rotateZ: isMobile ? rotateZ : 0,
+              style={{
+                // During drag, use motion values for real-time feedback
+                x: isDragging ? smoothX : undefined,
+                rotateY: isMobile && isDragging ? rotateY : (!isMobile ? hoverRotateY : undefined),
+                rotateX: !isMobile ? hoverRotateX : undefined,
+                rotateZ: isMobile && isDragging ? rotateZ : undefined,
+                scale: isMobile && isDragging ? scale : undefined,
                 transformStyle: 'preserve-3d',
               }}
               drag={isMobile ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.12}
-              onDragEnd={isMobile ? handleDragEnd : undefined}
-              className={`relative ${isMobile ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+              dragDirectionLock
+              dragElastic={0.3} // Higher elasticity = more natural feel
+              dragMomentum={false} // We handle momentum ourselves
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              className={`relative will-change-transform ${isMobile ? 'touch-pan-y' : ''}`}
             >
-              {/* Dynamic shadow layer - only on mobile during swipe */}
-              {isMobile && (
-                <motion.div
-                  className="absolute inset-0 rounded-2xl pointer-events-none"
-                  style={{
-                    x: shadowX,
-                    filter: shadowFilter,
-                    background: shadowBackground,
-                    transform: 'translateZ(-1px)',
-                  }}
-                />
-              )}
-              
-              {/* Main Content Card - touchAction ensures swipe works on entire modal */}
+              {/* Card content */}
               <div
-                className="relative bg-canvas rounded-2xl shadow-xl overflow-hidden"
-                style={{ touchAction: 'pan-y', transformStyle: 'preserve-3d' }}
+                className="relative bg-canvas rounded-2xl shadow-2xl overflow-hidden"
+                style={{ transformStyle: 'preserve-3d' }}
               >
-              {/* Close Button */}
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20 backdrop-blur-sm"
-                aria-label="Close"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="white"
-                  className="w-5 h-5"
+                {/* Close Button */}
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20 backdrop-blur-sm"
+                  aria-label="Close"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="white"
+                    className="w-5 h-5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </button>
 
-              <div className="flex flex-col md:flex-row max-h-[85vh]">
-                {/* Image Section */}
-                <div
-                  className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-canvas-recessed border-y-4 border-canvas-recessed select-none"
-                  style={{ touchAction: 'pan-y' }}
-                >
-                  <Image
-                    src={photo.imageUrl}
-                    alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 60vw"
-                    className="object-contain pointer-events-none"
-                    priority
-                    draggable={false}
-                  />
-                </div>
+                <div className="flex flex-col md:flex-row max-h-[85vh]">
+                  {/* Image Section */}
+                  <div
+                    className="relative flex-1 min-h-[300px] md:min-h-[500px] bg-canvas-recessed select-none"
+                  >
+                    <Image
+                      src={photo.imageUrl}
+                      alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 60vw"
+                      className="object-contain pointer-events-none"
+                      priority
+                      draggable={false}
+                    />
+                  </div>
 
-                {/* Details Section - "Letter" */}
-                <div
-                  className="w-full md:w-80 p-6 bg-canvas overflow-y-auto select-none"
-                  style={{ touchAction: 'pan-y' }}
-                >
-                  <div className="space-y-4">
-                    {/* Dish name - prominent display */}
-                    {photo.dish_name && (
-                      <h2 className="font-display text-xl md:text-2xl font-semibold text-ink leading-snug">
-                        {photo.dish_name}
-                      </h2>
-                    )}
-
-                    {/* Date stamp */}
-                    <p className="text-caption text-ink-tertiary inline-block">
-                      {formatDate(photo.created_at)}
-                    </p>
-
-                    {/* Descriptions - simple text display */}
+                  {/* Details Section */}
+                  <div
+                    className="w-full md:w-80 p-6 bg-canvas overflow-y-auto select-none"
+                  >
                     <div className="space-y-4">
-                      {/* Chinese Description */}
-                      {photo.description_cn && (
-                        <span className="text-body text-ink leading-relaxed block">
-                          {photo.description_cn}
+                      {/* Dish name */}
+                      {photo.dish_name && (
+                        <h2 className="font-display text-xl md:text-2xl font-semibold text-ink leading-snug">
+                          {photo.dish_name}
+                        </h2>
+                      )}
+
+                      {/* Date stamp */}
+                      <p className="text-caption text-ink-tertiary inline-block">
+                        {formatDate(photo.created_at)}
+                      </p>
+
+                      {/* Descriptions */}
+                      <div className="space-y-4">
+                        {photo.description_cn && (
+                          <span className="text-body text-ink leading-relaxed block">
+                            {photo.description_cn}
+                          </span>
+                        )}
+
+                        {photo.description_en && (
+                          <span className={`text-body text-ink-secondary leading-relaxed block ${photo.description_cn ? "pt-4 border-t border-stroke" : ""}`}>
+                            {photo.description_en}
+                          </span>
+                        )}
+
+                        {!photo.description_en && !photo.description_cn && (
+                          <p className="text-ink-tertiary italic">No description yet</p>
+                        )}
+                      </div>
+
+                      {/* Decorative signature */}
+                      <div className="pt-4 text-right">
+                        <span className="font-accent text-lg text-ink-tertiary">
+                          With love ♡
                         </span>
-                      )}
-
-                      {/* English Description */}
-                      {photo.description_en && (
-                        <span className={`text-body text-ink-secondary leading-relaxed block ${photo.description_cn ? "pt-4 border-t border-stroke" : ""}`}>
-                          {photo.description_en}
-                        </span>
-                      )}
-
-                      {/* No description fallback */}
-                      {!photo.description_en && !photo.description_cn && (
-                        <p className="text-ink-tertiary italic">No description yet</p>
-                      )}
-                    </div>
-
-                    {/* Decorative signature */}
-                    <div className="pt-4 text-right">
-                      <span className="font-accent text-lg text-ink-tertiary">
-                        With love ♡
-                      </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
