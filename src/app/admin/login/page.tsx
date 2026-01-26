@@ -57,7 +57,7 @@ function LoginForm() {
       {sent ? (
         <div className="text-center py-4">
           <div className="w-16 h-16 mx-auto mb-4 text-accent">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -73,6 +73,7 @@ function LoginForm() {
             Click the link in the email to sign in.
           </p>
           <button
+            type="button"
             onClick={() => {
               setSent(false);
               setEmail('');
@@ -95,6 +96,7 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
+              spellCheck={false}
               className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
               disabled={loading}
             />

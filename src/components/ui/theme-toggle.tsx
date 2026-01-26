@@ -53,6 +53,7 @@ export function ThemeToggle() {
               strokeWidth={1.5}
               stroke="currentColor"
               className="w-5 h-5 text-warmth"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -76,6 +77,7 @@ export function ThemeToggle() {
               strokeWidth={1.5}
               stroke="currentColor"
               className="w-5 h-5 text-love"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"

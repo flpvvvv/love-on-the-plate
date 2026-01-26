@@ -15,7 +15,7 @@ const views: { id: GalleryView; label: string; icon: ReactNode }[] = [
     id: 'floating',
     label: 'Plates',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
         <circle cx="8" cy="8" r="4" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="16" cy="16" r="4" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="17" cy="7" r="3" stroke="currentColor" strokeWidth="1.5" />
@@ -26,7 +26,7 @@ const views: { id: GalleryView; label: string; icon: ReactNode }[] = [
     id: 'masonry',
     label: 'Grid',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
         <rect x="3" y="3" width="7" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
         <rect x="14" y="3" width="7" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
         <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -38,7 +38,7 @@ const views: { id: GalleryView; label: string; icon: ReactNode }[] = [
     id: 'timeline',
     label: 'Timeline',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
         <path d="M12 4v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <path
           d="M12 8 C12 8, 16 8, 18 8"

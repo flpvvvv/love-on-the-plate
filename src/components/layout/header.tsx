@@ -42,7 +42,7 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
               href="/admin"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-love text-white text-sm font-medium rounded-xl hover:bg-love-intense transition-colors shadow-sm hover:shadow-md"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span>Upload</span>

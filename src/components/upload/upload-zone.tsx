@@ -70,7 +70,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             className="space-y-4"
           >
             <div className="w-16 h-16 mx-auto text-accent">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -89,7 +89,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             className="space-y-4"
           >
             <div className="w-16 h-16 mx-auto text-muted">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -110,7 +110,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               {/* Camera capture button - primary on mobile */}
               <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white font-medium rounded-xl cursor-pointer hover:bg-accent-hover transition-colors shadow-sm">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -135,7 +135,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
               
               {/* Choose from gallery button */}
               <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-surface border border-border text-foreground font-medium rounded-xl cursor-pointer hover:bg-muted/10 transition-colors">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

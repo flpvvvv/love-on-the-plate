@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FFFBF8' },
+    { media: '(prefers-color-scheme: dark)', color: '#0F0C0A' },
+  ],
 };
 
 export default function RootLayout({

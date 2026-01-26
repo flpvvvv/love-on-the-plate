@@ -62,6 +62,7 @@ function NavButton({
         strokeWidth={2}
         stroke="white"
         className="w-6 h-6"
+        aria-hidden="true"
       >
         <path strokeLinecap="round" strokeLinejoin="round" d={isPrev ? "M15.75 19.5L8.25 12l7.5-7.5" : "M8.25 4.5l7.5 7.5-7.5 7.5"} />
       </svg>
@@ -191,7 +192,7 @@ export function PhotoModal({
     <AnimatePresence mode="popLayout">
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overscroll-contain"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -224,7 +225,7 @@ export function PhotoModal({
                 transition={{ duration: 0.1 }}
               >
                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                   </svg>
                 </div>
@@ -235,7 +236,7 @@ export function PhotoModal({
                 transition={{ duration: 0.1 }}
               >
                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="white" className="w-5 h-5" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                   </svg>
                 </div>
