@@ -288,6 +288,7 @@ export function PhotoModal({
                       strokeWidth={2}
                       stroke="white"
                       className="w-5 h-5"
+                      aria-hidden="true"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>

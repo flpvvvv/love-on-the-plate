@@ -356,7 +356,7 @@ body {
 /* ==========================================================================
    THEME TRANSITIONS
    ========================================================================== */
-* {
+*:not([class*="animate-"]) {
   transition-property: background-color, border-color, box-shadow;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-smooth);

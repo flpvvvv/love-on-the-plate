@@ -87,9 +87,10 @@ export function ImagePreview({
             type="text"
             value={dishName}
             onChange={(e) => onDishNameChange(e.target.value)}
-            placeholder="AI 正在识别菜名..."
+            placeholder="AI 正在识别菜名…"
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
+            autoComplete="off"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted"
           />
         </div>
 
@@ -102,10 +103,11 @@ export function ImagePreview({
             id="descriptionCn"
             value={descriptionCn}
             onChange={(e) => onDescriptionCnChange(e.target.value)}
-            placeholder="AI 正在生成中文描述..."
+            placeholder="AI 正在生成中文描述…"
             rows={3}
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted leading-relaxed"
+            autoComplete="off"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted leading-relaxed"
           />
         </div>
 
@@ -118,10 +120,11 @@ export function ImagePreview({
             id="descriptionEn"
             value={descriptionEn}
             onChange={(e) => onDescriptionEnChange(e.target.value)}
-            placeholder="AI is generating an English description..."
+            placeholder="AI is generating an English description…"
             rows={3}
             disabled={uploading}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted leading-relaxed"
+            autoComplete="off"
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted leading-relaxed"
           />
         </div>
 

@@ -36,7 +36,11 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -54,7 +58,7 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
-              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden',
+              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden overscroll-contain',
               className
             )}
           >
@@ -80,6 +84,7 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
         strokeWidth={2}
         stroke="white"
         className="w-5 h-5"
+        aria-hidden="true"
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
       </svg>

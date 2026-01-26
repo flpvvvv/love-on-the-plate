@@ -281,7 +281,7 @@ export function Gallery() {
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
+    <div id="main-content" className="min-h-screen pb-20 md:pb-0">
       {/* View Switcher - Desktop only */}
       <div className="sticky top-16 z-30 glass border-b border-stroke py-3 hidden md:block">
         <div className="container mx-auto px-4 flex justify-center">

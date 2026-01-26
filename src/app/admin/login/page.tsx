@@ -78,7 +78,7 @@ function LoginForm() {
               setSent(false);
               setEmail('');
             }}
-            className="mt-4 text-accent hover:text-accent-hover text-sm"
+            className="mt-4 text-accent hover:text-accent-hover text-sm focus:outline-none focus-visible:underline"
           >
             Use a different email
           </button>
@@ -97,7 +97,7 @@ function LoginForm() {
               placeholder="you@example.com"
               autoComplete="email"
               spellCheck={false}
-              className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-foreground placeholder:text-muted"
+              className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted"
               disabled={loading}
             />
           </div>
