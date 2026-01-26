@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { ThemeProvider, ToastProvider } from '@/components/ui';
 import './globals.css';
 
@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FFFBF8' },
     { media: '(prefers-color-scheme: dark)', color: '#0F0C0A' },
