@@ -94,9 +94,9 @@ export default function AdminPage() {
       setRegenerating(true);
 
       // We'll generate descriptions during upload, just show preview for now
-      setDishName('识别菜名中...');
-      setDescriptionEn('Generating English description...');
-      setDescriptionCn('正在生成中文描述...');
+      setDishName('识别菜名中…');
+      setDescriptionEn('Generating English description…');
+      setDescriptionCn('正在生成中文描述…');
 
       // Compress for upload (1920px - higher quality for storage)
       const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
@@ -446,7 +446,7 @@ export default function AdminPage() {
           <div className="max-w-md mx-auto text-center py-16">
             <div className="mb-6">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -487,7 +487,7 @@ export default function AdminPage() {
           <div className="flex items-center mb-6">
             <Link href="/">
               <Button variant="secondary" size="sm">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
                 View Gallery
@@ -549,12 +549,12 @@ export default function AdminPage() {
                         aria-label="Delete photo"
                       >
                         {deletingPhotoId === photo.id ? (
-                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                           </svg>
                         ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         )}
@@ -580,11 +580,12 @@ export default function AdminPage() {
                 onClick={handleBackfill} 
                 loading={backfilling}
                 disabled={backfilling}
+                aria-busy={backfilling}
               >
-                {backfilling ? 'Generating with AI...' : 'Generate Missing Data with AI'}
+                {backfilling ? 'Generating with AI…' : 'Generate Missing Data with AI'}
               </Button>
               {backfilling && (
-                <p className="text-sm text-muted mt-2">
+                <p className="text-sm text-muted mt-2" role="status" aria-live="polite">
                   This may take a while. Please don&apos;t close this page.
                 </p>
               )}

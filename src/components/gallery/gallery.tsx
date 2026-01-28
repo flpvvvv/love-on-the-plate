@@ -220,7 +220,7 @@ export function Gallery() {
           className="flex flex-col items-center justify-center py-20 text-center"
         >
           <div className="w-20 h-20 text-love mb-4">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -290,19 +290,20 @@ export function Gallery() {
       </div>
 
       {/* Gallery Content */}
-      <main className="container mx-auto">
+      <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
         {loading ? renderSkeletons() : renderGallery()}
 
         {/* Load More Trigger */}
         {hasMore && !loading && (
           <div ref={loadMoreRef} className="py-8 flex justify-center">
             {loadingMore && (
-              <div className="flex items-center gap-2 text-ink-secondary">
+              <div className="flex items-center gap-2 text-ink-secondary" role="status" aria-live="polite">
                 <svg
                   className="animate-spin h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <circle
                     className="opacity-25"
@@ -318,7 +319,7 @@ export function Gallery() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                <span>Loading more...</span>
+                <span>Loading more…</span>
               </div>
             )}
           </div>

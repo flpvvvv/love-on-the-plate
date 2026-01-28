@@ -8,6 +8,8 @@
 
 @import "tailwindcss";
 
+/* Preconnect hints are in layout.tsx head */
+
 /* ==========================================================================
    SEMANTIC TOKENS — Light Mode: "Morning Kitchen"
    ========================================================================== */
@@ -99,6 +101,8 @@
    SEMANTIC TOKENS — Dark Mode: "Candlelit Dinner"
    ========================================================================== */
 .dark {
+  color-scheme: dark;
+  
   /* Canvas Layers */
   --canvas: #0F0C0A;
   --canvas-elevated: #1A1512;
@@ -207,6 +211,8 @@ body {
   min-height: 100dvh; /* Use dynamic viewport height for mobile */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation; /* Prevent double-tap zoom delay */
+  -webkit-tap-highlight-color: rgba(217, 75, 56, 0.1); /* Subtle tap highlight */
 }
 
 /* ==========================================================================
@@ -240,17 +246,20 @@ body {
   font-size: var(--text-hero);
   line-height: 1.1;
   letter-spacing: -0.02em;
+  text-wrap: balance; /* Prevent widows in headlines */
 }
 
 .text-display {
   font-size: var(--text-display);
   line-height: 1.2;
   letter-spacing: -0.01em;
+  text-wrap: balance; /* Prevent widows in headlines */
 }
 
 .text-heading {
   font-size: var(--text-heading);
   line-height: 1.3;
+  text-wrap: pretty; /* Smart line breaking */
 }
 
 .text-subheading {
@@ -466,4 +475,43 @@ body {
   .hide-desktop {
     display: none !important;
   }
+}
+
+/* Tabular numbers for aligned numeric data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scroll margin for anchor links */
+h1, h2, h3, h4, h5, h6,
+[id] {
+  scroll-margin-top: 5rem; /* Account for sticky header */
+}
+
+/* Overscroll containment for modals/sheets */
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* Safe area utilities for full-bleed layouts */
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+.safe-y {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-all {
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }

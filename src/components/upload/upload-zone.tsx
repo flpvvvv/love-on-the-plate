@@ -55,7 +55,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={cn(
-        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-all duration-200 text-center',
+        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-colors transition-shadow duration-200 text-center',
         isDragging ? 'border-love bg-love-soft shadow-glow' : 'border-stroke hover:border-love/50',
         disabled && 'opacity-50 pointer-events-none'
       )}

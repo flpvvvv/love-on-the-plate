@@ -58,9 +58,10 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
-              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden overscroll-contain',
+              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden',
               className
             )}
+            style={{ overscrollBehavior: 'contain' }}
           >
             {children}
           </motion.div>

@@ -21,7 +21,7 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
       onClick={onClick}
       className="w-full text-left focus:outline-none focus-ring rounded-xl overflow-hidden group"
     >
-      <div className="relative bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="relative bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
         <div className="aspect-square relative overflow-hidden">
           <Image
             src={photo.thumbnailUrl}

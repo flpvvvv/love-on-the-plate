@@ -5,14 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Date formatter using Intl.DateTimeFormat for proper i18n
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  return dateFormatter.format(d);
 }
+
+// Relative time formatter
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 export function formatRelativeTime(date: string | Date): string {
   const d = new Date(date);
@@ -26,11 +32,11 @@ export function formatRelativeTime(date: string | Date): string {
   if (days > 7) {
     return formatDate(d);
   } else if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ago`;
+    return rtf.format(-days, 'day');
   } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return rtf.format(-hours, 'hour');
   } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return rtf.format(-minutes, 'minute');
   } else {
     return 'Just now';
   }

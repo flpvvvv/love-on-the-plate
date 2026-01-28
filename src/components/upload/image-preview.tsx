@@ -66,7 +66,7 @@ export function ImagePreview({
             disabled={regenerating || uploading}
             loading={regenerating}
           >
-            <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -133,7 +133,7 @@ export function ImagePreview({
             Cancel
           </Button>
           <Button onClick={onUpload} loading={uploading} disabled={uploading} className="flex-1">
-            {uploading ? 'Uploading...' : 'Upload'}
+            {uploading ? 'Uploading…' : 'Upload'}
           </Button>
         </div>
       </div>

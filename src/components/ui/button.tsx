@@ -40,7 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
         whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
         className={cn(
-          'rounded-xl font-medium transition-all duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2',
+          'rounded-xl font-medium transition-colors transition-shadow duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2',
           variantStyles[variant],
           sizeStyles[size],
           className
