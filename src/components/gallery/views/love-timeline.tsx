@@ -24,7 +24,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
             key={photo.id}
             initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.1 }}
             className={`relative flex items-center mb-12 ${
               isLeft ? 'flex-row' : 'flex-row-reverse'
             }`}
@@ -73,7 +73,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20, delay: index * 0.1 + 0.2 }}
                 className="w-8 h-8 bg-love rounded-full flex items-center justify-center shadow-lg"
               >
                 <svg

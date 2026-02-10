@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider, ToastProvider } from '@/components/ui';
+import { AppShell } from '@/components/layout';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -25,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to Google Fonts for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
@@ -38,7 +38,9 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <ToastProvider>
-            {children}
+            <AppShell>
+              {children}
+            </AppShell>
           </ToastProvider>
         </ThemeProvider>
       </body>

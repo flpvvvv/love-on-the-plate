@@ -493,6 +493,34 @@ h1, h2, h3, h4, h5, h6,
   overscroll-behavior: contain;
 }
 
+/* Vaul drawer overrides for theme integration */
+[vaul-drawer-overlay] {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+[vaul-drawer] {
+  background: var(--canvas) !important;
+}
+
+/* Feed snap scrolling -- hide scrollbar */
+.snap-y {
+  scroll-snap-type: y mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}
+
+.snap-always {
+  scroll-snap-stop: always;
+}
+
+.snap-end {
+  scroll-snap-align: end;
+}
+
 /* Safe area utilities for full-bleed layouts */
 .safe-left {
   padding-left: env(safe-area-inset-left, 0);

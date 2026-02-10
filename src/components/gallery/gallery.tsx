@@ -1,49 +1,39 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { ViewSwitcher, PhotoCardSkeleton } from '@/components/ui';
-import { BottomNav } from '@/components/layout';
-import { PhotoModal } from './photo-modal';
-import { FloatingPlates, MasonryGrid, LoveTimeline } from './views';
+import { ViewSwitcher, PhotoCardSkeleton, ResponsiveSheet } from '@/components/ui';
+import { BottomNav, CollapsibleHeader } from '@/components/layout';
+import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
+import { usePullToRefresh, useKeyboardNav } from '@/lib/hooks';
+import { DetailPanel } from './detail-panel';
+import { PullToRefreshIndicator } from './pull-to-refresh-indicator';
+import { PhotoModalContent } from './photo-modal';
+import { FloatingPlates, MasonryGrid, LoveTimeline, ImmersiveFeed } from './views';
 import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
-
-const VIEW_STORAGE_KEY = 'love-on-the-plate-view';
 
 // View order for directional transitions
 const VIEW_ORDER: GalleryView[] = ['floating', 'masonry', 'timeline'];
 
-// Get directional offset for view transitions
 function getViewTransition(from: GalleryView, to: GalleryView): { x: number; y: number } {
   const fromIndex = VIEW_ORDER.indexOf(from);
   const toIndex = VIEW_ORDER.indexOf(to);
-  
+
   if (fromIndex === toIndex) return { x: 0, y: 0 };
-  
-  // floating -> masonry: horizontal right
-  // masonry -> floating: horizontal left
-  // masonry -> timeline: vertical down
-  // timeline -> masonry: vertical up
-  // floating -> timeline: diagonal (right + down)
-  // timeline -> floating: diagonal (left + up)
-  
+
   const isForward = toIndex > fromIndex;
   const isTimeline = to === 'timeline' || from === 'timeline';
   const isFloating = to === 'floating' || from === 'floating';
-  
+
   if (isTimeline && isFloating) {
-    // Diagonal transition
     return { x: isForward ? 20 : -20, y: isForward ? 20 : -20 };
   } else if (isTimeline) {
-    // Vertical transition (masonry <-> timeline)
     return { x: 0, y: isForward ? 30 : -30 };
   } else {
-    // Horizontal transition (floating <-> masonry)
     return { x: isForward ? 30 : -30, y: 0 };
   }
 }
 
-// View transition variants
 const viewTransitionVariants = {
   initial: (transition: { x: number; y: number }) => ({
     opacity: 0,
@@ -59,8 +49,9 @@ const viewTransitionVariants = {
     y: 0,
     filter: 'blur(0px)',
     transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1] as const,
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 30,
     },
   },
   exit: (transition: { x: number; y: number }) => ({
@@ -70,38 +61,84 @@ const viewTransitionVariants = {
     y: -transition.y,
     filter: 'blur(4px)',
     transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.2, 1] as const,
+      type: 'spring' as const,
+      stiffness: 300,
+      damping: 30,
     },
   }),
 };
 
+// ---- Selection-aware wrapper (isolates re-renders from the grid) ----
+
+const PhotoDetailSheet = memo(function PhotoDetailSheet() {
+  const { selectedPhoto, setSelectedPhoto, handlePrevPhoto, handleNextPhoto, hasPrev, hasNext } =
+    useSelectionContext();
+
+  return (
+    <ResponsiveSheet open={!!selectedPhoto} onClose={() => setSelectedPhoto(null)}>
+      {selectedPhoto && (
+        <PhotoModalContent
+          photo={selectedPhoto}
+          onPrev={handlePrevPhoto}
+          onNext={handleNextPhoto}
+          hasPrev={hasPrev}
+          hasNext={hasNext}
+        />
+      )}
+    </ResponsiveSheet>
+  );
+});
+
+const DesktopDetailPanel = memo(function DesktopDetailPanel() {
+  const { selectedPhoto, setSelectedPhoto, handlePrevPhoto, handleNextPhoto, hasPrev, hasNext } =
+    useSelectionContext();
+
+  return (
+    <DetailPanel
+      photo={selectedPhoto}
+      onClose={() => setSelectedPhoto(null)}
+      onPrev={handlePrevPhoto}
+      onNext={handleNextPhoto}
+      hasPrev={hasPrev}
+      hasNext={hasNext}
+    />
+  );
+});
+
+// ---- Main Gallery (only subscribes to gallery context, not selection) ----
+
 export function Gallery() {
-  const [photos, setPhotos] = useState<PhotoWithUrls[]>([]);
-  const [view, setView] = useState<GalleryView>('floating');
-  const [prevView, setPrevView] = useState<GalleryView>('floating');
-  const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithUrls | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [cursor, setCursor] = useState<string | null>(null);
+  const {
+    isDesktop,
+    mobileTab,
+    setMobileTab,
+    galleryView,
+    setGalleryView,
+    photos,
+    setPhotos,
+    handlePhotoClick,
+    loading,
+    setLoading,
+    hasMore,
+    setHasMore,
+    cursor,
+    setCursor,
+    loadingMore,
+    setLoadingMore,
+    setRefreshPhotos,
+  } = useGalleryContext();
+
+  // Selection context is only used for keyboard nav (desktop) -- read it lazily
+  const selection = useSelectionContext();
+
+  const [prevView, setPrevView] = useState<GalleryView>(galleryView);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  // Load view preference from localStorage
-  useEffect(() => {
-    const savedView = localStorage.getItem(VIEW_STORAGE_KEY) as GalleryView | null;
-    if (savedView && ['floating', 'masonry', 'timeline'].includes(savedView)) {
-      setView(savedView);
-    }
-  }, []);
-
-  // Save view preference
   const handleViewChange = (newView: GalleryView) => {
-    if (newView !== view) {
-      setPrevView(view);
-      setView(newView);
-      localStorage.setItem(VIEW_STORAGE_KEY, newView);
+    if (newView !== galleryView) {
+      setPrevView(galleryView);
+      setGalleryView(newView);
     }
   };
 
@@ -116,11 +153,8 @@ export function Gallery() {
       const response = await fetch(url.toString());
       if (!response.ok) throw new Error('Failed to fetch photos');
 
-      // Check content type before parsing
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text.substring(0, 100));
         throw new Error('Invalid response format');
       }
 
@@ -131,6 +165,19 @@ export function Gallery() {
       return null;
     }
   }, []);
+
+  const refreshAll = useCallback(async () => {
+    const data = await fetchPhotos();
+    if (data) {
+      setPhotos(data.photos);
+      setCursor(data.nextCursor);
+      setHasMore(data.hasMore);
+    }
+  }, [fetchPhotos, setPhotos, setCursor, setHasMore]);
+
+  useEffect(() => {
+    setRefreshPhotos(refreshAll);
+  }, [refreshAll, setRefreshPhotos]);
 
   // Initial load
   useEffect(() => {
@@ -146,21 +193,21 @@ export function Gallery() {
     };
 
     loadInitial();
-  }, [fetchPhotos]);
+  }, [fetchPhotos, setPhotos, setCursor, setHasMore, setLoading]);
 
-  // Load more photos
+  // Load more
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore || !cursor) return;
 
     setLoadingMore(true);
     const data = await fetchPhotos(cursor);
     if (data) {
-      setPhotos((prev) => [...prev, ...data.photos]);
+      setPhotos((prev: PhotoWithUrls[]) => [...prev, ...data.photos]);
       setCursor(data.nextCursor);
       setHasMore(data.hasMore);
     }
     setLoadingMore(false);
-  }, [cursor, hasMore, loadingMore, fetchPhotos]);
+  }, [cursor, hasMore, loadingMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore]);
 
   // Intersection observer for infinite scroll
   useEffect(() => {
@@ -188,35 +235,43 @@ export function Gallery() {
     };
   }, [hasMore, loadingMore, loadMore]);
 
-  const handlePhotoClick = (photo: PhotoWithUrls) => {
-    setSelectedPhoto(photo);
+  const transition = getViewTransition(prevView, galleryView);
+
+  // Pull-to-refresh (mobile browse mode)
+  const { containerRef: pullContainerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
+    onRefresh: refreshAll,
+  });
+
+  // Keyboard navigation (desktop)
+  useKeyboardNav({
+    photos,
+    selectedPhoto: selection.selectedPhoto,
+    onSelect: (index) => handlePhotoClick(photos[index]),
+    onClose: () => selection.setSelectedPhoto(null),
+    onViewChange: handleViewChange,
+    enabled: isDesktop,
+  });
+
+  const renderGalleryView = () => {
+    switch (galleryView) {
+      case 'floating':
+        return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
+      case 'masonry':
+        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
+      case 'timeline':
+        return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />;
+      default:
+        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
+    }
   };
 
-  // Navigation handlers for modal
-  const selectedIndex = selectedPhoto 
-    ? photos.findIndex(p => p.id === selectedPhoto.id) 
-    : -1;
-  
-  const handlePrevPhoto = useCallback(() => {
-    if (selectedIndex > 0) {
-      setSelectedPhoto(photos[selectedIndex - 1]);
-    }
-  }, [selectedIndex, photos]);
-
-  const handleNextPhoto = useCallback(() => {
-    if (selectedIndex < photos.length - 1) {
-      setSelectedPhoto(photos[selectedIndex + 1]);
-    }
-  }, [selectedIndex, photos]);
-
-  const transition = getViewTransition(prevView, view);
-
-  const renderGallery = () => {
+  const renderBrowseGallery = () => {
     if (photos.length === 0 && !loading) {
       return (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="flex flex-col items-center justify-center py-20 text-center"
         >
           <div className="w-20 h-20 text-love mb-4">
@@ -239,23 +294,10 @@ export function Gallery() {
       );
     }
 
-    const GalleryComponent = () => {
-      switch (view) {
-        case 'floating':
-          return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
-        case 'masonry':
-          return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
-        case 'timeline':
-          return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />;
-        default:
-          return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
-      }
-    };
-
     return (
       <AnimatePresence mode="wait" custom={transition}>
         <motion.div
-          key={view}
+          key={galleryView}
           custom={transition}
           variants={viewTransitionVariants}
           initial="initial"
@@ -263,87 +305,107 @@ export function Gallery() {
           exit="exit"
         >
           <LayoutGroup>
-            <GalleryComponent />
+            {renderGalleryView()}
           </LayoutGroup>
         </motion.div>
       </AnimatePresence>
     );
   };
 
-  const renderSkeletons = () => {
+  const renderSkeletons = () => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <PhotoCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+
+  const loadMoreIndicator = (
+    <>
+      {hasMore && !loading && (
+        <div ref={loadMoreRef} className="py-8 flex justify-center">
+          {loadingMore && (
+            <div className="flex items-center gap-2 text-ink-secondary" role="status" aria-live="polite">
+              <svg
+                className="animate-spin h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>Loading more…</span>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  // --- DESKTOP LAYOUT ---
+  if (isDesktop) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <PhotoCardSkeleton key={i} />
-        ))}
+      <div id="main-content" className="flex flex-1 min-h-0">
+        <div className="flex-1 overflow-y-auto min-w-0">
+          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+            {loading ? renderSkeletons() : renderBrowseGallery()}
+            {loadMoreIndicator}
+          </main>
+        </div>
+        <DesktopDetailPanel />
       </div>
     );
-  };
+  }
 
+  // --- MOBILE LAYOUT ---
   return (
-    <div id="main-content" className="min-h-screen pb-20 md:pb-0">
-      {/* View Switcher - Desktop only */}
-      <div className="sticky top-16 z-30 glass border-b border-stroke py-3 hidden md:block">
-        <div className="container mx-auto px-4 flex justify-center">
-          <ViewSwitcher currentView={view} onViewChange={handleViewChange} />
-        </div>
-      </div>
+    <div id="main-content" className="min-h-screen pb-20">
+      {/* Feed mode */}
+      {mobileTab === 'feed' && (
+        <>
+          {loading ? renderSkeletons() : (
+            <ImmersiveFeed
+              photos={photos}
+              onPhotoTap={handlePhotoClick}
+            />
+          )}
+        </>
+      )}
 
-      {/* Gallery Content */}
-      <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
-        {loading ? renderSkeletons() : renderGallery()}
+      {/* Browse mode */}
+      {mobileTab === 'browse' && (
+        <div ref={pullContainerRef}>
+          <CollapsibleHeader />
 
-        {/* Load More Trigger */}
-        {hasMore && !loading && (
-          <div ref={loadMoreRef} className="py-8 flex justify-center">
-            {loadingMore && (
-              <div className="flex items-center gap-2 text-ink-secondary" role="status" aria-live="polite">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>Loading more…</span>
-              </div>
-            )}
+          <PullToRefreshIndicator
+            pullDistance={pullDistance}
+            progress={progress}
+            isRefreshing={isRefreshing}
+          />
+
+          {/* View switcher -- top-14 to sit below the compact header (h-14) */}
+          <div className="sticky top-14 z-30 glass border-b border-stroke py-2">
+            <div className="flex justify-center px-4">
+              <ViewSwitcher currentView={galleryView} onViewChange={handleViewChange} />
+            </div>
           </div>
-        )}
-      </main>
 
-      {/* Photo Modal */}
-      <PhotoModal
-        photo={selectedPhoto}
-        open={!!selectedPhoto}
-        onClose={() => setSelectedPhoto(null)}
-        onPrev={handlePrevPhoto}
-        onNext={handleNextPhoto}
-        hasPrev={selectedIndex > 0}
-        hasNext={selectedIndex < photos.length - 1}
-        prevPhotoUrl={selectedIndex > 0 ? photos[selectedIndex - 1]?.imageUrl : undefined}
-        nextPhotoUrl={selectedIndex < photos.length - 1 ? photos[selectedIndex + 1]?.imageUrl : undefined}
-      />
+          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+            {loading ? renderSkeletons() : renderBrowseGallery()}
+            {loadMoreIndicator}
+          </main>
+        </div>
+      )}
+
+      {/* Mobile Photo Detail -- isolated in its own component so it doesn't re-render the grid */}
+      <PhotoDetailSheet />
 
       {/* Mobile Bottom Navigation */}
       <BottomNav
-        currentView={view}
-        onViewChange={handleViewChange}
-        showViewSwitcher={true}
+        currentTab={mobileTab}
+        onTabChange={setMobileTab}
       />
     </div>
   );

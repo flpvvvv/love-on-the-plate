@@ -22,6 +22,8 @@ export interface PhotoWithUrls extends Photo {
 
 export type GalleryView = 'floating' | 'masonry' | 'timeline';
 
+export type MobileTab = 'feed' | 'browse' | 'upload';
+
 export interface PaginatedPhotos {
   photos: PhotoWithUrls[];
   nextCursor: string | null;

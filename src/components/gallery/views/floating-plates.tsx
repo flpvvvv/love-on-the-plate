@@ -38,9 +38,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               scale: 1.08,
               rotate: 0,
               zIndex: 10,
-              transition: { duration: 0.25, ease: [0.34, 1.56, 0.64, 1] },
+              transition: { type: 'spring', stiffness: 400, damping: 20 },
             }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.05 }}
             onClick={() => onPhotoClick(photo)}
             className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center"
           >
