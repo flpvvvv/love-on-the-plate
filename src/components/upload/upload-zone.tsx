@@ -69,7 +69,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-4"
           >
-            <div className="w-16 h-16 mx-auto text-accent">
+            <div className="w-16 h-16 mx-auto text-love">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path
                   strokeLinecap="round"
@@ -78,7 +78,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
                 />
               </svg>
             </div>
-            <p className="text-subheading font-medium text-accent">Drop your photo here</p>
+            <p className="text-subheading font-medium text-love">Drop your photo here</p>
           </motion.div>
         ) : (
           <motion.div
@@ -88,7 +88,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-4"
           >
-            <div className="w-16 h-16 mx-auto text-muted">
+            <div className="w-16 h-16 mx-auto text-ink-tertiary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                 <path
                   strokeLinecap="round"
@@ -98,10 +98,10 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
               </svg>
             </div>
             <div>
-              <p className="text-subheading font-medium text-foreground mb-1">
+              <p className="text-subheading font-medium text-ink mb-1">
                 Upload a photo
               </p>
-              <p className="text-caption text-muted mb-4">
+              <p className="text-caption text-ink-secondary mb-4">
                 Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically
               </p>
             </div>
@@ -109,7 +109,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               {/* Camera capture button - primary on mobile */}
-              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white font-medium rounded-xl cursor-pointer hover:bg-accent-hover transition-colors shadow-sm">
+              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-love text-white font-medium rounded-xl cursor-pointer hover:bg-love-intense transition-colors shadow-sm">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path
                     strokeLinecap="round"
@@ -134,7 +134,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
               </label>
               
               {/* Choose from gallery button */}
-              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-surface border border-border text-foreground font-medium rounded-xl cursor-pointer hover:bg-muted/10 transition-colors">
+              <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-canvas-elevated border border-stroke text-ink font-medium rounded-xl cursor-pointer hover:bg-canvas-recessed transition-colors">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path
                     strokeLinecap="round"

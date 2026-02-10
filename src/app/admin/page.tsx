@@ -427,8 +427,8 @@ export default function AdminPage() {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center py-16">
             <div className="animate-pulse">
-              <div className="h-8 bg-surface rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-surface rounded w-64 mx-auto"></div>
+              <div className="h-8 bg-canvas-elevated rounded w-48 mx-auto mb-4"></div>
+              <div className="h-4 bg-canvas-elevated rounded w-64 mx-auto"></div>
             </div>
           </div>
         </main>
@@ -445,18 +445,18 @@ export default function AdminPage() {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center py-16">
             <div className="mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning-soft flex items-center justify-center">
+                <svg className="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h1 className="font-serif text-2xl font-semibold text-foreground mb-2">Pending Approval</h1>
-              <p className="text-muted">
+              <h1 className="font-display text-display font-semibold text-ink mb-2">Pending Approval</h1>
+              <p className="text-ink-secondary">
                 Your account is awaiting admin approval before you can upload images.
               </p>
               {userEmail && (
-                <p className="text-sm text-muted mt-2">
-                  Signed in as <span className="font-medium text-foreground">{userEmail}</span>
+                <p className="text-sm text-ink-secondary mt-2">
+                  Signed in as <span className="font-medium text-ink">{userEmail}</span>
                 </p>
               )}
             </div>
@@ -497,8 +497,8 @@ export default function AdminPage() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="font-serif text-3xl font-semibold text-foreground">Upload Photo</h1>
-            <p className="text-muted mt-1">Share your culinary creations</p>
+            <h1 className="font-display text-display font-semibold text-ink">Upload Photo</h1>
+            <p className="text-ink-secondary mt-1">Share your culinary creations</p>
           </div>
 
           {/* Upload Area */}
@@ -524,14 +524,14 @@ export default function AdminPage() {
           {/* Recent Uploads */}
           {recentPhotos.length > 0 && (
             <div className="mt-12">
-              <h2 className="font-serif text-xl font-semibold text-foreground mb-4">
+              <h2 className="font-display text-heading font-semibold text-ink mb-4">
                 Recently Uploaded
               </h2>
               <div className="grid grid-cols-3 gap-4">
                 {recentPhotos.map((photo) => (
                   <div
                     key={photo.id}
-                    className="aspect-square relative rounded-xl overflow-hidden bg-surface border border-border group"
+                    className="aspect-square relative rounded-xl overflow-hidden bg-canvas-elevated border border-stroke group"
                   >
                     <Image
                       src={photo.thumbnailUrl}
@@ -545,7 +545,7 @@ export default function AdminPage() {
                       <button
                         onClick={() => handleDeleteClick(photo)}
                         disabled={deletingPhotoId === photo.id}
-                        className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-danger hover:bg-danger-intense text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         aria-label="Delete photo"
                       >
                         {deletingPhotoId === photo.id ? (
@@ -568,11 +568,11 @@ export default function AdminPage() {
 
           {/* Backfill Section */}
           {backfillStatus && backfillStatus.withoutDishName > 0 && (
-            <div className="mt-12 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-              <h2 className="font-serif text-xl font-semibold text-foreground mb-2">
+            <div className="mt-12 p-6 bg-warning-soft border border-warning/20 rounded-xl">
+              <h2 className="font-display text-heading font-semibold text-ink mb-2">
                 Backfill Missing Data
               </h2>
-              <p className="text-muted mb-4">
+              <p className="text-ink-secondary mb-4">
                 {backfillStatus.withoutDishName} photo{backfillStatus.withoutDishName > 1 ? 's' : ''} missing dish name or descriptions
                 (out of {backfillStatus.total} total).
               </p>
@@ -585,7 +585,7 @@ export default function AdminPage() {
                 {backfilling ? 'Generating with AI…' : 'Generate Missing Data with AI'}
               </Button>
               {backfilling && (
-                <p className="text-sm text-muted mt-2" role="status" aria-live="polite">
+                <p className="text-sm text-ink-secondary mt-2" role="status" aria-live="polite">
                   This may take a while. Please don&apos;t close this page.
                 </p>
               )}
@@ -597,17 +597,17 @@ export default function AdminPage() {
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} onClose={handleDeleteCancel} className="max-w-md w-full mx-4">
         <div className="p-6">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
-            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-danger-soft">
+            <svg className="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-foreground text-center mb-2">Delete Photo</h3>
-          <p className="text-muted text-center mb-6">
+          <h3 className="text-lg font-semibold text-ink text-center mb-2">Delete Photo</h3>
+          <p className="text-ink-secondary text-center mb-6">
             Are you sure you want to delete this photo? This action cannot be undone.
           </p>
           {photoToDelete && (
-            <div className="mb-6 rounded-lg overflow-hidden border border-border">
+            <div className="mb-6 rounded-lg overflow-hidden border border-stroke">
               <div className="aspect-video relative">
                 <Image
                   src={photoToDelete.thumbnailUrl}
@@ -625,7 +625,7 @@ export default function AdminPage() {
             <button
               onClick={handleDeleteConfirm}
               disabled={deletingPhotoId !== null}
-              className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-danger hover:bg-danger-intense text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {deletingPhotoId ? 'Deleting...' : 'Delete'}
             </button>

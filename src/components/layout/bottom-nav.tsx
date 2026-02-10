@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useScrollDirection, useHaptics } from '@/lib/hooks';
 import type { MobileTab } from '@/types';
@@ -55,6 +55,7 @@ const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
 
 export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === '/';
   const { direction, isAtTop } = useScrollDirection({ threshold: 15 });
   const { vibrate } = useHaptics();
@@ -126,8 +127,8 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
               key={tab.id}
               onClick={() => {
                 if (tab.id === 'upload') {
-                  // Navigate to admin for upload
-                  window.location.href = '/admin';
+                  // Navigate to admin for upload (client-side)
+                  router.push('/admin');
                   return;
                 }
                 vibrate('light');

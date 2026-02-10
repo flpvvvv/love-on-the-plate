@@ -5,48 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeToggle } from '@/components/ui';
+import { ThemeToggle, PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon } from '@/components/ui';
 import { useGalleryContext } from './app-shell';
 import { cn } from '@/lib/utils';
 import type { GalleryView } from '@/types';
 
 const galleryViews: { id: GalleryView; label: string; icon: React.ReactNode }[] = [
-  {
-    id: 'floating',
-    label: 'Plates',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-        <circle cx="8" cy="8" r="4" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="16" cy="16" r="4" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="17" cy="7" r="3" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
-  },
-  {
-    id: 'masonry',
-    label: 'Grid',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="14" y="3" width="7" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="3" y="15" width="7" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="14" y="11" width="7" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
-  },
-  {
-    id: 'timeline',
-    label: 'Timeline',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-        <path d="M12 4v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 8 C12 8, 16 8, 18 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 14 C12 14, 8 14, 6 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="12" cy="8" r="2" fill="currentColor" />
-        <circle cx="12" cy="14" r="2" fill="currentColor" />
-      </svg>
-    ),
-  },
+  { id: 'floating', label: 'Plates', icon: <PlatesIcon /> },
+  { id: 'masonry', label: 'Grid', icon: <GridIcon /> },
+  { id: 'timeline', label: 'Timeline', icon: <TimelineIcon /> },
 ];
 
 export function DesktopSidebar() {
@@ -103,25 +70,14 @@ export function DesktopSidebar() {
           href="/"
           active={isHome}
           collapsed={collapsed}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-              <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M4 9h16" stroke="currentColor" strokeWidth="1.5" />
-              <circle cx="8" cy="14" r="2" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M4 18l4-4 3 3 5-5 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          }
+          icon={<GalleryIcon />}
           label="Gallery"
         />
         <SidebarLink
           href="/admin"
           active={isAdmin}
           collapsed={collapsed}
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-          }
+          icon={<UploadIcon />}
           label="Upload"
         />
 

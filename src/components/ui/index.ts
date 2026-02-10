@@ -7,3 +7,4 @@ export { ViewSwitcher } from './view-switcher';
 export { Skeleton, PhotoCardSkeleton } from './skeleton';
 export { ToastProvider, useToast } from './toast';
 export { ResponsiveSheet } from './responsive-sheet';
+export { PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon } from './icons';

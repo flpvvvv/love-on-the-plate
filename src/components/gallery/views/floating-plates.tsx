@@ -40,9 +40,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               zIndex: 10,
               transition: { type: 'spring', stiffness: 400, damping: 20 },
             }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.05 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: Math.min(index * 0.05, 0.6) }}
             onClick={() => onPhotoClick(photo)}
-            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center"
+            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group"
           >
             {/* Plate container */}
             <div className="relative aspect-square w-full">
@@ -50,9 +50,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               <div className="absolute -inset-2 bg-black/10 dark:bg-black/40 rounded-full blur-xl transform translate-y-3" />
 
               {/* Plate rim (outer ring) */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white to-gray-100 dark:from-gray-200 dark:to-gray-300 p-2 shadow-xl">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-canvas-elevated to-canvas-recessed p-2 shadow-xl ring-1 ring-stroke/30">
                 {/* Inner plate ring */}
-                <div className="absolute inset-3 rounded-full border-2 border-gray-200 dark:border-gray-300 opacity-50" />
+                <div className="absolute inset-3 rounded-full border-2 border-stroke opacity-50" />
 
                 {/* Food image */}
                 <div className="relative w-full h-full rounded-full overflow-hidden">
@@ -67,11 +67,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                 </div>
               </div>
 
-              {/* Hover overlay with description */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm"
+              {/* Hover/focus overlay with description */}
+              <div
+                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
               >
                 {(photo.dish_name || photo.description_cn || photo.description_en) && (
                   <div className="text-white text-center px-4">
@@ -83,7 +81,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                     )}
                   </div>
                 )}
-              </motion.div>
+              </div>
             </div>
 
             {/* Dish name and date below plate */}

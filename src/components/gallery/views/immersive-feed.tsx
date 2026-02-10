@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import { useHaptics } from '@/lib/hooks';
 import type { PhotoWithUrls } from '@/types';
@@ -69,6 +69,8 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
   return (
     <div
       ref={containerRef}
+      role="feed"
+      aria-label="Photo feed"
       className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain"
       style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
     >
@@ -80,6 +82,8 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
           isActive={index === activeIndex}
           onTap={() => onPhotoTap?.(photo)}
           priority={index <= 1}
+          index={index}
+          total={photos.length}
         />
       ))}
 
@@ -94,16 +98,24 @@ function FeedItem({
   isActive,
   onTap,
   priority,
+  index,
+  total,
 }: {
   photo: PhotoWithUrls;
   isActive: boolean;
   onTap: () => void;
   priority: boolean;
+  index: number;
+  total: number;
 }) {
-  const [showDetails, setShowDetails] = useState(false);
-
   return (
-    <div className="relative h-[calc(100dvh-4rem)] w-full snap-start snap-always">
+    <article
+      role="article"
+      aria-setsize={total}
+      aria-posinset={index + 1}
+      aria-label={photo.dish_name || 'Photo'}
+      className="relative h-[calc(100dvh-4rem)] w-full snap-start snap-always"
+    >
       {/* Full-bleed image */}
       <div className="absolute inset-0 bg-canvas-recessed">
         <Image
@@ -159,7 +171,6 @@ function FeedItem({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setShowDetails(true);
                 onTap();
               }}
               className="pointer-events-auto text-white/70 text-xs flex items-center gap-1 active:scale-95 transition-transform"
@@ -173,10 +184,6 @@ function FeedItem({
         </div>
       </div>
 
-      {/* Photo counter indicator */}
-      <AnimatePresence>
-        {showDetails && null}
-      </AnimatePresence>
-    </div>
+    </article>
   );
 }

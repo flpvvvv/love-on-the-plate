@@ -94,7 +94,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       </motion.svg>
     ),
     error: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-red-500" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-danger" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
         <path strokeLinecap="round" d="M15 9l-6 6M9 9l6 6" />
       </svg>

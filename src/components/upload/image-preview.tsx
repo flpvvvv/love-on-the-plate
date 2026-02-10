@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui';
@@ -36,11 +36,18 @@ export function ImagePreview({
 }: ImagePreviewProps) {
   const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
+  // Clean up object URL to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-surface border border-border rounded-2xl overflow-hidden"
+      className="bg-canvas-elevated border border-stroke rounded-2xl overflow-hidden"
     >
       {/* Image */}
       <div className="relative aspect-[4/3] bg-black">
@@ -79,7 +86,7 @@ export function ImagePreview({
 
         {/* Dish Name */}
         <div>
-          <label htmlFor="dishName" className="block text-caption font-medium text-foreground mb-2">
+          <label htmlFor="dishName" className="block text-caption font-medium text-ink mb-2">
             菜名 / Dish Name
           </label>
           <input
@@ -90,13 +97,13 @@ export function ImagePreview({
             placeholder="AI 正在识别菜名…"
             disabled={uploading}
             autoComplete="off"
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted"
+            className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary"
           />
         </div>
 
         {/* Chinese Description */}
         <div>
-          <label htmlFor="descriptionCn" className="block text-caption font-medium text-foreground mb-2">
+          <label htmlFor="descriptionCn" className="block text-caption font-medium text-ink mb-2">
             中文描述
           </label>
           <textarea
@@ -107,13 +114,13 @@ export function ImagePreview({
             rows={3}
             disabled={uploading}
             autoComplete="off"
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted leading-relaxed"
+            className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary leading-relaxed"
           />
         </div>
 
         {/* English Description */}
         <div>
-          <label htmlFor="descriptionEn" className="block text-caption font-medium text-foreground mb-2">
+          <label htmlFor="descriptionEn" className="block text-caption font-medium text-ink mb-2">
             English Description
           </label>
           <textarea
@@ -124,7 +131,7 @@ export function ImagePreview({
             rows={3}
             disabled={uploading}
             autoComplete="off"
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent text-foreground placeholder:text-muted leading-relaxed"
+            className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary leading-relaxed"
           />
         </div>
 

@@ -22,7 +22,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: 'bg-love text-white hover:bg-love-intense shadow-sm hover:shadow-md',
   secondary: 'bg-canvas-elevated text-ink hover:bg-canvas-recessed border border-stroke',
   ghost: 'hover:bg-canvas-recessed text-ink',
-  danger: 'bg-red-500 text-white hover:bg-red-600 shadow-sm',
+  danger: 'bg-danger text-white hover:bg-danger-intense shadow-sm',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
