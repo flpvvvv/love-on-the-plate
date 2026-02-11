@@ -7,7 +7,6 @@ import { BottomNav, CollapsibleHeader } from '@/components/layout';
 import { AnalyticsContent } from '@/components/analytics';
 import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
 import { usePullToRefresh, useKeyboardNav } from '@/lib/hooks';
-import { DetailPanel } from './detail-panel';
 import { PullToRefreshIndicator } from './pull-to-refresh-indicator';
 import { PhotoModalContent } from './photo-modal';
 import { FloatingPlates, MasonryGrid, LoveTimeline, ImmersiveFeed } from './views';
@@ -76,7 +75,14 @@ const PhotoDetailSheet = memo(function PhotoDetailSheet() {
     useSelectionContext();
 
   return (
-    <ResponsiveSheet open={!!selectedPhoto} onClose={() => setSelectedPhoto(null)}>
+    <ResponsiveSheet
+      open={!!selectedPhoto}
+      onClose={() => setSelectedPhoto(null)}
+      onPrev={handlePrevPhoto}
+      onNext={handleNextPhoto}
+      hasPrev={hasPrev}
+      hasNext={hasNext}
+    >
       {selectedPhoto && (
         <PhotoModalContent
           photo={selectedPhoto}
@@ -87,22 +93,6 @@ const PhotoDetailSheet = memo(function PhotoDetailSheet() {
         />
       )}
     </ResponsiveSheet>
-  );
-});
-
-const DesktopDetailPanel = memo(function DesktopDetailPanel() {
-  const { selectedPhoto, setSelectedPhoto, handlePrevPhoto, handleNextPhoto, hasPrev, hasNext } =
-    useSelectionContext();
-
-  return (
-    <DetailPanel
-      photo={selectedPhoto}
-      onClose={() => setSelectedPhoto(null)}
-      onPrev={handlePrevPhoto}
-      onNext={handleNextPhoto}
-      hasPrev={hasPrev}
-      hasNext={hasNext}
-    />
   );
 });
 
@@ -367,26 +357,26 @@ export function Gallery() {
     const isDesktopAnalytics = mobileTab === 'analytics';
 
     return (
-      <div id="main-content" className="flex flex-1 min-h-0">
-        <div className="flex-1 overflow-y-auto min-w-0">
-          {isDesktopAnalytics ? (
-            <main className="container mx-auto px-6 py-8" role="region" aria-label="Analytics">
-              <div className="max-w-6xl mx-auto space-y-8">
-                <div>
-                  <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
-                  <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
-                </div>
-                <AnalyticsContent />
+      <div id="main-content" className="flex-1 overflow-y-auto min-h-0">
+        {isDesktopAnalytics ? (
+          <main className="container mx-auto px-6 py-8" role="region" aria-label="Analytics">
+            <div className="max-w-6xl mx-auto space-y-8">
+              <div>
+                <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
+                <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
               </div>
-            </main>
-          ) : (
-            <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
-              {loading ? renderSkeletons() : renderBrowseGallery()}
-              {loadMoreIndicator}
-            </main>
-          )}
-        </div>
-        {!isDesktopAnalytics && <DesktopDetailPanel />}
+              <AnalyticsContent />
+            </div>
+          </main>
+        ) : (
+          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+            {loading ? renderSkeletons() : renderBrowseGallery()}
+            {loadMoreIndicator}
+          </main>
+        )}
+
+        {/* Photo detail modal — renders as a centered overlay */}
+        <PhotoDetailSheet />
       </div>
     );
   }

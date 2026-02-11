@@ -37,7 +37,7 @@ const slideVariants = {
 
 /**
  * Pure content component for photo detail.
- * Used inside ResponsiveSheet (mobile) and DetailPanel (desktop).
+ * Used inside ResponsiveSheet — bottom drawer on mobile, centered lightbox on desktop.
  * Supports swipe left/right on the image to navigate between photos.
  */
 export function PhotoModalContent({
@@ -90,9 +90,9 @@ export function PhotoModalContent({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Image — swipe left/right to navigate */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-canvas-recessed -mx-4 md:mx-0">
+    <div className="space-y-4 md:pb-5">
+      {/* Image — swipe left/right to navigate, fills modal edge-to-edge on desktop */}
+      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-canvas-recessed -mx-4 md:mx-0 md:rounded-none">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={photo.id}
@@ -124,8 +124,8 @@ export function PhotoModalContent({
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation overlay buttons */}
-        <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10">
+        {/* Navigation overlay buttons — mobile only; desktop uses external lightbox buttons */}
+        <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10 md:hidden">
           {onPrev && (
             <button
               onClick={handlePrev}
@@ -153,7 +153,7 @@ export function PhotoModalContent({
         </div>
       </div>
 
-      {/* Details */}
+      {/* Details — padded on desktop since the modal scroll container has no padding */}
       <AnimatePresence mode="wait">
         <motion.div
           key={photo.id}
@@ -161,7 +161,7 @@ export function PhotoModalContent({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="space-y-3"
+          className="space-y-3 md:px-5"
         >
           {/* Dish name */}
           {photo.dish_name && (
