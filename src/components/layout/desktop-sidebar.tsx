@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle, PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon, AnalyticsIcon } from '@/components/ui';
 import { useGalleryContext } from './app-shell';
 import { cn } from '@/lib/utils';
-import type { GalleryView } from '@/types';
+import type { GalleryView, MobileTab } from '@/types';
 
 const galleryViews: { id: GalleryView; label: string; icon: React.ReactNode }[] = [
   { id: 'floating', label: 'Plates', icon: <PlatesIcon /> },
@@ -20,9 +20,21 @@ export function DesktopSidebar() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isAdmin = pathname.startsWith('/admin');
-  const isAnalytics = pathname.startsWith('/analytics');
-  const { galleryView, setGalleryView } = useGalleryContext();
+  const { mobileTab, setMobileTab, galleryView, setGalleryView } = useGalleryContext();
   const [collapsed, setCollapsed] = useState(false);
+
+  // On the home page, Gallery/Analytics are inline tabs; otherwise fall back to pathname
+  const isGalleryActive = isHome && mobileTab !== 'analytics';
+  const isAnalyticsActive = isHome && mobileTab === 'analytics';
+
+  const handleSectionChange = (tab: MobileTab) => {
+    if (!isHome) {
+      // If we're on another page (e.g. /admin), navigate home first
+      window.location.href = '/';
+      return;
+    }
+    setMobileTab(tab);
+  };
 
   return (
     <aside
@@ -67,19 +79,19 @@ export function DesktopSidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {/* Main nav items */}
-        <SidebarLink
-          href="/"
-          active={isHome}
+        <SidebarButton
+          active={isGalleryActive}
           collapsed={collapsed}
           icon={<GalleryIcon />}
           label="Gallery"
+          onClick={() => handleSectionChange('browse')}
         />
-        <SidebarLink
-          href="/analytics"
-          active={isAnalytics}
+        <SidebarButton
+          active={isAnalyticsActive}
           collapsed={collapsed}
           icon={<AnalyticsIcon />}
           label="Analytics"
+          onClick={() => handleSectionChange('analytics')}
         />
         <SidebarLink
           href="/admin"
@@ -89,8 +101,8 @@ export function DesktopSidebar() {
           label="Upload"
         />
 
-        {/* View switcher section -- only on gallery */}
-        {isHome && (
+        {/* View switcher section -- only when gallery is active */}
+        {isGalleryActive && (
           <>
             <div className="pt-4 pb-2">
               {!collapsed && (
@@ -165,6 +177,53 @@ export function DesktopSidebar() {
         )}
       </div>
     </aside>
+  );
+}
+
+function SidebarButton({
+  active,
+  collapsed,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  collapsed: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium',
+        active
+          ? 'text-love'
+          : 'text-ink-secondary hover:text-ink hover:bg-canvas-recessed'
+      )}
+    >
+      {active && (
+        <motion.div
+          layoutId="sidebarNavIndicator"
+          className="absolute inset-0 bg-love-soft rounded-xl"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        />
+      )}
+      <span className="relative z-10 shrink-0">{icon}</span>
+      <AnimatePresence>
+        {!collapsed && (
+          <motion.span
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: 'auto' }}
+            exit={{ opacity: 0, width: 0 }}
+            className="relative z-10 whitespace-nowrap overflow-hidden"
+          >
+            {label}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </button>
   );
 }
 

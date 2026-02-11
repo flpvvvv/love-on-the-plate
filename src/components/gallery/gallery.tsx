@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { ViewSwitcher, PhotoCardSkeleton, ResponsiveSheet } from '@/components/ui';
 import { BottomNav, CollapsibleHeader } from '@/components/layout';
+import { AnalyticsContent } from '@/components/analytics';
 import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
 import { usePullToRefresh, useKeyboardNav } from '@/lib/hooks';
 import { DetailPanel } from './detail-panel';
@@ -363,15 +364,29 @@ export function Gallery() {
 
   // --- DESKTOP LAYOUT ---
   if (isDesktop) {
+    const isDesktopAnalytics = mobileTab === 'analytics';
+
     return (
       <div id="main-content" className="flex flex-1 min-h-0">
         <div className="flex-1 overflow-y-auto min-w-0">
-          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
-            {loading ? renderSkeletons() : renderBrowseGallery()}
-            {loadMoreIndicator}
-          </main>
+          {isDesktopAnalytics ? (
+            <main className="container mx-auto px-6 py-8" role="region" aria-label="Analytics">
+              <div className="max-w-6xl mx-auto space-y-8">
+                <div>
+                  <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
+                  <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
+                </div>
+                <AnalyticsContent />
+              </div>
+            </main>
+          ) : (
+            <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+              {loading ? renderSkeletons() : renderBrowseGallery()}
+              {loadMoreIndicator}
+            </main>
+          )}
         </div>
-        <DesktopDetailPanel />
+        {!isDesktopAnalytics && <DesktopDetailPanel />}
       </div>
     );
   }
@@ -412,6 +427,23 @@ export function Gallery() {
           <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
             {loading ? renderSkeletons() : renderBrowseGallery()}
             {loadMoreIndicator}
+          </main>
+        </div>
+      )}
+
+      {/* Analytics mode */}
+      {mobileTab === 'analytics' && (
+        <div>
+          <CollapsibleHeader />
+
+          <main className="container mx-auto px-4 py-6" role="region" aria-label="Analytics">
+            <div className="max-w-6xl mx-auto space-y-6">
+              <div>
+                <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
+                <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
+              </div>
+              <AnalyticsContent />
+            </div>
           </main>
         </div>
       )}

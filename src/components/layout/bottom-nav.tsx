@@ -164,10 +164,6 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
             <button
               key={tab.id}
               onClick={() => {
-                if (tab.id === 'analytics') {
-                  router.push('/analytics');
-                  return;
-                }
                 if (tab.id === 'upload') {
                   router.push('/admin');
                   return;
