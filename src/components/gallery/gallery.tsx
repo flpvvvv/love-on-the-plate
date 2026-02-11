@@ -133,7 +133,7 @@ export function Gallery() {
 
   const [prevView, setPrevView] = useState<GalleryView>(galleryView);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const isLoadingMoreRef = useRef(false);
 
   const handleViewChange = (newView: GalleryView) => {
     if (newView !== galleryView) {
@@ -195,10 +195,11 @@ export function Gallery() {
     loadInitial();
   }, [fetchPhotos, setPhotos, setCursor, setHasMore, setLoading]);
 
-  // Load more
+  // Load more — uses a synchronous ref guard to prevent concurrent fetches
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore || !cursor) return;
+    if (isLoadingMoreRef.current || !hasMore || !cursor) return;
 
+    isLoadingMoreRef.current = true;
     setLoadingMore(true);
     const data = await fetchPhotos(cursor);
     if (data) {
@@ -206,34 +207,43 @@ export function Gallery() {
       setCursor(data.nextCursor);
       setHasMore(data.hasMore);
     }
+    isLoadingMoreRef.current = false;
     setLoadingMore(false);
-  }, [cursor, hasMore, loadingMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore]);
+  }, [cursor, hasMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore]);
 
-  // Intersection observer for infinite scroll
-  useEffect(() => {
+  // Keep a stable ref to the latest loadMore so the observer callback never goes stale
+  const loadMoreFnRef = useRef(loadMore);
+  useEffect(() => { loadMoreFnRef.current = loadMore; }, [loadMore]);
+
+  // Callback ref — attaches the IntersectionObserver whenever the sentinel div
+  // mounts (initial load, tab switch, etc.) and detaches when it unmounts.
+  const loadMoreSentinelRef = useCallback((node: HTMLDivElement | null) => {
     if (observerRef.current) {
       observerRef.current.disconnect();
+      observerRef.current = null;
     }
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          loadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
+    if (node) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            loadMoreFnRef.current();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      observerRef.current.observe(node);
     }
+  }, []);
 
+  // Clean up observer on unmount
+  useEffect(() => {
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, [hasMore, loadingMore, loadMore]);
+  }, []);
 
   const transition = getViewTransition(prevView, galleryView);
 
@@ -323,23 +333,30 @@ export function Gallery() {
   const loadMoreIndicator = (
     <>
       {hasMore && !loading && (
-        <div ref={loadMoreRef} className="py-8 flex justify-center">
-          {loadingMore && (
-            <div className="flex items-center gap-2 text-ink-secondary" role="status" aria-live="polite">
-              <svg
-                className="animate-spin h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
+        <>
+          {/* Invisible sentinel that triggers the IntersectionObserver */}
+          <div ref={loadMoreSentinelRef} className="h-px" aria-hidden="true" />
+
+          {/* Skeleton placeholders while fetching the next page */}
+          <AnimatePresence>
+            {loadingMore && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="grid grid-cols-2 gap-1.5 p-2 sm:grid-cols-3 sm:gap-4 sm:p-4 lg:grid-cols-4"
+                role="status"
+                aria-live="polite"
+                aria-label="Loading more photos"
               >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              <span>Loading more…</span>
-            </div>
-          )}
-        </div>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <PhotoCardSkeleton key={`more-skeleton-${i}`} />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
       )}
     </>
   );

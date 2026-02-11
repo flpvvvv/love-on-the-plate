@@ -28,19 +28,23 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 p-4">
       {photos.map((photo, index) => {
         const { rotation, scale } = getPlateStyle(index);
+        // Row-relative stagger: 2-col mobile, 3-col tablet, 4-col desktop
+        // We approximate with mod-4 which covers the widest layout
+        const colPosition = index % 4;
 
         return (
           <motion.button
             key={photo.id}
-            initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
-            animate={{ opacity: 1, scale: scale, rotate: rotation }}
+            initial={{ opacity: 0, scale: 0.75, rotate: rotation }}
+            whileInView={{ opacity: 1, scale: scale, rotate: rotation }}
+            viewport={{ once: true, amount: 0.15 }}
             whileHover={{
               scale: 1.08,
               rotate: 0,
               zIndex: 10,
               transition: { type: 'spring', stiffness: 400, damping: 20 },
             }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: Math.min(index * 0.05, 0.6) }}
+            transition={{ type: 'spring', stiffness: 280, damping: 22, delay: colPosition * 0.05 }}
             onClick={() => onPhotoClick(photo)}
             className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group"
           >

@@ -30,13 +30,14 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
         {photos.map((photo, index) => (
           <motion.button
             key={photo.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{
               type: 'spring',
-              stiffness: 300,
-              damping: 25,
-              delay: Math.min(index * 0.05, 0.5),
+              stiffness: 260,
+              damping: 24,
+              delay: (index % 2) * 0.06,
             }}
             onClick={() => onPhotoClick(photo)}
             className="relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group"
@@ -68,12 +69,24 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
         {twoColumnPhotos.map((column, colIndex) => (
           <div key={colIndex} className="flex flex-col gap-4">
             {column.map((photo, photoIndex) => (
-              <PhotoCard
+              <motion.div
                 key={photo.id}
-                photo={photo}
-                onClick={() => onPhotoClick(photo)}
-                priority={colIndex === 0 && photoIndex === 0}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 260,
+                  damping: 24,
+                  delay: colIndex * 0.06,
+                }}
+              >
+                <PhotoCard
+                  photo={photo}
+                  onClick={() => onPhotoClick(photo)}
+                  priority={colIndex === 0 && photoIndex === 0}
+                />
+              </motion.div>
             ))}
           </div>
         ))}
@@ -84,12 +97,24 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
         {threeColumnPhotos.map((column, colIndex) => (
           <div key={colIndex} className="flex flex-col gap-4">
             {column.map((photo, photoIndex) => (
-              <PhotoCard
+              <motion.div
                 key={photo.id}
-                photo={photo}
-                onClick={() => onPhotoClick(photo)}
-                priority={colIndex === 0 && photoIndex === 0}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 260,
+                  damping: 24,
+                  delay: colIndex * 0.05,
+                }}
+              >
+                <PhotoCard
+                  photo={photo}
+                  onClick={() => onPhotoClick(photo)}
+                  priority={colIndex === 0 && photoIndex === 0}
+                />
+              </motion.div>
             ))}
           </div>
         ))}

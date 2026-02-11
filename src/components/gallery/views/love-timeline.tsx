@@ -42,12 +42,18 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
 
             {/* Date groups within month */}
             {month.dates.map((dateGroup) => {
-              const currentEntryStart = entryIndex;
+              let groupLocalIndex = 0;
 
               return (
                 <div key={dateGroup.dateKey} className="mb-6 last:mb-0">
                   {/* Date subheader with heart bullet */}
-                  <div className="flex items-center gap-2 mb-3">
+                  <motion.div
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    className="flex items-center gap-2 mb-3"
+                  >
                     <svg
                       viewBox="0 0 24 24"
                       fill="currentColor"
@@ -59,22 +65,24 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                     <h3 className="font-display text-sm font-semibold text-ink">
                       {dateGroup.label}
                     </h3>
-                  </div>
+                  </motion.div>
 
                   {/* Entry rows */}
                   <div className="space-y-1">
                     {dateGroup.items.map((photo) => {
-                      const idx = entryIndex++;
+                      const localIdx = groupLocalIndex++;
+                      const globalIdx = entryIndex++;
                       return (
                         <motion.button
                           key={photo.id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, amount: 0.2 }}
                           transition={{
                             type: 'spring',
-                            stiffness: 300,
-                            damping: 25,
-                            delay: Math.min((idx - currentEntryStart) * 0.06, 0.4),
+                            stiffness: 280,
+                            damping: 24,
+                            delay: Math.min(localIdx * 0.05, 0.25),
                           }}
                           onClick={() => onPhotoClick(photo)}
                           className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150"
@@ -87,7 +95,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                               fill
                               sizes="56px"
                               className="object-cover"
-                              priority={idx < 4}
+                              priority={globalIdx < 4}
                             />
                           </div>
 
@@ -140,9 +148,10 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
           return (
             <motion.div
               key={photo.id}
-              initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25, delay: Math.min(index * 0.1, 1) }}
+              initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
               className={`relative flex items-center mb-12 ${
                 isLeft ? 'flex-row' : 'flex-row-reverse'
               }`}
@@ -190,8 +199,9 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
                 <motion.div
                   initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: Math.min(index * 0.1 + 0.2, 1.2) }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
                   className="w-8 h-8 bg-love rounded-full flex items-center justify-center shadow-lg"
                 >
                   <svg
