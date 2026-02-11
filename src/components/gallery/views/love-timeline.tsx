@@ -1,8 +1,9 @@
 'use client';
 
+import { useMemo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { formatDate } from '@/lib/utils';
+import { formatDate, groupByMonthAndDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface LoveTimelineProps {
@@ -11,78 +12,121 @@ interface LoveTimelineProps {
 }
 
 export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
+  const monthGroups = useMemo(
+    () => groupByMonthAndDate(photos, (p) => p.created_at),
+    [photos],
+  );
+
+  // Flatten index counter for staggered animations
+  let entryIndex = 0;
+
   return (
     <>
-      {/* Mobile: Vertical card timeline (no alternating) */}
-      <div className="md:hidden px-4 py-6">
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-love/20" />
+      {/* Mobile: Love Diary — time-focused journal layout */}
+      <div className="md:hidden px-4 py-5">
+        {monthGroups.map((month, monthIdx) => (
+          <motion.section
+            key={month.monthKey}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: monthIdx * 0.1 }}
+            className="mb-8 last:mb-0"
+          >
+            {/* Month header */}
+            <div className="mb-4">
+              <h2 className="font-accent text-2xl text-love leading-tight">
+                {month.label}
+              </h2>
+              <div className="mt-1.5 border-t border-dashed border-love/25" />
+            </div>
 
-          {photos.map((photo, index) => (
-            <motion.div
-              key={photo.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25, delay: Math.min(index * 0.08, 0.8) }}
-              className="relative flex items-start gap-4 mb-8 last:mb-0"
-            >
-              {/* Heart marker */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20, delay: Math.min(index * 0.08 + 0.15, 0.95) }}
-                className="relative z-10 w-10 h-10 shrink-0 bg-love rounded-full flex items-center justify-center shadow-lg"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="white"
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </motion.div>
+            {/* Date groups within month */}
+            {month.dates.map((dateGroup) => {
+              const currentEntryStart = entryIndex;
 
-              {/* Card */}
-              <button
-                onClick={() => onPhotoClick(photo)}
-                className="flex-1 min-w-0 focus:outline-none focus-ring rounded-xl text-left"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  className="bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  <div className="relative aspect-[16/10]">
-                    <Image
-                      src={photo.thumbnailUrl}
-                      alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
-                      fill
-                      sizes="(max-width: 768px) calc(100vw - 80px)"
-                      className="object-cover"
-                      priority={index < 2}
-                    />
+              return (
+                <div key={dateGroup.dateKey} className="mb-6 last:mb-0">
+                  {/* Date subheader with heart bullet */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-3.5 h-3.5 text-love shrink-0"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <h3 className="font-display text-sm font-semibold text-ink">
+                      {dateGroup.label}
+                    </h3>
                   </div>
-                  <div className="p-3">
-                    <p className="text-caption text-ink-tertiary mb-0.5">
-                      {formatDate(photo.created_at)}
-                    </p>
-                    {photo.dish_name && (
-                      <p className="font-medium text-ink line-clamp-1">
-                        {photo.dish_name}
-                      </p>
-                    )}
-                    {photo.description_cn && (
-                      <p className="text-caption text-ink-secondary line-clamp-2 mt-1">
-                        {photo.description_cn}
-                      </p>
-                    )}
+
+                  {/* Entry rows */}
+                  <div className="space-y-1">
+                    {dateGroup.items.map((photo) => {
+                      const idx = entryIndex++;
+                      return (
+                        <motion.button
+                          key={photo.id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            type: 'spring',
+                            stiffness: 300,
+                            damping: 25,
+                            delay: Math.min((idx - currentEntryStart) * 0.06, 0.4),
+                          }}
+                          onClick={() => onPhotoClick(photo)}
+                          className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150"
+                        >
+                          {/* Small thumbnail */}
+                          <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-canvas-recessed">
+                            <Image
+                              src={photo.thumbnailUrl}
+                              alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                              priority={idx < 4}
+                            />
+                          </div>
+
+                          {/* Text content */}
+                          <div className="flex-1 min-w-0 py-0.5">
+                            {photo.dish_name ? (
+                              <p className="font-body font-semibold text-sm text-ink line-clamp-1">
+                                {photo.dish_name}
+                              </p>
+                            ) : (
+                              <p className="font-body text-sm text-ink-tertiary italic">
+                                Untitled dish
+                              </p>
+                            )}
+                            {photo.description_cn && (
+                              <p className="text-[13px] leading-snug text-ink-secondary line-clamp-2 mt-0.5">
+                                {photo.description_cn}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Chevron */}
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            className="w-4 h-4 text-ink-tertiary shrink-0"
+                            aria-hidden="true"
+                          >
+                            <path d="M8.25 4.5l7.5 7.5-7.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </motion.button>
+                      );
+                    })}
                   </div>
-                </motion.div>
-              </button>
-            </motion.div>
-          ))}
-        </div>
+                </div>
+              );
+            })}
+          </motion.section>
+        ))}
       </div>
 
       {/* Desktop: Alternating timeline */}

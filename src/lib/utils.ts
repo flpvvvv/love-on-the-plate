@@ -17,6 +17,102 @@ export function formatDate(date: string | Date): string {
   return dateFormatter.format(d);
 }
 
+// Month-year formatter for timeline grouping (e.g., "February 2026")
+const monthYearFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+});
+
+export function formatMonthYear(date: string | Date): string {
+  const d = new Date(date);
+  return monthYearFormatter.format(d);
+}
+
+// Day-date formatter for timeline subheaders (e.g., "Tuesday, Feb 11")
+const dayDateFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'short',
+  day: 'numeric',
+});
+
+export function formatDayDate(date: string | Date): string {
+  const d = new Date(date);
+  return dayDateFormatter.format(d);
+}
+
+// Group items by a date key (YYYY-MM for months, YYYY-MM-DD for days)
+function toDateKey(date: string | Date): string {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function toMonthKey(date: string | Date): string {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export interface DateGroup<T> {
+  dateKey: string;
+  label: string;
+  items: T[];
+}
+
+export interface MonthGroup<T> {
+  monthKey: string;
+  label: string;
+  dates: DateGroup<T>[];
+}
+
+/**
+ * Groups items by month and date using a date accessor.
+ * Returns months in reverse chronological order (newest first),
+ * with dates within each month also in reverse chronological order.
+ */
+export function groupByMonthAndDate<T>(
+  items: T[],
+  getDate: (item: T) => string | Date,
+): MonthGroup<T>[] {
+  const monthMap = new Map<string, Map<string, T[]>>();
+
+  for (const item of items) {
+    const date = getDate(item);
+    const mKey = toMonthKey(date);
+    const dKey = toDateKey(date);
+
+    if (!monthMap.has(mKey)) {
+      monthMap.set(mKey, new Map());
+    }
+    const dateMap = monthMap.get(mKey)!;
+    if (!dateMap.has(dKey)) {
+      dateMap.set(dKey, []);
+    }
+    dateMap.get(dKey)!.push(item);
+  }
+
+  // Sort months descending (newest first)
+  const sortedMonthKeys = [...monthMap.keys()].sort((a, b) => b.localeCompare(a));
+
+  return sortedMonthKeys.map((mKey) => {
+    const dateMap = monthMap.get(mKey)!;
+    // Sort dates descending within the month
+    const sortedDateKeys = [...dateMap.keys()].sort((a, b) => b.localeCompare(a));
+
+    const dates: DateGroup<T>[] = sortedDateKeys.map((dKey) => ({
+      dateKey: dKey,
+      label: formatDayDate(dKey),
+      items: dateMap.get(dKey)!,
+    }));
+
+    // Use the first item's date for the month label
+    const firstDate = dateMap.get(sortedDateKeys[0])![0];
+    return {
+      monthKey: mKey,
+      label: formatMonthYear(getDate(firstDate)),
+      dates,
+    };
+  });
+}
+
 // Relative time formatter
 const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 

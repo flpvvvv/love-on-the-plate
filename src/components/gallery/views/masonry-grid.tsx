@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { PhotoCard } from '../photo-card';
 import type { PhotoWithUrls } from '@/types';
 
@@ -23,15 +25,41 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
 
   return (
     <>
-      {/* Mobile: Single column - maintains chronological order (newest to oldest) */}
-      <div className="flex flex-col gap-4 p-4 sm:hidden">
+      {/* Mobile: Compact 2-column gallery with portrait cards */}
+      <div className="grid grid-cols-2 gap-1.5 p-2 sm:hidden">
         {photos.map((photo, index) => (
-          <PhotoCard
+          <motion.button
             key={photo.id}
-            photo={photo}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 25,
+              delay: Math.min(index * 0.05, 0.5),
+            }}
             onClick={() => onPhotoClick(photo)}
-            priority={index === 0}
-          />
+            className="relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group"
+          >
+            <div className="relative aspect-[3/4] bg-canvas-recessed">
+              <Image
+                src={photo.thumbnailUrl}
+                alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+                fill
+                sizes="(max-width: 640px) 50vw"
+                className="object-cover"
+                priority={index < 4}
+              />
+              {/* Gradient overlay with dish name */}
+              {photo.dish_name && (
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pt-10 pb-2.5 px-2.5">
+                  <p className="text-white text-[13px] font-semibold leading-tight line-clamp-1 drop-shadow-sm">
+                    {photo.dish_name}
+                  </p>
+                </div>
+              )}
+            </div>
+          </motion.button>
         ))}
       </div>
 
