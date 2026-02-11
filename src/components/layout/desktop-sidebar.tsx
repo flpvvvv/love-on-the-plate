@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeToggle, PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon } from '@/components/ui';
+import { ThemeToggle, PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon, AnalyticsIcon } from '@/components/ui';
 import { useGalleryContext } from './app-shell';
 import { cn } from '@/lib/utils';
 import type { GalleryView } from '@/types';
@@ -20,6 +20,7 @@ export function DesktopSidebar() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isAdmin = pathname.startsWith('/admin');
+  const isAnalytics = pathname.startsWith('/analytics');
   const { galleryView, setGalleryView } = useGalleryContext();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -72,6 +73,13 @@ export function DesktopSidebar() {
           collapsed={collapsed}
           icon={<GalleryIcon />}
           label="Gallery"
+        />
+        <SidebarLink
+          href="/analytics"
+          active={isAnalytics}
+          collapsed={collapsed}
+          icon={<AnalyticsIcon />}
+          label="Analytics"
         />
         <SidebarLink
           href="/admin"

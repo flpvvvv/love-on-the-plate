@@ -64,6 +64,17 @@ export function UploadIcon({ className = 'w-5 h-5', ...props }: IconProps) {
   );
 }
 
+export function AnalyticsIcon({ className = 'w-5 h-5', ...props }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
+      <path d="M4 19h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <rect x="6" y="11" width="3" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="11" y="8" width="3" height="9" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="16" y="5" width="3" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon({ className = 'w-4 h-4', ...props }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>

@@ -22,10 +22,33 @@ export interface PhotoWithUrls extends Photo {
 
 export type GalleryView = 'floating' | 'masonry' | 'timeline';
 
-export type MobileTab = 'feed' | 'browse' | 'upload';
+export type MobileTab = 'feed' | 'browse' | 'analytics' | 'upload';
 
 export interface PaginatedPhotos {
   photos: PhotoWithUrls[];
   nextCursor: string | null;
   hasMore: boolean;
+}
+
+export interface MonthlyCount {
+  month: string;
+  label: string;
+  count: number;
+}
+
+export interface DishCount {
+  dishName: string;
+  count: number;
+}
+
+export interface DailyTrendPoint {
+  date: string;
+  count: number;
+}
+
+export interface AnalyticsResponse {
+  totalCount: number;
+  perMonth: MonthlyCount[];
+  topDishes: DishCount[];
+  recentTrend: DailyTrendPoint[];
 }

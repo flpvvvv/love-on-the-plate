@@ -21,7 +21,7 @@ function useLocalStorageValue<T extends string>(key: string, fallback: T, validV
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
-const VALID_TABS: MobileTab[] = ['feed', 'browse', 'upload'];
+const VALID_TABS: MobileTab[] = ['feed', 'browse', 'analytics', 'upload'];
 const VALID_VIEWS: GalleryView[] = ['floating', 'masonry', 'timeline'];
 
 interface AppShellContextValue {
