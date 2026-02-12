@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useScrollDirection, useHaptics } from '@/lib/hooks';
+import { useScrollDirection, useHaptics, useIOSSafeBottom } from '@/lib/hooks';
 import { AnalyticsIcon, GalleryIcon, UploadIcon } from '@/components/ui';
 import type { MobileTab } from '@/types';
 
@@ -67,6 +67,9 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   const isAdmin = pathname.startsWith('/admin');
   const { direction, isAtTop } = useScrollDirection({ threshold: 15 });
   const { vibrate } = useHaptics();
+
+  // Track iOS Safari dynamic toolbar to prevent it from overlapping the nav
+  useIOSSafeBottom();
 
   // Auto-hide on scroll down, show on scroll up (only in feed mode for full immersion)
   const shouldHide = currentTab === 'feed' && direction === 'down' && !isAtTop;

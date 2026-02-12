@@ -509,9 +509,16 @@ select,
   box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--love);
 }
 
-/* Safe area padding for mobile */
+/* Safe area padding for mobile.
+   env(safe-area-inset-bottom) handles the hardware home indicator (requires
+   viewport-fit=cover to return non-zero — currently unused, so this is 0).
+   var(--ios-bottom-offset) is set by the useIOSSafeBottom() hook to compensate
+   for the iOS Safari dynamic toolbar that overlaps fixed-bottom elements.
+   On non-iOS platforms both values are 0, so this class is a no-op. */
 .safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + var(--ios-bottom-offset, 0px)
+  );
 }
 
 .safe-top {

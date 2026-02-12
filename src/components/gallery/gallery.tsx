@@ -413,7 +413,7 @@ export function Gallery() {
 
   // --- MOBILE LAYOUT ---
   return (
-    <div id="main-content" className="min-h-screen pb-20">
+    <div id="main-content" className="min-h-screen pb-24">
       {/* Feed mode */}
       {mobileTab === 'feed' && (
         <>

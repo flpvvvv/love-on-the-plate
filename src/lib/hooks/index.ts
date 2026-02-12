@@ -8,3 +8,4 @@ export { useFocusTrap } from './use-focus-trap';
 export { useGestureHint } from './use-gesture-hint';
 export { useNetworkStatus } from './use-network-status';
 export { useScrollToTop } from './use-scroll-to-top';
+export { useIOSSafeBottom } from './use-ios-safe-bottom';
