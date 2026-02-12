@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
+import { useMediaQuery } from '@/lib/hooks';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -18,6 +19,9 @@ interface PhotoModalContentProps {
 const SWIPE_POWER_THRESHOLD = 5000;   // offset * velocity
 const SWIPE_DISTANCE_THRESHOLD = 80;  // px drag distance
 const SWIPE_VELOCITY_THRESHOLD = 300; // px/s flick speed
+
+// Minimum movement (px) before classifying gesture as horizontal or vertical
+const DIRECTION_LOCK_THRESHOLD = 10;
 
 /** Direction-aware slide variants for the image carousel. */
 const slideVariants = {
@@ -38,7 +42,15 @@ const slideVariants = {
 /**
  * Pure content component for photo detail.
  * Used inside ResponsiveSheet — bottom drawer on mobile, centered lightbox on desktop.
- * Supports swipe left/right on the image to navigate between photos.
+ *
+ * Navigation gestures (mobile):
+ *   Attaches touch listeners to the Vaul [data-vaul-drawer] element so horizontal
+ *   swipe works across the entire drawer surface — handle, image, text, padding.
+ *   Direction locking ensures vertical scroll / Vaul dismiss are unaffected.
+ *
+ * Navigation gestures (desktop):
+ *   Framer Motion drag="x" on the image with rubber-band feedback.
+ *   External prev/next buttons on the lightbox backdrop.
  */
 export function PhotoModalContent({
   photo,
@@ -47,9 +59,95 @@ export function PhotoModalContent({
   hasPrev = false,
   hasNext = false,
 }: PhotoModalContentProps) {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   // Track swipe direction for enter/exit animation: 1 = next, -1 = prev
   const [direction, setDirection] = useState(0);
 
+  // Ref to the outermost wrapper — used to find the Vaul drawer via .closest()
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Stable ref for navigation state — avoids re-attaching listeners on each render
+  const navRef = useRef({ hasNext, hasPrev, onNext, onPrev });
+  navRef.current = { hasNext, hasPrev, onNext, onPrev };
+
+  // ---------------------------------------------------------------------------
+  // Full-drawer swipe (mobile only)
+  // Walks up from contentRef to find [data-vaul-drawer] and attaches native
+  // touch listeners on that element. Direction locking (10 px dead-zone)
+  // classifies each gesture as horizontal → navigate or vertical → ignore.
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (isDesktop) return;
+
+    const drawerEl = contentRef.current?.closest(
+      '[data-vaul-drawer]',
+    ) as HTMLElement | null;
+    if (!drawerEl) return;
+
+    let touchStart: { x: number; y: number; time: number } | null = null;
+    let gestureDir: 'horizontal' | 'vertical' | null = null;
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+      gestureDir = null;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!touchStart || gestureDir) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - touchStart.x);
+      const dy = Math.abs(t.clientY - touchStart.y);
+      if (dx < DIRECTION_LOCK_THRESHOLD && dy < DIRECTION_LOCK_THRESHOLD) return;
+      gestureDir = dx > dy ? 'horizontal' : 'vertical';
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchStart || gestureDir !== 'horizontal') {
+        touchStart = null;
+        gestureDir = null;
+        return;
+      }
+
+      const { hasNext, hasPrev, onNext, onPrev } = navRef.current;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStart.x;
+      const elapsed = (Date.now() - touchStart.time) / 1000 || 0.001;
+      const velocity = Math.abs(dx / elapsed);
+
+      const triggered =
+        Math.abs(dx) > SWIPE_DISTANCE_THRESHOLD ||
+        velocity > SWIPE_VELOCITY_THRESHOLD;
+
+      if (triggered) {
+        if (dx < 0 && hasNext) {
+          setDirection(1);
+          onNext?.();
+        } else if (dx > 0 && hasPrev) {
+          setDirection(-1);
+          onPrev?.();
+        }
+      }
+
+      touchStart = null;
+      gestureDir = null;
+    };
+
+    drawerEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    drawerEl.addEventListener('touchmove', onTouchMove, { passive: true });
+    drawerEl.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      drawerEl.removeEventListener('touchstart', onTouchStart);
+      drawerEl.removeEventListener('touchmove', onTouchMove);
+      drawerEl.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isDesktop]);
+
+  // ---------------------------------------------------------------------------
+  // Framer Motion drag handler — desktop image only (rubber-band feedback)
+  // ---------------------------------------------------------------------------
   const handleDragEnd = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       const { offset, velocity } = info;
@@ -90,8 +188,8 @@ export function PhotoModalContent({
   };
 
   return (
-    <div className="space-y-4 md:pb-5">
-      {/* Image — swipe left/right to navigate, fills modal edge-to-edge on desktop */}
+    <div ref={contentRef} className="space-y-4 md:pb-5">
+      {/* Image — drag on desktop for rubber-band; mobile swipe handled by drawer */}
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-canvas-recessed -mx-4 md:mx-0 md:rounded-none">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
@@ -105,12 +203,12 @@ export function PhotoModalContent({
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.15 },
             }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={dragElastic}
-            onDragEnd={handleDragEnd}
+            drag={isDesktop ? 'x' : false}
+            dragConstraints={isDesktop ? { left: 0, right: 0 } : undefined}
+            dragElastic={isDesktop ? dragElastic : undefined}
+            onDragEnd={isDesktop ? handleDragEnd : undefined}
             className="absolute inset-0"
-            style={{ touchAction: 'pan-y' }}
+            style={isDesktop ? { touchAction: 'pan-y' } : undefined}
           >
             <Image
               src={photo.imageUrl}
@@ -124,7 +222,7 @@ export function PhotoModalContent({
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation overlay buttons — mobile only; desktop uses external lightbox buttons */}
+        {/* Prev/next buttons — kept as accessibility fallback + visual affordance */}
         <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10 md:hidden">
           {onPrev && (
             <button
