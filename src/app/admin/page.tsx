@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Header, Footer } from '@/components/layout';
 import { UploadZone, ImagePreview } from '@/components/upload';
-import { Button, Dialog, useToast } from '@/components/ui';
+import { Button, Dialog, Skeleton, useToast } from '@/components/ui';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage, formatFileSize, getBase64Size, COMPRESSION_PRESETS, base64ToBlob } from '@/lib/client-image-compression';
 import type { PhotoWithUrls } from '@/types';
@@ -470,9 +470,9 @@ export default function AdminPage() {
         <Header showAdminLink={false} />
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto text-center py-16">
-            <div className="animate-pulse">
-              <div className="h-8 bg-canvas-elevated rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-canvas-elevated rounded w-64 mx-auto"></div>
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-48 mx-auto" />
+              <Skeleton className="h-4 w-64 mx-auto" />
             </div>
           </div>
         </main>
@@ -668,13 +668,15 @@ export default function AdminPage() {
             <Button variant="ghost" onClick={handleDeleteCancel} className="flex-1">
               Cancel
             </Button>
-            <button
+            <Button
+              variant="danger"
               onClick={handleDeleteConfirm}
               disabled={deletingPhotoId !== null}
-              className="flex-1 px-4 py-2 bg-danger hover:bg-danger-intense text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              loading={deletingPhotoId !== null}
+              className="flex-1"
             >
               {deletingPhotoId ? 'Deleting...' : 'Delete'}
-            </button>
+            </Button>
           </div>
         </div>
       </Dialog>

@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import { useHaptics } from '@/lib/hooks';
 import type { PhotoWithUrls } from '@/types';
@@ -17,6 +17,7 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const { vibrate } = useHaptics();
   const lastSnapIndex = useRef(0);
+  const prefersReducedMotion = useReducedMotion();
 
   // Track which photo is snapped into view
   const handleScroll = useCallback(() => {
@@ -74,7 +75,6 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
       className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain"
       style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
     >
-      <style jsx>{`div::-webkit-scrollbar { display: none; }`}</style>
       {photos.map((photo, index) => (
         <FeedItem
           key={photo.id}
@@ -84,6 +84,7 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
           priority={index <= 1}
           index={index}
           total={photos.length}
+          prefersReducedMotion={prefersReducedMotion ?? false}
         />
       ))}
 
@@ -100,6 +101,7 @@ function FeedItem({
   priority,
   index,
   total,
+  prefersReducedMotion,
 }: {
   photo: PhotoWithUrls;
   isActive: boolean;
@@ -107,7 +109,12 @@ function FeedItem({
   priority: boolean;
   index: number;
   total: number;
+  prefersReducedMotion: boolean;
 }) {
+  const animateProps = prefersReducedMotion
+    ? { opacity: 1, y: 0 }
+    : undefined;
+
   return (
     <article
       role="article"
@@ -137,9 +144,9 @@ function FeedItem({
           {/* Dish name */}
           {photo.dish_name && (
             <motion.h2
-              initial={{ opacity: 0, y: 10 }}
-              animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
               className="font-display text-2xl font-semibold text-white mb-1.5 drop-shadow-lg"
             >
               {photo.dish_name}
@@ -149,9 +156,9 @@ function FeedItem({
           {/* Chinese description */}
           {photo.description_cn && (
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
               className="text-white/90 text-sm leading-relaxed mb-2 line-clamp-2 drop-shadow"
             >
               {photo.description_cn}
@@ -160,9 +167,9 @@ function FeedItem({
 
           {/* Date + "tap for more" */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={isActive ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 0.3 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={isActive ? { opacity: 1 } : (prefersReducedMotion ? { opacity: 1 } : { opacity: 0 })}
+            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.3 }}
             className="flex items-center justify-between"
           >
             <span className="text-white/60 text-xs">
@@ -173,7 +180,8 @@ function FeedItem({
                 e.stopPropagation();
                 onTap();
               }}
-              className="pointer-events-auto text-white/70 text-xs flex items-center gap-1 active:scale-95 transition-transform"
+              className="pointer-events-auto text-white/70 text-xs flex items-center gap-1 active:scale-95 transition-transform cursor-pointer focus-ring rounded-md px-2 py-1 -mr-2"
+              aria-label={`View details for ${photo.dish_name || 'photo'}`}
             >
               <span>Details</span>
               <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" aria-hidden="true">

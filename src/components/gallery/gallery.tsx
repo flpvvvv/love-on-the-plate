@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
 import { ViewSwitcher, PhotoCardSkeleton, ResponsiveSheet } from '@/components/ui';
 import { BottomNav, CollapsibleHeader } from '@/components/layout';
 import { AnalyticsContent } from '@/components/analytics';
@@ -34,39 +34,46 @@ function getViewTransition(from: GalleryView, to: GalleryView): { x: number; y: 
   }
 }
 
-const viewTransitionVariants = {
-  initial: (transition: { x: number; y: number }) => ({
-    opacity: 0,
-    scale: 0.98,
-    x: transition.x,
-    y: transition.y,
-    filter: 'blur(4px)',
-  }),
-  animate: {
-    opacity: 1,
-    scale: 1,
-    x: 0,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: {
-      type: 'spring' as const,
-      stiffness: 300,
-      damping: 30,
+function getViewTransitionVariants(reducedMotion: boolean | null) {
+  if (reducedMotion) {
+    return {
+      initial: { opacity: 1 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+    };
+  }
+
+  return {
+    initial: (transition: { x: number; y: number }) => ({
+      opacity: 0,
+      scale: 0.98,
+      x: transition.x,
+      y: transition.y,
+    }),
+    animate: {
+      opacity: 1,
+      scale: 1,
+      x: 0,
+      y: 0,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 300,
+        damping: 30,
+      },
     },
-  },
-  exit: (transition: { x: number; y: number }) => ({
-    opacity: 0,
-    scale: 0.98,
-    x: -transition.x,
-    y: -transition.y,
-    filter: 'blur(4px)',
-    transition: {
-      type: 'spring' as const,
-      stiffness: 300,
-      damping: 30,
-    },
-  }),
-};
+    exit: (transition: { x: number; y: number }) => ({
+      opacity: 0,
+      scale: 0.98,
+      x: -transition.x,
+      y: -transition.y,
+      transition: {
+        type: 'spring' as const,
+        stiffness: 300,
+        damping: 30,
+      },
+    }),
+  };
+}
 
 // ---- Selection-aware wrapper (isolates re-renders from the grid) ----
 
@@ -122,6 +129,7 @@ export function Gallery() {
   // Selection context is only used for keyboard nav (desktop) -- read it lazily
   const selection = useSelectionContext();
 
+  const prefersReducedMotion = useReducedMotion();
   const [prevView, setPrevView] = useState<GalleryView>(galleryView);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const isLoadingMoreRef = useRef(false);
@@ -237,6 +245,7 @@ export function Gallery() {
   }, []);
 
   const transition = getViewTransition(prevView, galleryView);
+  const viewVariants = getViewTransitionVariants(prefersReducedMotion);
 
   // Pull-to-refresh (mobile browse mode)
   const { containerRef: pullContainerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
@@ -300,7 +309,7 @@ export function Gallery() {
         <motion.div
           key={galleryView}
           custom={transition}
-          variants={viewTransitionVariants}
+          variants={viewVariants}
           initial="initial"
           animate="animate"
           exit="exit"

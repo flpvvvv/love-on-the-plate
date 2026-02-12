@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+  openGraph: {
+    title: 'Love on the Plate',
+    description: 'Celebrating homemade meals with love',
+    type: 'website',
+    siteName: 'Love on the Plate',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Love on the Plate',
+    description: 'Celebrating homemade meals with love',
+  },
 };
 
 export const viewport: Viewport = {

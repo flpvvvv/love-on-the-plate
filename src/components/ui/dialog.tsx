@@ -3,6 +3,7 @@
 import { useEffect, useCallback, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useFocusTrap } from '@/lib/hooks';
 
 interface DialogProps {
   open: boolean;
@@ -12,6 +13,8 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onClose, children, className }: DialogProps) {
+  const focusTrapRef = useFocusTrap(open);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -37,6 +40,7 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
     <AnimatePresence>
       {open && (
         <div
+          ref={focusTrapRef}
           className="fixed inset-0 z-50 flex items-center justify-center"
           role="dialog"
           aria-modal="true"
@@ -49,6 +53,7 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
+            aria-hidden="true"
           />
 
           {/* Content */}
@@ -75,7 +80,7 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
   return (
     <button
       onClick={onClose}
-      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10 backdrop-blur-sm"
+      className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10 backdrop-blur-sm cursor-pointer focus-ring"
       aria-label="Close"
     >
       <svg

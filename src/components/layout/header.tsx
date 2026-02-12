@@ -14,7 +14,7 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stroke glass">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group focus-ring rounded-xl">
           <div className="w-10 h-10 text-ink transition-transform duration-300 ease-spring group-hover:scale-110">
             <Image
               src="/logo.svg"
@@ -40,7 +40,7 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
           {showAdminLink && (
             <Link
               href="/admin"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-love text-white text-sm font-medium rounded-xl hover:bg-love-intense transition-colors shadow-sm hover:shadow-md"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-love text-white text-sm font-medium rounded-xl hover:bg-love-intense transition-colors shadow-sm hover:shadow-md cursor-pointer focus-ring"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

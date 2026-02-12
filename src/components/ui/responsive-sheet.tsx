@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect } from 'react';
 import { Drawer } from 'vaul';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useMediaQuery } from '@/lib/hooks';
+import { useMediaQuery, useFocusTrap } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 
 interface ResponsiveSheetProps {
@@ -49,6 +49,8 @@ function DesktopDialog({
   hasPrev = false,
   hasNext = false,
 }: ResponsiveSheetProps) {
+  const focusTrapRef = useFocusTrap(open);
+
   // Escape key to close
   useEffect(() => {
     if (!open) return;
@@ -71,6 +73,7 @@ function DesktopDialog({
     <AnimatePresence>
       {open && (
         <div
+          ref={focusTrapRef}
           className="fixed inset-0 z-50 flex items-center justify-center p-8"
           role="dialog"
           aria-modal="true"
@@ -95,7 +98,7 @@ function DesktopDialog({
               transition={{ type: 'spring', stiffness: 400, damping: 30, delay: 0.05 }}
               onClick={onPrev}
               disabled={!hasPrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 hover:scale-105 transition-all disabled:opacity-0 disabled:pointer-events-none"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 hover:scale-105 transition-all disabled:opacity-0 disabled:pointer-events-none cursor-pointer focus-ring"
               aria-label="Previous photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -113,7 +116,7 @@ function DesktopDialog({
               transition={{ type: 'spring', stiffness: 400, damping: 30, delay: 0.05 }}
               onClick={onNext}
               disabled={!hasNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 hover:scale-105 transition-all disabled:opacity-0 disabled:pointer-events-none"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 hover:scale-105 transition-all disabled:opacity-0 disabled:pointer-events-none cursor-pointer focus-ring"
               aria-label="Next photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -133,10 +136,10 @@ function DesktopDialog({
               className,
             )}
           >
-            {/* Close button — floats over the image */}
+            {/* Close button — floats over the image (44px touch target) */}
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors"
+              className="absolute top-3 right-3 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors cursor-pointer focus-ring"
               aria-label="Close"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">

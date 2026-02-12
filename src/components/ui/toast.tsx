@@ -118,7 +118,8 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
     >
       <button
         onClick={() => onDismiss(toast.id)}
-        className="flex items-center gap-3 px-4 py-3 bg-canvas-elevated border border-stroke rounded-xl shadow-lg backdrop-blur-sm min-w-[200px] max-w-[90vw] text-left"
+        className="flex items-center gap-3 px-4 py-3 bg-canvas-elevated border border-stroke rounded-xl shadow-lg backdrop-blur-sm min-w-[200px] max-w-[90vw] text-left cursor-pointer focus-ring"
+        aria-label={`Dismiss: ${toast.message}`}
       >
         <span className="flex-shrink-0 animate-heartbeat">
           {icons[toast.type]}

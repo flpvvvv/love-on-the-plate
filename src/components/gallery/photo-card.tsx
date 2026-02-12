@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -14,43 +14,51 @@ interface PhotoCardProps {
 
 export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) {
   const cardRef = useRef<HTMLButtonElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const prefersReducedMotion = useReducedMotion();
+
+  // Use motion values instead of state to avoid React re-renders on every mouse move
+  const rawTiltX = useMotionValue(0);
+  const rawTiltY = useMotionValue(0);
+  const tiltX = useSpring(rawTiltX, { stiffness: 400, damping: 30 });
+  const tiltY = useSpring(rawTiltY, { stiffness: 400, damping: 30 });
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (prefersReducedMotion) return;
     const card = cardRef.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -8, y: x * 8 });
-  }, []);
+    rawTiltX.set(y * -8);
+    rawTiltY.set(x * 8);
+  }, [prefersReducedMotion, rawTiltX, rawTiltY]);
 
   const handleMouseLeave = useCallback(() => {
-    setTilt({ x: 0, y: 0 });
-  }, []);
+    rawTiltX.set(0);
+    rawTiltY.set(0);
+  }, [rawTiltX, rawTiltY]);
 
   return (
     <motion.button
       ref={cardRef}
-      initial={{ opacity: 0, y: 20 }}
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="w-full text-left focus:outline-none focus-ring rounded-xl overflow-hidden group"
+      className="w-full text-left focus:outline-none focus-ring rounded-xl overflow-hidden group cursor-pointer"
       style={{
         perspective: 800,
       }}
     >
       <motion.div
         className="relative bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
-        animate={{
-          rotateX: tilt.x,
-          rotateY: tilt.y,
+        style={prefersReducedMotion ? undefined : {
+          rotateX: tiltX,
+          rotateY: tiltY,
         }}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         <div className="aspect-square relative overflow-hidden">
           <Image

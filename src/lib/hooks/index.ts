@@ -4,3 +4,4 @@ export { useScrollDirection } from './use-scroll-direction';
 export { useMediaQuery } from './use-media-query';
 export { usePullToRefresh } from './use-pull-to-refresh';
 export { useKeyboardNav } from './use-keyboard-nav';
+export { useFocusTrap } from './use-focus-trap';

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { formatDate, groupByMonthAndDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -12,6 +12,7 @@ interface LoveTimelineProps {
 }
 
 export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
+  const prefersReducedMotion = useReducedMotion();
   const monthGroups = useMemo(
     () => groupByMonthAndDate(photos, (p) => p.created_at),
     [photos],
@@ -27,9 +28,9 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
         {monthGroups.map((month, monthIdx) => (
           <motion.section
             key={month.monthKey}
-            initial={{ opacity: 0 }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: monthIdx * 0.1 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { delay: monthIdx * 0.1 }}
             className="mb-8 last:mb-0"
           >
             {/* Month header */}
@@ -48,10 +49,10 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                 <div key={dateGroup.dateKey} className="mb-6 last:mb-0">
                   {/* Date subheader with heart bullet */}
                   <motion.div
-                    initial={{ opacity: 0, x: -8 }}
+                    initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: -8 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, amount: 0.5 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
                     className="flex items-center gap-2 mb-3"
                   >
                     <svg
@@ -75,17 +76,17 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                       return (
                         <motion.button
                           key={photo.id}
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true, amount: 0.2 }}
-                          transition={{
+                          transition={prefersReducedMotion ? { duration: 0 } : {
                             type: 'spring',
                             stiffness: 280,
                             damping: 24,
                             delay: Math.min(localIdx * 0.05, 0.25),
                           }}
                           onClick={() => onPhotoClick(photo)}
-                          className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150"
+                          className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150 cursor-pointer"
                         >
                           {/* Small thumbnail */}
                           <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-canvas-recessed">
@@ -148,10 +149,10 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
           return (
             <motion.div
               key={photo.id}
-              initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: isLeft ? -30 : 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 24 }}
               className={`relative flex items-center mb-12 ${
                 isLeft ? 'flex-row' : 'flex-row-reverse'
               }`}
@@ -159,12 +160,12 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               {/* Content */}
               <button
                 onClick={() => onPhotoClick(photo)}
-                className={`w-5/12 focus:outline-none focus-ring rounded-xl ${
+                className={`w-5/12 focus:outline-none focus-ring rounded-xl cursor-pointer ${
                   isLeft ? 'pr-8 text-right' : 'pl-8 text-left'
                 }`}
               >
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
                   className="bg-canvas-elevated border border-stroke rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
                 >
                   <div className="relative aspect-[4/3]">
@@ -198,10 +199,10 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               {/* Heart marker */}
               <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
                 <motion.div
-                  initial={{ scale: 0 }}
+                  initial={prefersReducedMotion ? { scale: 1 } : { scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
                   className="w-8 h-8 bg-love rounded-full flex items-center justify-center shadow-lg"
                 >
                   <svg

@@ -3,7 +3,7 @@
    "Intimate Minimalism Meets Culinary Poetry"
    ========================================================================== */
 
-/* Import Google Fonts - Sophisticated pairing */
+/* Google Fonts — loaded with display=swap to prevent FOIT. Preconnect in layout.tsx. */
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
@@ -22,7 +22,7 @@
   /* Typography Colors */
   --ink: #1C1512;
   --ink-secondary: #6B5B4F;
-  --ink-tertiary: #A39788;
+  --ink-tertiary: #8A7D70;
   
   /* Stroke/Border */
   --stroke: #E8DDD4;
@@ -119,7 +119,7 @@
   /* Typography Colors */
   --ink: #F5EEE8;
   --ink-secondary: #B5A89A;
-  --ink-tertiary: #756A5E;
+  --ink-tertiary: #8A7E72;
   
   /* Stroke/Border */
   --stroke: #2A2320;
@@ -245,7 +245,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
   opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='a'%3E%3CfeTurbulence baseFrequency='.75' stitchTiles='stitch' type='fractalNoise'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
 }
@@ -375,11 +375,11 @@ body::before {
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2s ease-in-out 3; /* Finite: 3 cycles then stops */
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 3s ease-in-out 3; /* Finite: 3 cycles then stops */
 }
 
 .animate-shimmer {

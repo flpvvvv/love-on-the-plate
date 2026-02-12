@@ -74,13 +74,13 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   // If we're on the admin page, use a simple nav
   if (!isHome) {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain" aria-label="Site navigation">
         <div className="absolute inset-0 glass border-t border-stroke" />
         <div className="relative flex items-center justify-around h-16 px-2">
           <Link
             href="/"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors',
+              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
               !isAnalytics && !isAdmin
                 ? 'text-love'
                 : 'text-ink-tertiary hover:text-ink-secondary'
@@ -88,7 +88,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           >
             {!isAnalytics && !isAdmin && (
               <motion.div
-                layoutId="bottomNavTab"
+                layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
@@ -101,7 +101,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           <Link
             href="/analytics"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors',
+              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
               isAnalytics
                 ? 'text-love'
                 : 'text-ink-tertiary hover:text-ink-secondary'
@@ -109,7 +109,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           >
             {isAnalytics && (
               <motion.div
-                layoutId="bottomNavTab"
+                layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
@@ -122,7 +122,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           <Link
             href="/admin"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors',
+              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
               isAdmin
                 ? 'text-love'
                 : 'text-ink-tertiary hover:text-ink-secondary'
@@ -130,7 +130,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           >
             {isAdmin && (
               <motion.div
-                layoutId="bottomNavTab"
+                layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
@@ -148,6 +148,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   return (
     <motion.nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain"
+      aria-label="Main navigation"
       animate={{
         y: shouldHide ? 100 : 0,
       }}
@@ -172,7 +173,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
                 onTabChange(tab.id);
               }}
               className={cn(
-                'relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors',
+                'relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors cursor-pointer focus-ring',
                 isActive
                   ? 'text-love'
                   : 'text-ink-tertiary active:text-ink-secondary'
@@ -181,7 +182,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
             >
               {isActive && (
                 <motion.div
-                  layoutId="bottomNavTab"
+                  layoutId="homeNavTab"
                   className="absolute inset-1 bg-love-soft rounded-xl"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />

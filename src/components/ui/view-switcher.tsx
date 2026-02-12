@@ -19,15 +19,17 @@ const views: { id: GalleryView; label: string; icon: ReactNode }[] = [
 
 export function ViewSwitcher({ currentView, onViewChange }: ViewSwitcherProps) {
   return (
-    <div className="inline-flex bg-canvas-elevated border border-stroke rounded-xl p-1 gap-1 shadow-sm">
+    <div className="inline-flex bg-canvas-elevated border border-stroke rounded-xl p-1 gap-1 shadow-sm" role="tablist">
       {views.map((view) => (
         <button
           key={view.id}
           onClick={() => onViewChange(view.id)}
           className={cn(
-            'relative px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2',
+            'relative px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer focus-ring',
             currentView === view.id ? 'text-white' : 'text-ink-tertiary hover:text-ink'
           )}
+          role="tab"
+          aria-selected={currentView === view.id}
           aria-label={`Switch to ${view.label} view`}
         >
           {currentView === view.id && (

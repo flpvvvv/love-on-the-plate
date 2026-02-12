@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { PhotoCard } from '../photo-card';
 import type { PhotoWithUrls } from '@/types';
 
@@ -11,6 +11,8 @@ interface MasonryGridProps {
 }
 
 export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   // Split photos into columns for masonry effect (tablet/desktop only)
   const getColumnPhotos = (columnCount: number) => {
     const cols: PhotoWithUrls[][] = Array.from({ length: columnCount }, () => []);
@@ -30,17 +32,17 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
         {photos.map((photo, index) => (
           <motion.button
             key={photo.id}
-            initial={{ opacity: 0, y: 16, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
+            whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.15 }}
-            transition={{
+            transition={prefersReducedMotion ? { duration: 0 } : {
               type: 'spring',
               stiffness: 260,
               damping: 24,
               delay: (index % 2) * 0.06,
             }}
             onClick={() => onPhotoClick(photo)}
-            className="relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group"
+            className="relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group cursor-pointer"
           >
             <div className="relative aspect-[3/4] bg-canvas-recessed">
               <Image
@@ -71,10 +73,10 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
             {column.map((photo, photoIndex) => (
               <motion.div
                 key={photo.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}
-                transition={{
+                transition={prefersReducedMotion ? { duration: 0 } : {
                   type: 'spring',
                   stiffness: 260,
                   damping: 24,
@@ -99,10 +101,10 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
             {column.map((photo, photoIndex) => (
               <motion.div
                 key={photo.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}
-                transition={{
+                transition={prefersReducedMotion ? { duration: 0 } : {
                   type: 'spring',
                   stiffness: 260,
                   damping: 24,

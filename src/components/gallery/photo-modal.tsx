@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence, type PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'framer-motion';
 import { useMediaQuery } from '@/lib/hooks';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
@@ -60,6 +60,7 @@ export function PhotoModalContent({
   hasNext = false,
 }: PhotoModalContentProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const prefersReducedMotion = useReducedMotion();
 
   // Track swipe direction for enter/exit animation: 1 = next, -1 = prev
   const [direction, setDirection] = useState(0);
@@ -195,11 +196,11 @@ export function PhotoModalContent({
           <motion.div
             key={photo.id}
             custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
+            variants={prefersReducedMotion ? undefined : slideVariants}
+            initial={prefersReducedMotion ? { opacity: 1 } : 'enter'}
+            animate={prefersReducedMotion ? { opacity: 1 } : 'center'}
+            exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
+            transition={prefersReducedMotion ? { duration: 0 } : {
               x: { type: 'spring', stiffness: 300, damping: 30 },
               opacity: { duration: 0.15 },
             }}
@@ -228,7 +229,7 @@ export function PhotoModalContent({
             <button
               onClick={handlePrev}
               disabled={!hasPrev}
-              className="pointer-events-auto w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95"
+              className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
               aria-label="Previous photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -240,7 +241,7 @@ export function PhotoModalContent({
             <button
               onClick={handleNext}
               disabled={!hasNext}
-              className="pointer-events-auto w-10 h-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95"
+              className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
               aria-label="Next photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -255,10 +256,10 @@ export function PhotoModalContent({
       <AnimatePresence mode="wait">
         <motion.div
           key={photo.id}
-          initial={{ opacity: 0, y: 8 }}
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
           className="space-y-3 md:px-5"
         >
           {/* Dish name */}

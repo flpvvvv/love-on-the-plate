@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -24,6 +24,8 @@ function getPlateStyle(index: number) {
 }
 
 export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 p-4">
       {photos.map((photo, index) => {
@@ -35,18 +37,18 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
         return (
           <motion.button
             key={photo.id}
-            initial={{ opacity: 0, scale: 0.75, rotate: rotation }}
-            whileInView={{ opacity: 1, scale: scale, rotate: rotation }}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.75, rotate: rotation }}
+            whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: scale, rotate: rotation }}
             viewport={{ once: true, amount: 0.15 }}
-            whileHover={{
+            whileHover={prefersReducedMotion ? undefined : {
               scale: 1.08,
               rotate: 0,
               zIndex: 10,
               transition: { type: 'spring', stiffness: 400, damping: 20 },
             }}
-            transition={{ type: 'spring', stiffness: 280, damping: 22, delay: colPosition * 0.05 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 22, delay: colPosition * 0.05 }}
             onClick={() => onPhotoClick(photo)}
-            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group"
+            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group cursor-pointer"
           >
             {/* Plate container */}
             <div className="relative aspect-square w-full">
