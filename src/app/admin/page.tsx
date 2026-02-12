@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [descriptionCn, setDescriptionCn] = useState('');
   const [uploading, setUploading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [regeneratingDescOnly, setRegeneratingDescOnly] = useState(false);
   const [recentPhotos, setRecentPhotos] = useState<PhotoWithUrls[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // null = loading
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -210,6 +211,49 @@ export default function AdminPage() {
       setRegenerating(false);
     }
   }, [selectedFile, showToast]);
+
+  const handleRegenerateDescriptionsOnly = useCallback(async () => {
+    if (!selectedFile || !dishName.trim()) return;
+
+    try {
+      setRegeneratingDescOnly(true);
+
+      // Compress image for AI analysis
+      const aiBase64 = await compressImage(selectedFile, COMPRESSION_PRESETS.ai);
+
+      const response = await fetch('/api/describe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: aiBase64, dishName: dishName.trim() }),
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response from describe:', text.substring(0, 200));
+        throw new Error('Server returned an invalid response. Please try again.');
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        // Keep the user's dish name, only update descriptions
+        setDescriptionEn(data.descriptionEn || '');
+        setDescriptionCn(data.descriptionCn || '');
+        showToast('Descriptions regenerated for "' + dishName.trim() + '"!', 'success');
+      } else {
+        const errorData = await response.json();
+        console.error('Regenerate descriptions API error:', errorData);
+        const errorMessage = errorData.error || 'Failed to regenerate descriptions';
+        showToast(errorMessage, 'error');
+      }
+    } catch (error) {
+      console.error('Regenerate descriptions error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to regenerate descriptions';
+      showToast(errorMessage, 'error');
+    } finally {
+      setRegeneratingDescOnly(false);
+    }
+  }, [selectedFile, dishName, showToast]);
 
   const handleUpload = useCallback(async () => {
     if (!selectedFile || !compressedForUpload) return;
@@ -512,10 +556,12 @@ export default function AdminPage() {
               onDescriptionEnChange={setDescriptionEn}
               onDescriptionCnChange={setDescriptionCn}
               onRegenerateDescription={handleRegenerateDescription}
+              onRegenerateDescriptionsOnly={handleRegenerateDescriptionsOnly}
               onUpload={handleUpload}
               onCancel={handleCancel}
               uploading={uploading}
               regenerating={regenerating}
+              regeneratingDescOnly={regeneratingDescOnly}
             />
           ) : (
             <UploadZone onFileSelect={handleFileSelect} disabled={uploading} />

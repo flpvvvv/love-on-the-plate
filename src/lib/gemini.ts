@@ -122,6 +122,37 @@ Example Chinese:
 IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
 {"dishName": "菜名", "en": "English description here", "cn": "Chinese description here"}`;
 
+/**
+ * Build a prompt variant that keeps the user-provided dish name and only
+ * regenerates the bilingual descriptions based on the image + dish name.
+ */
+function buildDescriptionOnlyPrompt(dishName: string): string {
+  return `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
+
+The dish in this photo is called "${dishName}". Do NOT change or suggest a different dish name.
+
+Based on the image and this dish name, provide:
+1. A brief, heartfelt description in English (2-3 sentences)
+2. A brief, heartfelt description in Chinese (Simplified) (2-3 sentences)
+
+Guidelines for descriptions:
+- Focus on colors, textures, and what the dish appears to be
+- Use warm, inviting language that evokes the love put into cooking
+- Keep it concise but evocative
+- Don't start with "This" or "这" - vary your sentence openings
+- Avoid generic phrases like "looks delicious" or "看起来很好吃" - be specific
+- Reference the specific dish name "${dishName}" naturally in your descriptions
+
+Example English:
+"Golden-crusted lasagna layers peek through bubbling mozzarella, each stratum promising a symphony of rich bolognese and silky béchamel. A labor of love that fills the kitchen with warmth."
+
+Example Chinese:
+"金黄酥脆的千层面在冒泡的马苏里拉奶酪下若隐若现，每一层都蕴含着浓郁肉酱与丝滑白酱的美妙交响。这是一道充满爱意的料理，温暖了整个厨房。"
+
+IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
+{"dishName": "${dishName}", "en": "English description here", "cn": "Chinese description here"}`;
+}
+
 export interface BilingualDescription {
   dishName: string;
   en: string;
@@ -130,7 +161,10 @@ export interface BilingualDescription {
 
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 
-export async function generateDescription(imageBase64: string): Promise<BilingualDescription> {
+export async function generateDescription(
+  imageBase64: string,
+  dishNameHint?: string,
+): Promise<BilingualDescription> {
   // Validate input
   if (!imageBase64 || imageBase64.length === 0) {
     throw new GeminiError('INVALID_INPUT', 'No image data provided.', false);
@@ -139,9 +173,14 @@ export async function generateDescription(imageBase64: string): Promise<Bilingua
   const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL;
   const model = genAI.getGenerativeModel({ model: modelName });
 
+  // Use the dish-name-aware prompt when a hint is provided
+  const prompt = dishNameHint
+    ? buildDescriptionOnlyPrompt(dishNameHint)
+    : DESCRIPTION_PROMPT;
+
   try {
     const result = await model.generateContent([
-      DESCRIPTION_PROMPT,
+      prompt,
       {
         inlineData: {
           mimeType: 'image/jpeg',
@@ -171,7 +210,8 @@ export async function generateDescription(imageBase64: string): Promise<Bilingua
       // Parse the JSON response
       const parsed = JSON.parse(text);
       return {
-        dishName: parsed.dishName || '',
+        // If a dish name hint was provided, always use it (don't let LLM override)
+        dishName: dishNameHint || parsed.dishName || '',
         en: parsed.en || '',
         cn: parsed.cn || '',
       };

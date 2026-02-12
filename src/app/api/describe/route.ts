@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { photoId, imageBase64 } = body;
+    const { photoId, imageBase64, dishName } = body;
 
     // Option 1: Generate description from base64 image (for preview)
     if (imageBase64) {
@@ -60,8 +60,13 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Validate dishName if provided (must be a non-empty string)
+      const dishNameHint = typeof dishName === 'string' && dishName.trim().length > 0
+        ? dishName.trim()
+        : undefined;
+
       try {
-        const descriptions = await generateDescription(imageBase64);
+        const descriptions = await generateDescription(imageBase64, dishNameHint);
         return NextResponse.json({
           dishName: descriptions.dishName,
           descriptionEn: descriptions.en,
