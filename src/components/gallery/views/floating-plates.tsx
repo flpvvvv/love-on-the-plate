@@ -10,17 +10,11 @@ interface FloatingPlatesProps {
   onPhotoClick: (photo: PhotoWithUrls) => void;
 }
 
-// Generate consistent random values based on index
-function getPlateStyle(index: number) {
-  // Use a simple hash function for consistent randomness
-  const hash = (index * 2654435761) % 100;
-  const rotation = ((hash % 20) - 10); // -10 to 10 degrees
-  const scale = 0.95 + (hash % 10) / 100; // 0.95 to 1.05
+const PLATE_ROTATION = -3; // subtle consistent tilt for all plates
+const PLATE_SCALE = 1;
 
-  return {
-    rotation,
-    scale,
-  };
+function getPlateStyle() {
+  return { rotation: PLATE_ROTATION, scale: PLATE_SCALE };
 }
 
 export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
@@ -29,7 +23,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 p-4">
       {photos.map((photo, index) => {
-        const { rotation, scale } = getPlateStyle(index);
+        const { rotation, scale } = getPlateStyle();
         // Row-relative stagger: 2-col mobile, 3-col tablet, 4-col desktop
         // We approximate with mod-4 which covers the widest layout
         const colPosition = index % 4;
@@ -60,13 +54,13 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
           >
             {/* Plate container */}
             <div className="relative aspect-square w-full">
-              {/* Plate shadow */}
-              <div className="absolute -inset-2 bg-black/10 dark:bg-black/40 rounded-full blur-xl transform translate-y-3" />
+              {/* Plate shadow — soft and subtle */}
+              <div className="absolute -inset-1 bg-black/5 dark:bg-black/20 rounded-full blur-lg transform translate-y-2" />
 
               {/* Plate rim (outer ring) */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-canvas-elevated to-canvas-recessed p-2 shadow-xl ring-1 ring-stroke/30">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-canvas-elevated to-canvas p-1.5 shadow-md ring-1 ring-stroke/10">
                 {/* Inner plate ring */}
-                <div className="absolute inset-3 rounded-full border-2 border-stroke opacity-50" />
+                <div className="absolute inset-3 rounded-full border border-stroke/30" />
 
                 {/* Food image */}
                 <div className="relative w-full h-full rounded-full overflow-hidden">
