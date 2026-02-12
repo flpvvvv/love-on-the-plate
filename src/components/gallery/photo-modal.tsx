@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'framer-motion';
-import { useMediaQuery } from '@/lib/hooks';
+import { useMediaQuery, useGestureHint } from '@/lib/hooks';
 import { formatDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
@@ -61,6 +61,12 @@ export function PhotoModalContent({
 }: PhotoModalContentProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const prefersReducedMotion = useReducedMotion();
+
+  // One-time swipe hint for mobile users
+  const { showHint: showSwipeHint, dismiss: dismissSwipeHint } = useGestureHint('modal-swipe', {
+    delay: 600,
+    duration: 2500,
+  });
 
   // Track swipe direction for enter/exit animation: 1 = next, -1 = prev
   const [direction, setDirection] = useState(0);
@@ -227,7 +233,7 @@ export function PhotoModalContent({
         <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10 md:hidden">
           {onPrev && (
             <button
-              onClick={handlePrev}
+              onClick={() => { handlePrev(); dismissSwipeHint(); }}
               disabled={!hasPrev}
               className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
               aria-label="Previous photo"
@@ -239,7 +245,7 @@ export function PhotoModalContent({
           )}
           {onNext && (
             <button
-              onClick={handleNext}
+              onClick={() => { handleNext(); dismissSwipeHint(); }}
               disabled={!hasNext}
               className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
               aria-label="Next photo"
@@ -250,6 +256,42 @@ export function PhotoModalContent({
             </button>
           )}
         </div>
+
+        {/* Swipe gesture hint — first-time mobile users */}
+        <AnimatePresence>
+          {showSwipeHint && !isDesktop && (hasPrev || hasNext) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-x-0 bottom-3 flex justify-center z-20 pointer-events-none"
+            >
+              <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs shadow-lg">
+                <motion.svg
+                  animate={{ x: [0, -4, 0] }}
+                  transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-3.5 h-3.5"
+                  aria-hidden="true"
+                >
+                  <path d="M19 12H5m0 0l7-7m-7 7l7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </motion.svg>
+                <span>Swipe to navigate</span>
+                <motion.svg
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-3.5 h-3.5"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </motion.svg>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Details — padded on desktop since the modal scroll container has no padding */}

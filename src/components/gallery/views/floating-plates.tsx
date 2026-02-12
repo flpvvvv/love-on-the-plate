@@ -73,9 +73,9 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                 </div>
               </div>
 
-              {/* Hover/focus overlay with description */}
+              {/* Hover/focus overlay with description — desktop only */}
               <div
-                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
+                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 md:group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
               >
                 {(photo.dish_name || photo.description_cn || photo.description_en) && (
                   <div className="text-white text-center px-4">
@@ -90,10 +90,16 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               </div>
             </div>
 
-            {/* Dish name and date below plate */}
+            {/* Dish name + description below plate */}
             <div className="mt-3 text-center">
               {photo.dish_name && (
                 <p className="font-medium text-ink line-clamp-1">{photo.dish_name}</p>
+              )}
+              {/* Description visible on mobile since hover overlay is hidden */}
+              {photo.description_cn && (
+                <p className="text-caption text-ink-secondary mt-0.5 line-clamp-1 md:hidden">
+                  {photo.description_cn}
+                </p>
               )}
               <p className="text-caption text-ink-tertiary mt-0.5">
                 {formatDate(photo.created_at)}

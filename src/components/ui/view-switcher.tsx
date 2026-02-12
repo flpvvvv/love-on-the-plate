@@ -25,7 +25,7 @@ export function ViewSwitcher({ currentView, onViewChange }: ViewSwitcherProps) {
           key={view.id}
           onClick={() => onViewChange(view.id)}
           className={cn(
-            'relative px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer focus-ring',
+            'relative min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 cursor-pointer focus-ring',
             currentView === view.id ? 'text-white' : 'text-ink-tertiary hover:text-ink'
           )}
           role="tab"
@@ -40,7 +40,7 @@ export function ViewSwitcher({ currentView, onViewChange }: ViewSwitcherProps) {
             />
           )}
           <span className="relative z-10">{view.icon}</span>
-          <span className="relative z-10 hidden sm:inline">{view.label}</span>
+          <span className="relative z-10 text-xs sm:text-sm">{view.label}</span>
         </button>
       ))}
     </div>

@@ -166,6 +166,11 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
               key={tab.id}
               onClick={() => {
                 if (tab.id === 'upload') {
+                  // Save scroll position so it can be restored when the user returns
+                  try {
+                    sessionStorage.setItem('lotp:scroll-y', String(window.scrollY));
+                    sessionStorage.setItem('lotp:scroll-tab', currentTab);
+                  } catch { /* sessionStorage may be full or disabled */ }
                   router.push('/admin');
                   return;
                 }

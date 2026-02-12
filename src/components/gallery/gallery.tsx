@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
-import { ViewSwitcher, PhotoCardSkeleton, ResponsiveSheet } from '@/components/ui';
+import { ViewSwitcher, PhotoCardSkeleton, FeedItemSkeleton, ResponsiveSheet, ScrollToTop } from '@/components/ui';
 import { BottomNav, CollapsibleHeader } from '@/components/layout';
 import { AnalyticsContent } from '@/components/analytics';
 import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
@@ -247,6 +247,24 @@ export function Gallery() {
   const transition = getViewTransition(prevView, galleryView);
   const viewVariants = getViewTransitionVariants(prefersReducedMotion);
 
+  // Restore scroll position after returning from admin/upload
+  useEffect(() => {
+    try {
+      const savedY = sessionStorage.getItem('lotp:scroll-y');
+      const savedTab = sessionStorage.getItem('lotp:scroll-tab');
+      if (savedY && savedTab) {
+        sessionStorage.removeItem('lotp:scroll-y');
+        sessionStorage.removeItem('lotp:scroll-tab');
+        // Restore scroll after a short delay to let the content render
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            window.scrollTo(0, parseInt(savedY, 10));
+          }, 100);
+        });
+      }
+    } catch { /* sessionStorage may not be available */ }
+  }, []);
+
   // Pull-to-refresh (mobile browse mode)
   const { containerRef: pullContainerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
     onRefresh: refreshAll,
@@ -396,7 +414,7 @@ export function Gallery() {
       {/* Feed mode */}
       {mobileTab === 'feed' && (
         <>
-          {loading ? renderSkeletons() : (
+          {loading ? <FeedItemSkeleton /> : (
             <ImmersiveFeed
               photos={photos}
               onPhotoTap={handlePhotoClick}
@@ -427,6 +445,9 @@ export function Gallery() {
             {loading ? renderSkeletons() : renderBrowseGallery()}
             {loadMoreIndicator}
           </main>
+
+          {/* Scroll-to-top button */}
+          <ScrollToTop />
         </div>
       )}
 

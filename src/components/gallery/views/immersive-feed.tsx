@@ -2,9 +2,9 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
-import { useHaptics } from '@/lib/hooks';
+import { useHaptics, useGestureHint } from '@/lib/hooks';
 import type { PhotoWithUrls } from '@/types';
 
 interface ImmersiveFeedProps {
@@ -44,6 +44,21 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
     return () => container.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
+  // Arrow-key navigation for keyboard accessibility
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const dir = e.key === 'ArrowDown' ? 1 : -1;
+      const newIndex = Math.max(0, Math.min(activeIndex + dir, photos.length - 1));
+      if (newIndex !== activeIndex) {
+        container.scrollTo({ top: newIndex * container.clientHeight, behavior: 'smooth' });
+      }
+    }
+  }, [activeIndex, photos.length]);
+
   if (photos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100dvh-4rem)] text-center px-8">
@@ -67,12 +82,31 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
     );
   }
 
+  // One-time scroll hint for first-time users
+  const { showHint: showScrollHint, dismiss: dismissScrollHint } = useGestureHint('feed-scroll', {
+    delay: 1200,
+    duration: 3000,
+  });
+
+  // Dismiss hint on first scroll
+  useEffect(() => {
+    if (!showScrollHint) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onScroll = () => dismissScrollHint();
+    container.addEventListener('scroll', onScroll, { once: true, passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [showScrollHint, dismissScrollHint]);
+
   return (
     <div
       ref={containerRef}
       role="feed"
       aria-label="Photo feed"
-      className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain outline-none"
       style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
     >
       {photos.map((photo, index) => (
@@ -90,6 +124,33 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
 
       {/* Spacer to allow last item to snap properly */}
       <div className="h-0 snap-end" />
+
+      {/* Scroll gesture hint — first-time only */}
+      <AnimatePresence>
+        {showScrollHint && photos.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+          >
+            <div className="flex flex-col items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white px-4 py-2.5 rounded-full text-sm shadow-lg">
+              <span>Swipe up to explore</span>
+              <motion.svg
+                animate={{ y: [0, 4, 0] }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-4 h-4"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14m0 0l7-7m-7 7l-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </motion.svg>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -4,9 +4,11 @@ export { Dialog, DialogClose } from './dialog';
 export { ThemeProvider } from './theme-provider';
 export { ThemeToggle } from './theme-toggle';
 export { ViewSwitcher } from './view-switcher';
-export { Skeleton, PhotoCardSkeleton } from './skeleton';
+export { Skeleton, PhotoCardSkeleton, FeedItemSkeleton } from './skeleton';
 export { ToastProvider, useToast } from './toast';
 export { ResponsiveSheet } from './responsive-sheet';
+export { NetworkStatusBanner } from './network-status-banner';
+export { ScrollToTop } from './scroll-to-top';
 export {
   PlatesIcon,
   GridIcon,

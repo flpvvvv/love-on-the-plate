@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, useSyncExternalStore, type ReactNode } from 'react';
 import { useMediaQuery } from '@/lib/hooks';
+import { NetworkStatusBanner } from '@/components/ui';
 import type { PhotoWithUrls, GalleryView, MobileTab } from '@/types';
 
 // Read a localStorage key, SSR-safe via useSyncExternalStore
@@ -227,6 +228,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <GalleryContext.Provider value={galleryValue}>
       <SelectionContext.Provider value={selectionValue}>
+        <NetworkStatusBanner />
         {children}
       </SelectionContext.Provider>
     </GalleryContext.Provider>
