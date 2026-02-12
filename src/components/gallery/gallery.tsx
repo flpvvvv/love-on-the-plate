@@ -1,16 +1,22 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
 import { ViewSwitcher, PhotoCardSkeleton, FeedItemSkeleton, ResponsiveSheet, ScrollToTop } from '@/components/ui';
 import { BottomNav, CollapsibleHeader } from '@/components/layout';
-import { AnalyticsContent } from '@/components/analytics';
 import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
 import { usePullToRefresh, useKeyboardNav } from '@/lib/hooks';
 import { PullToRefreshIndicator } from './pull-to-refresh-indicator';
 import { PhotoModalContent } from './photo-modal';
-import { FloatingPlates, MasonryGrid, LoveTimeline, ImmersiveFeed } from './views';
+import { MasonryGrid } from './views/masonry-grid';
 import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
+
+// Dynamically import non-default views and analytics (only one view visible at a time)
+const FloatingPlates = dynamic(() => import('./views/floating-plates').then(m => ({ default: m.FloatingPlates })));
+const LoveTimeline = dynamic(() => import('./views/love-timeline').then(m => ({ default: m.LoveTimeline })));
+const ImmersiveFeed = dynamic(() => import('./views/immersive-feed').then(m => ({ default: m.ImmersiveFeed })));
+const AnalyticsContent = dynamic(() => import('@/components/analytics/analytics-content').then(m => ({ default: m.AnalyticsContent })));
 
 // View order for directional transitions
 const VIEW_ORDER: GalleryView[] = ['floating', 'masonry', 'timeline'];
@@ -250,11 +256,11 @@ export function Gallery() {
   // Restore scroll position after returning from admin/upload
   useEffect(() => {
     try {
-      const savedY = sessionStorage.getItem('lotp:scroll-y');
-      const savedTab = sessionStorage.getItem('lotp:scroll-tab');
+      const savedY = sessionStorage.getItem('lotp-v1:scroll-y');
+      const savedTab = sessionStorage.getItem('lotp-v1:scroll-tab');
       if (savedY && savedTab) {
-        sessionStorage.removeItem('lotp:scroll-y');
-        sessionStorage.removeItem('lotp:scroll-tab');
+        sessionStorage.removeItem('lotp-v1:scroll-y');
+        sessionStorage.removeItem('lotp-v1:scroll-tab');
         // Restore scroll after a short delay to let the content render
         requestAnimationFrame(() => {
           setTimeout(() => {

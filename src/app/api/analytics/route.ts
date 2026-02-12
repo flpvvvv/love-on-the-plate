@@ -40,33 +40,45 @@ export async function GET() {
     const supabase = await createClient();
     const now = new Date();
 
-    // Total count (efficient head-only query)
-    const { count, error: countError } = await supabase
-      .from('photos')
-      .select('id', { count: 'exact', head: true });
-
-    if (countError) {
-      console.error('Analytics count error:', countError);
-      return NextResponse.json({ error: 'Failed to fetch analytics count' }, { status: 500 });
-    }
-
-    // Monthly counts via SQL aggregation (instead of fetching all rows)
     const monthKeys = getMonthWindow(now);
     const monthStart = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (MONTH_WINDOW - 1), 1),
     ).toISOString();
 
-    const { data: monthlyRows, error: monthlyError } = await supabase
-      .rpc('get_monthly_photo_counts', { since: monthStart });
+    const dailyKeys = getDailyWindow(now);
+    const dailyStart = `${dailyKeys[0]}T00:00:00.000Z`;
 
-    if (monthlyError) {
-      console.error('Monthly counts error:', monthlyError);
+    // Run all four independent queries in parallel (was sequential — 4 round-trips → 1)
+    const [countRes, monthlyRes, dailyRes, dishRes] = await Promise.all([
+      supabase.from('photos').select('id', { count: 'exact', head: true }),
+      supabase.rpc('get_monthly_photo_counts', { since: monthStart }),
+      supabase.rpc('get_daily_photo_counts', { since: dailyStart }),
+      supabase.rpc('get_top_dishes', { lim: TOP_DISHES_LIMIT }),
+    ]);
+
+    if (countRes.error) {
+      console.error('Analytics count error:', countRes.error);
+      return NextResponse.json({ error: 'Failed to fetch analytics count' }, { status: 500 });
+    }
+
+    if (monthlyRes.error) {
+      console.error('Monthly counts error:', monthlyRes.error);
       return NextResponse.json({ error: 'Failed to fetch monthly counts' }, { status: 500 });
+    }
+
+    if (dailyRes.error) {
+      console.error('Daily counts error:', dailyRes.error);
+      return NextResponse.json({ error: 'Failed to fetch daily counts' }, { status: 500 });
+    }
+
+    if (dishRes.error) {
+      console.error('Top dishes error:', dishRes.error);
+      return NextResponse.json({ error: 'Failed to fetch top dishes' }, { status: 500 });
     }
 
     // Build lookup from DB results, then fill in missing months with 0
     const monthlyMap = new Map<string, number>();
-    for (const row of monthlyRows ?? []) {
+    for (const row of monthlyRes.data ?? []) {
       monthlyMap.set(row.month, Number(row.photo_count));
     }
 
@@ -76,20 +88,8 @@ export async function GET() {
       count: monthlyMap.get(month) ?? 0,
     }));
 
-    // Daily counts via SQL aggregation
-    const dailyKeys = getDailyWindow(now);
-    const dailyStart = `${dailyKeys[0]}T00:00:00.000Z`;
-
-    const { data: dailyRows, error: dailyError } = await supabase
-      .rpc('get_daily_photo_counts', { since: dailyStart });
-
-    if (dailyError) {
-      console.error('Daily counts error:', dailyError);
-      return NextResponse.json({ error: 'Failed to fetch daily counts' }, { status: 500 });
-    }
-
     const dailyMap = new Map<string, number>();
-    for (const row of dailyRows ?? []) {
+    for (const row of dailyRes.data ?? []) {
       dailyMap.set(row.day, Number(row.photo_count));
     }
 
@@ -98,22 +98,13 @@ export async function GET() {
       count: dailyMap.get(date) ?? 0,
     }));
 
-    // Top dishes via SQL aggregation
-    const { data: dishRows, error: dishError } = await supabase
-      .rpc('get_top_dishes', { lim: TOP_DISHES_LIMIT });
-
-    if (dishError) {
-      console.error('Top dishes error:', dishError);
-      return NextResponse.json({ error: 'Failed to fetch top dishes' }, { status: 500 });
-    }
-
-    const topDishes: DishCount[] = (dishRows ?? []).map((row: { dish_name: string; dish_count: number }) => ({
+    const topDishes: DishCount[] = (dishRes.data ?? []).map((row: { dish_name: string; dish_count: number }) => ({
       dishName: row.dish_name,
       count: Number(row.dish_count),
     }));
 
     const payload: AnalyticsResponse = {
-      totalCount: count ?? 0,
+      totalCount: countRes.count ?? 0,
       perMonth,
       topDishes,
       recentTrend,

@@ -48,7 +48,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
             }}
             transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 22, delay: colPosition * 0.05 }}
             onClick={() => onPhotoClick(photo)}
-            className="relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group cursor-pointer"
+            className="photo-grid-item relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group cursor-pointer"
           >
             {/* Plate container */}
             <div className="relative aspect-square w-full">

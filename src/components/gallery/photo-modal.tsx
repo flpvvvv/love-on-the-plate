@@ -267,27 +267,33 @@ export function PhotoModalContent({
               className="absolute inset-x-0 bottom-3 flex justify-center z-20 pointer-events-none"
             >
               <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs shadow-lg">
-                <motion.svg
+                <motion.div
                   animate={{ x: [0, -4, 0] }}
                   transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-3.5 h-3.5"
-                  aria-hidden="true"
                 >
-                  <path d="M19 12H5m0 0l7-7m-7 7l7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </motion.svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="w-3.5 h-3.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M19 12H5m0 0l7-7m-7 7l7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </motion.div>
                 <span>Swipe to navigate</span>
-                <motion.svg
+                <motion.div
                   animate={{ x: [0, 4, 0] }}
                   transition={{ repeat: Infinity, duration: 1, ease: 'easeInOut' }}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-3.5 h-3.5"
-                  aria-hidden="true"
                 >
-                  <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </motion.svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="w-3.5 h-3.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </motion.div>
               </div>
             </motion.div>
           )}

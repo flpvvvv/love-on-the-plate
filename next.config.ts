@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   },
   // Increase body size limit for API routes that handle base64 images
   experimental: {
+    optimizePackageImports: ['framer-motion'],
     serverActions: {
       bodySizeLimit: '10mb',
     },

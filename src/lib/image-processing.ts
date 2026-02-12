@@ -32,25 +32,25 @@ export async function processImage(buffer: Buffer): Promise<ProcessedImage> {
     }
   }
 
-  // Process full image
-  const fullBuffer = await sharp(buffer)
-    .rotate() // Auto-rotate based on EXIF orientation
-    .resize(fullWidth, fullHeight, {
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .jpeg({ quality: JPEG_QUALITY })
-    .toBuffer();
-
-  // Process thumbnail
-  const thumbBuffer = await sharp(buffer)
-    .rotate()
-    .resize(THUMB_SIZE, THUMB_SIZE, {
-      fit: 'cover',
-      position: 'center',
-    })
-    .jpeg({ quality: JPEG_QUALITY })
-    .toBuffer();
+  // Process full image and thumbnail in parallel (independent pipelines)
+  const [fullBuffer, thumbBuffer] = await Promise.all([
+    sharp(buffer)
+      .rotate() // Auto-rotate based on EXIF orientation
+      .resize(fullWidth, fullHeight, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: JPEG_QUALITY })
+      .toBuffer(),
+    sharp(buffer)
+      .rotate()
+      .resize(THUMB_SIZE, THUMB_SIZE, {
+        fit: 'cover',
+        position: 'center',
+      })
+      .jpeg({ quality: JPEG_QUALITY })
+      .toBuffer(),
+  ]);
 
   return {
     fullBuffer,

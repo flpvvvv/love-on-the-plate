@@ -158,16 +158,19 @@ export function DesktopSidebar() {
             className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-tertiary hover:text-ink hover:bg-canvas-recessed transition-colors"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <motion.svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="w-4 h-4"
+            <motion.div
               animate={{ rotate: collapsed ? 180 : 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              aria-hidden="true"
             >
-              <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </motion.svg>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-4 h-4"
+                aria-hidden="true"
+              >
+                <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.div>
           </button>
         </div>
         {!collapsed && (

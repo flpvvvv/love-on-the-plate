@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const hasMore = photos.length > limit;
     const returnPhotos = hasMore ? photos.slice(0, -1) : photos;
 
-    // Get public URLs for each photo
+    // Get public URLs and strip internal fields before sending to client
     const photosWithUrls = returnPhotos.map((photo) => {
       const { data: fullUrlData } = supabase.storage
         .from('photos')
@@ -43,8 +43,11 @@ export async function GET(request: NextRequest) {
         .from('photos')
         .getPublicUrl(photo.thumbnail_path);
 
+      // Strip internal fields that the client doesn't need
+      const { storage_path, thumbnail_path, uploaded_by, file_size, original_filename, updated_at, ...clientPhoto } = photo;
+
       return {
-        ...photo,
+        ...clientPhoto,
         imageUrl: fullUrlData.publicUrl,
         thumbnailUrl: thumbUrlData.publicUrl,
       };
@@ -59,6 +62,10 @@ export async function GET(request: NextRequest) {
       photos: photosWithUrls,
       nextCursor,
       hasMore,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
     });
   } catch (error) {
     console.error('Photos fetch error:', error);
@@ -140,23 +147,24 @@ export async function DELETE(request: NextRequest) {
 
     const serviceClient = await createServiceClient();
 
-    // Check if user is admin
-    const { data: profile } = await serviceClient
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    // Fetch admin profile and photo in parallel (independent queries)
+    const [profileRes, photoRes] = await Promise.all([
+      serviceClient
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single(),
+      serviceClient
+        .from('photos')
+        .select('storage_path, thumbnail_path, uploaded_by')
+        .eq('id', photoId)
+        .single(),
+    ]);
 
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = profileRes.data?.role === 'admin';
+    const photo = photoRes.data;
 
-    // Get photo to verify ownership and get storage paths
-    const { data: photo, error: fetchError } = await serviceClient
-      .from('photos')
-      .select('storage_path, thumbnail_path, uploaded_by')
-      .eq('id', photoId)
-      .single();
-
-    if (fetchError || !photo) {
+    if (photoRes.error || !photo) {
       return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
 

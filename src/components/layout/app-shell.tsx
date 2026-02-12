@@ -109,8 +109,8 @@ export function useSelectionContext() {
   return context;
 }
 
-const VIEW_STORAGE_KEY = 'love-on-the-plate-view';
-const TAB_STORAGE_KEY = 'love-on-the-plate-tab';
+const VIEW_STORAGE_KEY = 'love-on-the-plate-v1:view';
+const TAB_STORAGE_KEY = 'love-on-the-plate-v1:tab';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const isDesktop = useMediaQuery('(min-width: 768px)');

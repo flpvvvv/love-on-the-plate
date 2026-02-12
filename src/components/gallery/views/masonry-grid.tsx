@@ -42,7 +42,7 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
               delay: (index % 2) * 0.06,
             }}
             onClick={() => onPhotoClick(photo)}
-            className="relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group cursor-pointer"
+            className="photo-grid-item-mobile relative focus:outline-none focus-ring rounded-[10px] overflow-hidden group cursor-pointer"
           >
             <div className="relative aspect-[3/4] bg-canvas-recessed">
               <Image
@@ -73,6 +73,7 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
             {column.map((photo, photoIndex) => (
               <motion.div
                 key={photo.id}
+                className="photo-grid-item"
                 initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                 whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}
@@ -101,6 +102,7 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
             {column.map((photo, photoIndex) => (
               <motion.div
                 key={photo.id}
+                className="photo-grid-item"
                 initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
                 whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}

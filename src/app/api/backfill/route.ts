@@ -157,20 +157,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    // Use efficient database counting instead of fetching all records
-    const { count: totalCount } = await serviceClient
-      .from('photos')
-      .select('*', { count: 'exact', head: true });
+    // Run both independent count queries in parallel
+    const [totalRes, backfillRes] = await Promise.all([
+      serviceClient
+        .from('photos')
+        .select('*', { count: 'exact', head: true }),
+      serviceClient
+        .from('photos')
+        .select('*', { count: 'exact', head: true })
+        .or('dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.'),
+    ]);
 
-    // Count photos missing ANY required field (dish_name, description_cn, or description_en)
-    // Using database-level filtering for efficiency with large datasets
-    const { count: needsBackfillCount } = await serviceClient
-      .from('photos')
-      .select('*', { count: 'exact', head: true })
-      .or('dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.');
-
-    const total = totalCount || 0;
-    const needsBackfill = needsBackfillCount || 0;
+    const total = totalRes.count || 0;
+    const needsBackfill = backfillRes.count || 0;
     const complete = total - needsBackfill;
 
     return NextResponse.json({

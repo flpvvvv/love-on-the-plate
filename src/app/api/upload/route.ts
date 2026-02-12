@@ -87,36 +87,31 @@ export async function POST(request: NextRequest) {
     const fullPath = `photos/${photoId}/full.jpg`;
     const thumbPath = `photos/${photoId}/thumb.jpg`;
 
-    // Upload full image
-    const { error: fullUploadError } = await serviceClient.storage
-      .from('photos')
-      .upload(fullPath, fullBuffer, {
+    // Upload full image and thumbnail in parallel
+    const [fullUploadRes, thumbUploadRes] = await Promise.all([
+      serviceClient.storage.from('photos').upload(fullPath, fullBuffer, {
         contentType: 'image/jpeg',
         upsert: false,
-      });
+      }),
+      serviceClient.storage.from('photos').upload(thumbPath, thumbBuffer, {
+        contentType: 'image/jpeg',
+        upsert: false,
+      }),
+    ]);
 
-    if (fullUploadError) {
-      console.error('Full image upload error:', fullUploadError);
+    if (fullUploadRes.error || thumbUploadRes.error) {
+      // Clean up any successfully uploaded files
+      const toRemove: string[] = [];
+      if (!fullUploadRes.error) toRemove.push(fullPath);
+      if (!thumbUploadRes.error) toRemove.push(thumbPath);
+      if (toRemove.length > 0) {
+        await serviceClient.storage.from('photos').remove(toRemove);
+      }
+
+      const uploadError = fullUploadRes.error || thumbUploadRes.error;
+      console.error('Storage upload error:', uploadError);
       return NextResponse.json(
         { error: 'Failed to upload image to storage.', code: 'STORAGE_UPLOAD_ERROR' },
-        { status: 500 }
-      );
-    }
-
-    // Upload thumbnail
-    const { error: thumbUploadError } = await serviceClient.storage
-      .from('photos')
-      .upload(thumbPath, thumbBuffer, {
-        contentType: 'image/jpeg',
-        upsert: false,
-      });
-
-    if (thumbUploadError) {
-      console.error('Thumbnail upload error:', thumbUploadError);
-      // Clean up full image if thumbnail fails
-      await serviceClient.storage.from('photos').remove([fullPath]);
-      return NextResponse.json(
-        { error: 'Failed to upload thumbnail.', code: 'THUMBNAIL_UPLOAD_ERROR' },
         { status: 500 }
       );
     }

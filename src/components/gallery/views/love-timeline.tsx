@@ -86,7 +86,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                             delay: Math.min(localIdx * 0.05, 0.25),
                           }}
                           onClick={() => onPhotoClick(photo)}
-                          className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150 cursor-pointer"
+                          className="photo-grid-item-mobile w-full flex items-center gap-3 p-2 -mx-2 rounded-xl text-left focus:outline-none focus-ring hover:bg-canvas-elevated active:bg-canvas-elevated transition-colors duration-150 cursor-pointer"
                         >
                           {/* Small thumbnail */}
                           <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-canvas-recessed">
@@ -153,7 +153,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.15 }}
               transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 24 }}
-              className={`relative flex items-center mb-12 ${
+              className={`photo-grid-item relative flex items-center mb-12 ${
                 isLeft ? 'flex-row' : 'flex-row-reverse'
               }`}
             >
