@@ -52,30 +52,27 @@ function getViewTransitionVariants(reducedMotion: boolean | null) {
   return {
     initial: (transition: { x: number; y: number }) => ({
       opacity: 0,
-      scale: 0.98,
       x: transition.x,
       y: transition.y,
     }),
     animate: {
       opacity: 1,
-      scale: 1,
       x: 0,
       y: 0,
       transition: {
-        type: 'spring' as const,
-        stiffness: 300,
-        damping: 30,
+        type: 'tween' as const,
+        duration: 0.2,
+        ease: 'easeOut' as const,
       },
     },
     exit: (transition: { x: number; y: number }) => ({
       opacity: 0,
-      scale: 0.98,
       x: -transition.x,
       y: -transition.y,
       transition: {
-        type: 'spring' as const,
-        stiffness: 300,
-        damping: 30,
+        type: 'tween' as const,
+        duration: 0.15,
+        ease: 'easeIn' as const,
       },
     }),
   };

@@ -34,12 +34,20 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
         // We approximate with mod-4 which covers the widest layout
         const colPosition = index % 4;
 
+        // Above-fold items use `animate` for reliable rendering after view
+        // transitions; below-fold items use `whileInView` for scroll entrance.
+        const targetState = prefersReducedMotion
+          ? { opacity: 1 }
+          : { opacity: 1, scale: scale, rotate: rotation };
+        const entryAnimation = index < 12
+          ? { animate: targetState }
+          : { whileInView: targetState, viewport: { once: true, amount: 0.15 } };
+
         return (
           <motion.button
             key={photo.id}
             initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.75, rotate: rotation }}
-            whileInView={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, scale: scale, rotate: rotation }}
-            viewport={{ once: true, amount: 0.15 }}
+            {...entryAnimation}
             whileHover={prefersReducedMotion ? undefined : {
               scale: 1.08,
               rotate: 0,

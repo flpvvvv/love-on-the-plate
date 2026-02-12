@@ -73,12 +73,17 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                     {dateGroup.items.map((photo) => {
                       const localIdx = groupLocalIndex++;
                       const globalIdx = entryIndex++;
+                      // Above-fold items use `animate` for reliable rendering
+                      // after view transitions; below-fold use `whileInView`.
+                      const entryAnimation = globalIdx < 12
+                        ? { animate: { opacity: 1, y: 0 } }
+                        : { whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.2 } };
+
                       return (
                         <motion.button
                           key={photo.id}
                           initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, amount: 0.2 }}
+                          {...entryAnimation}
                           transition={prefersReducedMotion ? { duration: 0 } : {
                             type: 'spring',
                             stiffness: 280,
@@ -145,13 +150,17 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
 
         {photos.map((photo, index) => {
           const isLeft = index % 2 === 0;
+          // Above-fold items use `animate` for reliable rendering after view
+          // transitions; below-fold items use `whileInView` for scroll entrance.
+          const entryAnimation = index < 12
+            ? { animate: { opacity: 1, x: 0 } }
+            : { whileInView: { opacity: 1, x: 0 }, viewport: { once: true, amount: 0.15 } };
 
           return (
             <motion.div
               key={photo.id}
               initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: isLeft ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
+              {...entryAnimation}
               transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 24 }}
               className={`photo-grid-item relative flex items-center mb-12 ${
                 isLeft ? 'flex-row' : 'flex-row-reverse'
@@ -200,8 +209,10 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
               <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
                 <motion.div
                   initial={prefersReducedMotion ? { scale: 1 } : { scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
+                  {...(index < 12
+                    ? { animate: { scale: 1 } }
+                    : { whileInView: { scale: 1 }, viewport: { once: true } }
+                  )}
                   transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
                   className="w-8 h-8 bg-love rounded-full flex items-center justify-center shadow-lg"
                 >
