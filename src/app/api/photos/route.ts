@@ -87,32 +87,14 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid photo ID format' }, { status: 400 });
     }
 
-    // Use service client for the update
-    const serviceClient = await createServiceClient();
-
-    // First check ownership
-    const { data: photo, error: fetchError } = await serviceClient
-      .from('photos')
-      .select('uploaded_by')
-      .eq('id', photoId)
-      .single();
-
-    if (fetchError || !photo) {
-      return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
-    }
-
-    if (photo.uploaded_by !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     // Build update object with only provided fields
     const updateData: { dish_name?: string; description_en?: string; description_cn?: string } = {};
     if (dishName !== undefined) updateData.dish_name = dishName;
     if (descriptionEn !== undefined) updateData.description_en = descriptionEn;
     if (descriptionCn !== undefined) updateData.description_cn = descriptionCn;
 
-    // Update the photo
-    const { data: updatedPhoto, error: updateError } = await serviceClient
+    // Update via RLS-enforced client (policy checks ownership automatically)
+    const { data: updatedPhoto, error: updateError } = await supabase
       .from('photos')
       .update(updateData)
       .eq('id', photoId)
@@ -120,6 +102,10 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (updateError) {
+      // RLS will block unauthorized updates — surface as 404 to avoid leaking existence
+      if (updateError.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Photo not found or access denied' }, { status: 404 });
+      }
       return NextResponse.json({ error: 'Failed to update photo' }, { status: 500 });
     }
 
@@ -166,7 +152,7 @@ export async function DELETE(request: NextRequest) {
     // Get photo to verify ownership and get storage paths
     const { data: photo, error: fetchError } = await serviceClient
       .from('photos')
-      .select('*')
+      .select('storage_path, thumbnail_path, uploaded_by')
       .eq('id', photoId)
       .single();
 

@@ -85,10 +85,10 @@ export async function POST(request: NextRequest) {
 }
 
 async function backfillSinglePhoto(serviceClient: Awaited<ReturnType<typeof createServiceClient>>, photoId: string) {
-  // Get photo from database
+  // Get photo from database (only fields needed for backfill)
   const { data: photo, error: fetchError } = await serviceClient
     .from('photos')
-    .select('*')
+    .select('id, storage_path')
     .eq('id', photoId)
     .single();
 

@@ -105,11 +105,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get photo from database
+    // Get photo from database (only fields needed for regeneration)
     const serviceClient = await createServiceClient();
     const { data: photo, error: fetchError } = await serviceClient
       .from('photos')
-      .select('*')
+      .select('storage_path, uploaded_by')
       .eq('id', photoId)
       .single();
 
