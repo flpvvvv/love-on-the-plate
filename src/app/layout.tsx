@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   description: 'Celebrating homemade meals with love',
   icons: {
     icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Love on Plate',
   },
   openGraph: {
     title: 'Love on the Plate',
