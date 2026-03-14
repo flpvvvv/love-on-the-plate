@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "host": "plate.mathis.day",
+      "destination": "https://plates.mathis.day/:path*",
+      "permanent": true
+    }
+  ]
+}

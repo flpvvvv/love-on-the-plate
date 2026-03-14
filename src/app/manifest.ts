@@ -6,6 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'Love on Plate',
     description: 'Celebrating homemade meals with love',
     start_url: '/',
+    scope: '/',
     display: 'standalone',
     background_color: '#FFFBF8',
     theme_color: '#E85D75',
