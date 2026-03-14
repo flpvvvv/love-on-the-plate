@@ -4,8 +4,12 @@ import { AppShell } from '@/components/layout';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Love on the Plate',
-  description: 'Celebrating homemade meals with love',
+  metadataBase: new URL('https://plates.mathis.day'),
+  title: 'Love on the Plate | A Personal Food Gallery',
+  description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love. Browse through delicious dishes and culinary memories.',
+  alternates: {
+    canonical: 'https://plates.mathis.day',
+  },
   icons: {
     icon: '/favicon.svg',
     apple: '/apple-touch-icon.png',
@@ -17,15 +21,25 @@ export const metadata: Metadata = {
     title: 'Love on Plate',
   },
   openGraph: {
-    title: 'Love on the Plate',
-    description: 'Celebrating homemade meals with love',
+    title: 'Love on the Plate | A Personal Food Gallery',
+    description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.',
     type: 'website',
     siteName: 'Love on the Plate',
+    url: 'https://plates.mathis.day',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Love on the Plate - Personal Food Gallery',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Love on the Plate',
-    description: 'Celebrating homemade meals with love',
+    title: 'Love on the Plate | A Personal Food Gallery',
+    description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.',
+    images: ['/og-image.png'],
   },
 };
 

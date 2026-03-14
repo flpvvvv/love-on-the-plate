@@ -387,7 +387,7 @@ export function Gallery() {
     const isDesktopAnalytics = mobileTab === 'analytics';
 
     return (
-      <div id="main-content" className="flex-1 overflow-y-auto min-h-0">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {isDesktopAnalytics ? (
           <main className="container mx-auto px-6 py-8" role="region" aria-label="Analytics">
             <div className="max-w-6xl mx-auto space-y-8">
@@ -413,7 +413,7 @@ export function Gallery() {
 
   // --- MOBILE LAYOUT ---
   return (
-    <div id="main-content" className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24">
       {/* Feed mode */}
       {mobileTab === 'feed' && (
         <>

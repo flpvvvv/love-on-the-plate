@@ -8,14 +8,19 @@ export default function HomePage() {
   const { isDesktop } = useGalleryContext();
 
   return (
-    <div className="flex flex-1 min-h-screen">
-      {/* Desktop sidebar */}
-      {isDesktop && <DesktopSidebar />}
+    <>
+      {/* SEO H1 - visually hidden but accessible */}
+      <h1 className="sr-only">Love on the Plate - Personal Food Gallery</h1>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Gallery />
+      <div className="flex flex-1 min-h-screen">
+        {/* Desktop sidebar */}
+        {isDesktop && <DesktopSidebar />}
+
+        {/* Main content */}
+        <main className="flex-1 flex flex-col min-w-0" id="main-content">
+          <Gallery />
+        </main>
       </div>
-    </div>
+    </>
   );
 }
