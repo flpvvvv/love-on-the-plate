@@ -1,17 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PRIMARY_DOMAIN = 'plates.mathis.day';
-
 export async function updateSession(request: NextRequest) {
-  // Redirect plate.mathis.day to plates.mathis.day
-  const host = request.headers.get('host') || '';
-  if (host === 'plate.mathis.day' || host === 'www.plate.mathis.day') {
-    const url = request.nextUrl.clone();
-    url.host = PRIMARY_DOMAIN;
-    return NextResponse.redirect(url, 301);
-  }
-
   let supabaseResponse = NextResponse.next({
     request,
   });
