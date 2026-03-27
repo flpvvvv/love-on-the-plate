@@ -54,11 +54,11 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
           >
             {/* Plate container */}
             <div className="relative aspect-square w-full">
-              {/* Plate shadow — soft and subtle */}
-              <div className="absolute -inset-1 bg-black/5 dark:bg-black/20 rounded-full blur-lg transform translate-y-2" />
+              {/* Plate ground shadow — lighter on small light screens (less muddy); full depth on dark + desktop */}
+              <div className="absolute -inset-1 rounded-full transform bg-black/[0.03] blur-md translate-y-1.5 md:bg-black/5 md:blur-lg md:translate-y-2 dark:bg-black/20 dark:blur-lg dark:translate-y-2" />
 
-              {/* Plate rim (outer ring) */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-canvas-elevated to-canvas p-1.5 shadow-md ring-1 ring-stroke/10">
+              {/* Plate rim — soft lift on mobile, stronger from md up (matches original desktop) */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-canvas-elevated to-canvas p-1.5 shadow-sm md:shadow-md ring-1 ring-stroke/10">
                 {/* Inner plate ring */}
                 <div className="absolute inset-3 rounded-full border border-stroke/30" />
 
