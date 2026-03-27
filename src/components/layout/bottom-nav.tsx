@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useScrollDirection, useHaptics, useIOSSafeBottom } from '@/lib/hooks';
+import { useHaptics, useIOSSafeBottom } from '@/lib/hooks';
 import { AnalyticsIcon, GalleryIcon, UploadIcon } from '@/components/ui';
 import type { MobileTab } from '@/types';
 
@@ -65,14 +65,16 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   const isHome = pathname === '/';
   const isAnalytics = pathname.startsWith('/analytics');
   const isAdmin = pathname.startsWith('/admin');
-  const { direction, isAtTop } = useScrollDirection({ threshold: 15 });
   const { vibrate } = useHaptics();
 
   // Track iOS Safari dynamic toolbar to prevent it from overlapping the nav
   useIOSSafeBottom();
 
-  // Auto-hide on scroll down, show on scroll up (only in feed mode for full immersion)
-  const shouldHide = currentTab === 'feed' && direction === 'down' && !isAtTop;
+  // Feed mode used to auto-hide the bar based on window scroll, but ImmersiveFeed
+  // scrolls an internal container — window.scrollY does not follow finger swipes.
+  // iOS can still emit window scroll / viewport shifts, which set "scroll down" and
+  // translated the nav off-screen (y:100) with no way to recover. Hide must be
+  // driven by the feed container if we reintroduce it.
 
   // If we're on the admin page, use a simple nav
   if (!isHome) {
@@ -149,13 +151,9 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   }
 
   return (
-    <motion.nav
+    <nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain"
       aria-label="Main navigation"
-      animate={{
-        y: shouldHide ? 100 : 0,
-      }}
-      transition={{ type: 'spring', stiffness: 400, damping: 35 }}
     >
       {/* Glass background */}
       <div className="absolute inset-0 glass border-t border-stroke" />
@@ -201,6 +199,6 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           );
         })}
       </div>
-    </motion.nav>
+    </nav>
   );
 }
