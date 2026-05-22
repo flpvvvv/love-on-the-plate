@@ -16,6 +16,9 @@ pnpm build      # Production build
 pnpm lint       # Biome lint check
 pnpm lint:fix   # Biome lint + auto-fix
 pnpm format     # Biome format all files
+pnpm test       # Vitest in watch mode
+pnpm test:run   # Vitest run once
+pnpm test:coverage # Vitest with coverage
 ```
 
 ## Project Structure
@@ -40,6 +43,26 @@ src/
 │   ├── validation.ts         # Input validation (UUID, base64)
 │   └── client-image-compression.ts
 └── types/
+```
+
+## Testing
+
+### Framework
+Vitest with React Testing Library (jsdom environment).
+
+### Test Files
+Located next to source files: `src/**/*.test.{ts,tsx}`
+
+### What to Test
+- **Utilities**: Pure functions in `src/lib/` (validation, utils, client-image-compression)
+- **Hooks**: React hooks in `src/lib/hooks/` using `renderHook`
+- **API Routes**: Mock Supabase clients for route tests
+
+### Running Tests
+```bash
+pnpm test        # Watch mode
+pnpm test:run    # Single run
+pnpm test:coverage # Coverage report
 ```
 
 ## Database Schema

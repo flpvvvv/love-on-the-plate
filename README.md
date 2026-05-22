@@ -17,7 +17,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 |-------|------------|
 | Framework | Next.js 16.2 + React 19 + TypeScript 6 |
 | Styling | TailwindCSS v4 + Framer Motion |
-| Linting | Biome (fast unified linter + formatter) |
+| Testing | Vitest (unit/integration) |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth (Magic Link) |
 | Storage | Supabase Storage |
@@ -49,6 +49,11 @@ pnpm dev
 # Lint and format
 pnpm lint
 pnpm format
+
+# Run tests
+pnpm test
+pnpm test:run
+pnpm test:coverage
 ```
 
 ### Supabase Setup
@@ -97,6 +102,21 @@ Two-tier client-side compression prevents upload failures:
 | "Image file is too large" | File > 10MB | Use smaller image |
 
 Photos upload successfully even if AI description fails (can regenerate later).
+
+## Testing
+
+Unit and integration tests using Vitest with React Testing Library.
+
+```bash
+pnpm test        # Watch mode
+pnpm test:run    # Run once
+pnpm test:coverage # With coverage report
+```
+
+Test coverage includes:
+- Utility functions (validation, date formatting, image compression helpers)
+- React hooks (useHeartbeat)
+- Gemini error handling
 
 ## Security
 
