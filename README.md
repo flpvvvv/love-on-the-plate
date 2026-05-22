@@ -15,7 +15,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 16 + React 19 + TypeScript |
+| Framework | Next.js 16.2 + React 19 + TypeScript 6 |
 | Styling | TailwindCSS v4 + Framer Motion |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth (Magic Link) |
@@ -36,14 +36,14 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 # Clone and install
 git clone https://github.com/yourusername/love-on-the-plate.git
 cd love-on-the-plate
-npm install
+pnpm install
 
 # Configure environment
 cp .env.example .env.local
 # Fill in your credentials
 
 # Start dev server
-npm run dev
+pnpm dev
 ```
 
 ### Supabase Setup

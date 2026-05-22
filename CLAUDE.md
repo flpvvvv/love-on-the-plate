@@ -2,7 +2,7 @@
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16.1 + React 19 + TypeScript
+- **Frontend**: Next.js 16.2 + React 19 + TypeScript 6
 - **Styling**: TailwindCSS v4 + Framer Motion
 - **Backend**: Next.js API Routes
 - **Database/Auth/Storage**: Supabase (PostgreSQL, Magic Link, Storage)
@@ -11,9 +11,9 @@
 ## Commands
 
 ```bash
-npm run dev      # Development server
-npm run build    # Production build
-npm run lint     # ESLint
+pnpm dev      # Development server
+pnpm build    # Production build
+pnpm lint     # ESLint
 ```
 
 ## Project Structure
