@@ -1,59 +1,62 @@
-import type { Metadata, Viewport } from 'next';
-import { ThemeProvider, ToastProvider } from '@/components/ui';
-import { AppShell } from '@/components/layout';
-import './globals.css';
+import type { Metadata, Viewport } from "next"
+import { AppShell } from "@/components/layout"
+import { ThemeProvider, ToastProvider } from "@/components/ui"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://plates.mathis.day'),
-  title: 'Love on the Plate | A Personal Food Gallery',
-  description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love. Browse through delicious dishes and culinary memories.',
+  metadataBase: new URL("https://plates.mathis.day"),
+  title: "Love on the Plate | A Personal Food Gallery",
+  description:
+    "A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love. Browse through delicious dishes and culinary memories.",
   alternates: {
-    canonical: 'https://plates.mathis.day',
+    canonical: "https://plates.mathis.day",
   },
   icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png',
+    icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: '/manifest.webmanifest',
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'Love on Plate',
+    statusBarStyle: "default",
+    title: "Love on Plate",
   },
   openGraph: {
-    title: 'Love on the Plate | A Personal Food Gallery',
-    description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.',
-    type: 'website',
-    siteName: 'Love on the Plate',
-    url: 'https://plates.mathis.day',
+    title: "Love on the Plate | A Personal Food Gallery",
+    description:
+      "A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.",
+    type: "website",
+    siteName: "Love on the Plate",
+    url: "https://plates.mathis.day",
     images: [
       {
-        url: '/og-image.png',
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: 'Love on the Plate - Personal Food Gallery',
+        alt: "Love on the Plate - Personal Food Gallery",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Love on the Plate | A Personal Food Gallery',
-    description: 'A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.',
-    images: ['/og-image.png'],
+    card: "summary_large_image",
+    title: "Love on the Plate | A Personal Food Gallery",
+    description:
+      "A personal collection of homemade meals, celebrating the joy of cooking and sharing food with love.",
+    images: ["/og-image.png"],
   },
-};
+}
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FFFBF8' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F0C0A' },
+    { media: "(prefers-color-scheme: light)", color: "#FFFBF8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F0C0A" },
   ],
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -70,12 +73,10 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <ToastProvider>
-            <AppShell>
-              {children}
-            </AppShell>
+            <AppShell>{children}</AppShell>
           </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

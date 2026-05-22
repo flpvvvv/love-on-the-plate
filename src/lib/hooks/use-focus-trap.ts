@@ -1,9 +1,9 @@
-'use client';
+"use client"
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react"
 
 const FOCUSABLE_SELECTOR =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /**
  * Traps focus within a container element while active.
@@ -14,55 +14,55 @@ const FOCUSABLE_SELECTOR =
  * - Restores focus to the previously-focused element on deactivation
  */
 export function useFocusTrap(active: boolean) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!active) return;
+    if (!active) return
 
-    const container = containerRef.current;
-    if (!container) return;
+    const container = containerRef.current
+    if (!container) return
 
-    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previouslyFocused = document.activeElement as HTMLElement | null
 
     // Move focus into the trap
-    const focusableElements = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    const focusableElements = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
     if (focusableElements.length > 0) {
-      focusableElements[0].focus();
+      focusableElements[0].focus()
     } else {
       // Fallback: focus the container itself
-      container.setAttribute('tabindex', '-1');
-      container.focus();
+      container.setAttribute("tabindex", "-1")
+      container.focus()
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
+      if (e.key !== "Tab") return
 
-      const focusable = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-      if (focusable.length === 0) return;
+      const focusable = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+      if (focusable.length === 0) return
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
 
       if (e.shiftKey) {
         if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
+          e.preventDefault()
+          last.focus()
         }
       } else {
         if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
+          e.preventDefault()
+          first.focus()
         }
       }
-    };
+    }
 
-    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener("keydown", handleKeyDown)
 
     return () => {
-      container.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus();
-    };
-  }, [active]);
+      container.removeEventListener("keydown", handleKeyDown)
+      previouslyFocused?.focus()
+    }
+  }, [active])
 
-  return containerRef;
+  return containerRef
 }

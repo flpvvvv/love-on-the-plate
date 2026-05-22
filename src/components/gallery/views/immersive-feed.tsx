@@ -1,69 +1,95 @@
-'use client';
+"use client"
 
-import { useRef, useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { formatDate, getDisplayDate } from '@/lib/utils';
-import { useHaptics, useGestureHint } from '@/lib/hooks';
-import type { PhotoWithUrls } from '@/types';
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import Image from "next/image"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useGestureHint, useHaptics } from "@/lib/hooks"
+import { formatDate, getDisplayDate } from "@/lib/utils"
+import type { PhotoWithUrls } from "@/types"
 
 interface ImmersiveFeedProps {
-  photos: PhotoWithUrls[];
-  onPhotoTap?: (photo: PhotoWithUrls) => void;
+  photos: PhotoWithUrls[]
+  onPhotoTap?: (photo: PhotoWithUrls) => void
 }
 
 export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const { vibrate } = useHaptics();
-  const lastSnapIndex = useRef(0);
-  const prefersReducedMotion = useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const { vibrate } = useHaptics()
+  const lastSnapIndex = useRef(0)
+  const prefersReducedMotion = useReducedMotion()
 
   // Track which photo is snapped into view
   const handleScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const container = containerRef.current
+    if (!container) return
 
-    const scrollTop = container.scrollTop;
-    const itemHeight = container.clientHeight;
-    const index = Math.round(scrollTop / itemHeight);
-    const clampedIndex = Math.max(0, Math.min(index, photos.length - 1));
+    const scrollTop = container.scrollTop
+    const itemHeight = container.clientHeight
+    const index = Math.round(scrollTop / itemHeight)
+    const clampedIndex = Math.max(0, Math.min(index, photos.length - 1))
 
     if (clampedIndex !== lastSnapIndex.current) {
-      lastSnapIndex.current = clampedIndex;
-      setActiveIndex(clampedIndex);
-      vibrate('light');
+      lastSnapIndex.current = clampedIndex
+      setActiveIndex(clampedIndex)
+      vibrate("light")
     }
-  }, [photos.length, vibrate]);
+  }, [photos.length, vibrate])
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const container = containerRef.current
+    if (!container) return
 
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    container.addEventListener("scroll", handleScroll, { passive: true })
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [handleScroll])
 
   // Arrow-key navigation for keyboard accessibility
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const container = containerRef.current;
-    if (!container) return;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const container = containerRef.current
+      if (!container) return
 
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      const dir = e.key === 'ArrowDown' ? 1 : -1;
-      const newIndex = Math.max(0, Math.min(activeIndex + dir, photos.length - 1));
-      if (newIndex !== activeIndex) {
-        container.scrollTo({ top: newIndex * container.clientHeight, behavior: 'smooth' });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault()
+        const dir = e.key === "ArrowDown" ? 1 : -1
+        const newIndex = Math.max(0, Math.min(activeIndex + dir, photos.length - 1))
+        if (newIndex !== activeIndex) {
+          container.scrollTo({ top: newIndex * container.clientHeight, behavior: "smooth" })
+        }
       }
-    }
-  }, [activeIndex, photos.length]);
+    },
+    [activeIndex, photos.length]
+  )
+
+  // One-time scroll hint for first-time users (called before early return for hooks rules)
+  const { showHint: showScrollHint, dismiss: dismissScrollHint } = useGestureHint("feed-scroll", {
+    delay: 1200,
+    duration: 3000,
+  })
+
+  // Dismiss hint on first scroll
+  useEffect(() => {
+    if (!showScrollHint || photos.length === 0) return
+    const container = containerRef.current
+    if (!container) return
+
+    const onScroll = () => dismissScrollHint()
+    container.addEventListener("scroll", onScroll, { once: true, passive: true })
+    return () => container.removeEventListener("scroll", onScroll)
+  }, [showScrollHint, dismissScrollHint, photos.length])
 
   if (photos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100dvh-4rem)] text-center px-8">
         <div className="w-20 h-20 text-love mb-4">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -79,35 +105,17 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
         <h3 className="text-display font-display font-semibold text-ink mb-2">No photos yet</h3>
         <p className="text-ink-secondary">Start documenting your culinary journey!</p>
       </div>
-    );
+    )
   }
-
-  // One-time scroll hint for first-time users
-  const { showHint: showScrollHint, dismiss: dismissScrollHint } = useGestureHint('feed-scroll', {
-    delay: 1200,
-    duration: 3000,
-  });
-
-  // Dismiss hint on first scroll
-  useEffect(() => {
-    if (!showScrollHint) return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    const onScroll = () => dismissScrollHint();
-    container.addEventListener('scroll', onScroll, { once: true, passive: true });
-    return () => container.removeEventListener('scroll', onScroll);
-  }, [showScrollHint, dismissScrollHint]);
 
   return (
     <div
       ref={containerRef}
       role="feed"
       aria-label="Photo feed"
-      tabIndex={0}
       onKeyDown={handleKeyDown}
       className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain outline-none"
-      style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+      style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
     >
       {photos.map((photo, index) => (
         <FeedItem
@@ -132,22 +140,23 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="fixed bottom-28 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
           >
             <div className="flex flex-col items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white px-4 py-2.5 rounded-full text-sm shadow-lg">
               <span>Swipe up to explore</span>
               <motion.div
                 animate={{ y: [0, 4, 0] }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-4 h-4"
-                  aria-hidden="true"
-                >
-                  <path d="M12 5v14m0 0l7-7m-7 7l-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">
+                  <path
+                    d="M12 5v14m0 0l7-7m-7 7l-7-7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </motion.div>
             </div>
@@ -155,7 +164,7 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
         )}
       </AnimatePresence>
     </div>
-  );
+  )
 }
 
 function FeedItem({
@@ -167,31 +176,28 @@ function FeedItem({
   total,
   prefersReducedMotion,
 }: {
-  photo: PhotoWithUrls;
-  isActive: boolean;
-  onTap: () => void;
-  priority: boolean;
-  index: number;
-  total: number;
-  prefersReducedMotion: boolean;
+  photo: PhotoWithUrls
+  isActive: boolean
+  onTap: () => void
+  priority: boolean
+  index: number
+  total: number
+  prefersReducedMotion: boolean
 }) {
-  const animateProps = prefersReducedMotion
-    ? { opacity: 1, y: 0 }
-    : undefined;
+  const animateProps = prefersReducedMotion ? { opacity: 1, y: 0 } : undefined
 
   return (
     <article
-      role="article"
       aria-setsize={total}
       aria-posinset={index + 1}
-      aria-label={photo.dish_name || 'Photo'}
+      aria-label={photo.dish_name || "Photo"}
       className="relative h-[calc(100dvh-4rem)] w-full snap-start snap-always"
     >
       {/* Full-bleed image */}
       <div className="absolute inset-0 bg-canvas-recessed">
         <Image
           src={photo.imageUrl}
-          alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+          alt={photo.dish_name || photo.description_en || photo.description_cn || "A homemade meal"}
           fill
           sizes="100vw"
           className="object-cover"
@@ -210,7 +216,11 @@ function FeedItem({
             <motion.h2
               initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
               animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
-              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.1 }
+              }
               className="font-display text-2xl font-semibold text-white mb-1.5 drop-shadow-lg"
             >
               {photo.dish_name}
@@ -222,7 +232,11 @@ function FeedItem({
             <motion.p
               initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
               animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
-              transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.2 }
+              }
               className="text-white/90 text-sm leading-relaxed mb-2 line-clamp-2 drop-shadow"
             >
               {photo.description_cn}
@@ -232,30 +246,35 @@ function FeedItem({
           {/* Date + "tap for more" */}
           <motion.div
             initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={isActive ? { opacity: 1 } : (prefersReducedMotion ? { opacity: 1 } : { opacity: 0 })}
+            animate={
+              isActive ? { opacity: 1 } : prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }
+            }
             transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.3 }}
             className="flex items-center justify-between"
           >
-            <span className="text-white/60 text-xs">
-              {formatDate(getDisplayDate(photo))}
-            </span>
+            <span className="text-white/60 text-xs">{formatDate(getDisplayDate(photo))}</span>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                onTap();
+                e.stopPropagation()
+                onTap()
               }}
               className="pointer-events-auto text-white/70 text-xs flex items-center gap-1 active:scale-95 transition-transform cursor-pointer focus-ring rounded-md px-2 py-1 -mr-2"
-              aria-label={`View details for ${photo.dish_name || 'photo'}`}
+              aria-label={`View details for ${photo.dish_name || "photo"}`}
             >
               <span>Details</span>
               <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-                <path d="M8.25 4.5l7.5 7.5-7.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </motion.div>
         </div>
       </div>
-
     </article>
-  );
+  )
 }

@@ -1,42 +1,56 @@
-'use client';
+"use client"
 
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
-import dynamic from 'next/dynamic';
-import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
-import { ViewSwitcher, PhotoCardSkeleton, FeedItemSkeleton, ResponsiveSheet, ScrollToTop } from '@/components/ui';
-import { BottomNav, CollapsibleHeader } from '@/components/layout';
-import { useGalleryContext, useSelectionContext } from '@/components/layout/app-shell';
-import { usePullToRefresh, useKeyboardNav } from '@/lib/hooks';
-import { PullToRefreshIndicator } from './pull-to-refresh-indicator';
-import { PhotoModalContent } from './photo-modal';
-import { MasonryGrid } from './views/masonry-grid';
-import type { PhotoWithUrls, GalleryView, PaginatedPhotos } from '@/types';
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion"
+import dynamic from "next/dynamic"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
+import { BottomNav, CollapsibleHeader } from "@/components/layout"
+import { useGalleryContext, useSelectionContext } from "@/components/layout/app-shell"
+import {
+  FeedItemSkeleton,
+  PhotoCardSkeleton,
+  ResponsiveSheet,
+  ScrollToTop,
+  ViewSwitcher,
+} from "@/components/ui"
+import { useKeyboardNav, usePullToRefresh } from "@/lib/hooks"
+import type { GalleryView, PaginatedPhotos, PhotoWithUrls } from "@/types"
+import { PhotoModalContent } from "./photo-modal"
+import { PullToRefreshIndicator } from "./pull-to-refresh-indicator"
+import { MasonryGrid } from "./views/masonry-grid"
 
 // Dynamically import non-default views and analytics (only one view visible at a time)
-const FloatingPlates = dynamic(() => import('./views/floating-plates').then(m => ({ default: m.FloatingPlates })));
-const LoveTimeline = dynamic(() => import('./views/love-timeline').then(m => ({ default: m.LoveTimeline })));
-const ImmersiveFeed = dynamic(() => import('./views/immersive-feed').then(m => ({ default: m.ImmersiveFeed })));
-const AnalyticsContent = dynamic(() => import('@/components/analytics/analytics-content').then(m => ({ default: m.AnalyticsContent })));
+const FloatingPlates = dynamic(() =>
+  import("./views/floating-plates").then((m) => ({ default: m.FloatingPlates }))
+)
+const LoveTimeline = dynamic(() =>
+  import("./views/love-timeline").then((m) => ({ default: m.LoveTimeline }))
+)
+const ImmersiveFeed = dynamic(() =>
+  import("./views/immersive-feed").then((m) => ({ default: m.ImmersiveFeed }))
+)
+const AnalyticsContent = dynamic(() =>
+  import("@/components/analytics/analytics-content").then((m) => ({ default: m.AnalyticsContent }))
+)
 
 // View order for directional transitions
-const VIEW_ORDER: GalleryView[] = ['floating', 'masonry', 'timeline'];
+const VIEW_ORDER: GalleryView[] = ["floating", "masonry", "timeline"]
 
 function getViewTransition(from: GalleryView, to: GalleryView): { x: number; y: number } {
-  const fromIndex = VIEW_ORDER.indexOf(from);
-  const toIndex = VIEW_ORDER.indexOf(to);
+  const fromIndex = VIEW_ORDER.indexOf(from)
+  const toIndex = VIEW_ORDER.indexOf(to)
 
-  if (fromIndex === toIndex) return { x: 0, y: 0 };
+  if (fromIndex === toIndex) return { x: 0, y: 0 }
 
-  const isForward = toIndex > fromIndex;
-  const isTimeline = to === 'timeline' || from === 'timeline';
-  const isFloating = to === 'floating' || from === 'floating';
+  const isForward = toIndex > fromIndex
+  const isTimeline = to === "timeline" || from === "timeline"
+  const isFloating = to === "floating" || from === "floating"
 
   if (isTimeline && isFloating) {
-    return { x: isForward ? 20 : -20, y: isForward ? 20 : -20 };
+    return { x: isForward ? 20 : -20, y: isForward ? 20 : -20 }
   } else if (isTimeline) {
-    return { x: 0, y: isForward ? 30 : -30 };
+    return { x: 0, y: isForward ? 30 : -30 }
   } else {
-    return { x: isForward ? 30 : -30, y: 0 };
+    return { x: isForward ? 30 : -30, y: 0 }
   }
 }
 
@@ -46,7 +60,7 @@ function getViewTransitionVariants(reducedMotion: boolean | null) {
       initial: { opacity: 1 },
       animate: { opacity: 1 },
       exit: { opacity: 0 },
-    };
+    }
   }
 
   return {
@@ -60,9 +74,9 @@ function getViewTransitionVariants(reducedMotion: boolean | null) {
       x: 0,
       y: 0,
       transition: {
-        type: 'tween' as const,
+        type: "tween" as const,
         duration: 0.2,
-        ease: 'easeOut' as const,
+        ease: "easeOut" as const,
       },
     },
     exit: (transition: { x: number; y: number }) => ({
@@ -70,19 +84,19 @@ function getViewTransitionVariants(reducedMotion: boolean | null) {
       x: -transition.x,
       y: -transition.y,
       transition: {
-        type: 'tween' as const,
+        type: "tween" as const,
         duration: 0.15,
-        ease: 'easeIn' as const,
+        ease: "easeIn" as const,
       },
     }),
-  };
+  }
 }
 
 // ---- Selection-aware wrapper (isolates re-renders from the grid) ----
 
 const PhotoDetailSheet = memo(function PhotoDetailSheet() {
   const { selectedPhoto, setSelectedPhoto, handlePrevPhoto, handleNextPhoto, hasPrev, hasNext } =
-    useSelectionContext();
+    useSelectionContext()
 
   return (
     <ResponsiveSheet
@@ -103,8 +117,8 @@ const PhotoDetailSheet = memo(function PhotoDetailSheet() {
         />
       )}
     </ResponsiveSheet>
-  );
-});
+  )
+})
 
 // ---- Main Gallery (only subscribes to gallery context, not selection) ----
 
@@ -127,151 +141,160 @@ export function Gallery() {
     loadingMore,
     setLoadingMore,
     setRefreshPhotos,
-  } = useGalleryContext();
+  } = useGalleryContext()
 
   // Selection context is only used for keyboard nav (desktop) -- read it lazily
-  const selection = useSelectionContext();
+  const selection = useSelectionContext()
 
-  const prefersReducedMotion = useReducedMotion();
-  const [prevView, setPrevView] = useState<GalleryView>(galleryView);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const isLoadingMoreRef = useRef(false);
+  const prefersReducedMotion = useReducedMotion()
+  const [prevView, setPrevView] = useState<GalleryView>(galleryView)
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const isLoadingMoreRef = useRef(false)
 
   const handleViewChange = (newView: GalleryView) => {
     if (newView !== galleryView) {
-      setPrevView(galleryView);
-      setGalleryView(newView);
+      setPrevView(galleryView)
+      setGalleryView(newView)
     }
-  };
+  }
 
   // Fetch photos
   const fetchPhotos = useCallback(async (pageCursor?: string | null) => {
     try {
-      const url = new URL('/api/photos', window.location.origin);
+      const url = new URL("/api/photos", window.location.origin)
       if (pageCursor) {
-        url.searchParams.set('cursor', pageCursor);
+        url.searchParams.set("cursor", pageCursor)
       }
 
-      const response = await fetch(url.toString());
-      if (!response.ok) throw new Error('Failed to fetch photos');
+      const response = await fetch(url.toString())
+      if (!response.ok) throw new Error("Failed to fetch photos")
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Invalid response format');
+      const contentType = response.headers.get("content-type")
+      if (!contentType?.includes("application/json")) {
+        throw new Error("Invalid response format")
       }
 
-      const data: PaginatedPhotos = await response.json();
-      return data;
+      const data: PaginatedPhotos = await response.json()
+      return data
     } catch (error) {
-      console.error('Error fetching photos:', error);
-      return null;
+      console.error("Error fetching photos:", error)
+      return null
     }
-  }, []);
+  }, [])
 
   const refreshAll = useCallback(async () => {
-    const data = await fetchPhotos();
+    const data = await fetchPhotos()
     if (data) {
-      setPhotos(data.photos);
-      setCursor(data.nextCursor);
-      setHasMore(data.hasMore);
+      setPhotos(data.photos)
+      setCursor(data.nextCursor)
+      setHasMore(data.hasMore)
     }
-  }, [fetchPhotos, setPhotos, setCursor, setHasMore]);
+  }, [fetchPhotos, setPhotos, setCursor, setHasMore])
 
   useEffect(() => {
-    setRefreshPhotos(refreshAll);
-  }, [refreshAll, setRefreshPhotos]);
+    setRefreshPhotos(refreshAll)
+  }, [refreshAll, setRefreshPhotos])
 
   // Initial load
   useEffect(() => {
     const loadInitial = async () => {
-      setLoading(true);
-      const data = await fetchPhotos();
+      setLoading(true)
+      const data = await fetchPhotos()
       if (data) {
-        setPhotos(data.photos);
-        setCursor(data.nextCursor);
-        setHasMore(data.hasMore);
+        setPhotos(data.photos)
+        setCursor(data.nextCursor)
+        setHasMore(data.hasMore)
       }
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
-    loadInitial();
-  }, [fetchPhotos, setPhotos, setCursor, setHasMore, setLoading]);
+    loadInitial()
+  }, [fetchPhotos, setPhotos, setCursor, setHasMore, setLoading])
 
   // Load more — uses a synchronous ref guard to prevent concurrent fetches
   const loadMore = useCallback(async () => {
-    if (isLoadingMoreRef.current || !hasMore || !cursor) return;
+    if (isLoadingMoreRef.current || !hasMore || !cursor) return
 
-    isLoadingMoreRef.current = true;
-    setLoadingMore(true);
-    const data = await fetchPhotos(cursor);
+    isLoadingMoreRef.current = true
+    setLoadingMore(true)
+    const data = await fetchPhotos(cursor)
     if (data) {
-      setPhotos((prev: PhotoWithUrls[]) => [...prev, ...data.photos]);
-      setCursor(data.nextCursor);
-      setHasMore(data.hasMore);
+      setPhotos((prev: PhotoWithUrls[]) => [...prev, ...data.photos])
+      setCursor(data.nextCursor)
+      setHasMore(data.hasMore)
     }
-    isLoadingMoreRef.current = false;
-    setLoadingMore(false);
-  }, [cursor, hasMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore]);
+    isLoadingMoreRef.current = false
+    setLoadingMore(false)
+  }, [cursor, hasMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore])
 
   // Keep a stable ref to the latest loadMore so the observer callback never goes stale
-  const loadMoreFnRef = useRef(loadMore);
-  useEffect(() => { loadMoreFnRef.current = loadMore; }, [loadMore]);
+  const loadMoreFnRef = useRef(loadMore)
+  useEffect(() => {
+    loadMoreFnRef.current = loadMore
+  }, [loadMore])
 
   // Callback ref — attaches the IntersectionObserver whenever the sentinel div
   // mounts (initial load, tab switch, etc.) and detaches when it unmounts.
   const loadMoreSentinelRef = useCallback((node: HTMLDivElement | null) => {
     if (observerRef.current) {
-      observerRef.current.disconnect();
-      observerRef.current = null;
+      observerRef.current.disconnect()
+      observerRef.current = null
     }
 
     if (node) {
       observerRef.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting) {
-            loadMoreFnRef.current();
+            loadMoreFnRef.current()
           }
         },
-        { threshold: 0.1 },
-      );
-      observerRef.current.observe(node);
+        { threshold: 0.1 }
+      )
+      observerRef.current.observe(node)
     }
-  }, []);
+  }, [])
 
   // Clean up observer on unmount
   useEffect(() => {
     return () => {
       if (observerRef.current) {
-        observerRef.current.disconnect();
+        observerRef.current.disconnect()
       }
-    };
-  }, []);
+    }
+  }, [])
 
-  const transition = getViewTransition(prevView, galleryView);
-  const viewVariants = getViewTransitionVariants(prefersReducedMotion);
+  const transition = getViewTransition(prevView, galleryView)
+  const viewVariants = getViewTransitionVariants(prefersReducedMotion)
 
   // Restore scroll position after returning from admin/upload
   useEffect(() => {
     try {
-      const savedY = sessionStorage.getItem('lotp-v1:scroll-y');
-      const savedTab = sessionStorage.getItem('lotp-v1:scroll-tab');
+      const savedY = sessionStorage.getItem("lotp-v1:scroll-y")
+      const savedTab = sessionStorage.getItem("lotp-v1:scroll-tab")
       if (savedY && savedTab) {
-        sessionStorage.removeItem('lotp-v1:scroll-y');
-        sessionStorage.removeItem('lotp-v1:scroll-tab');
+        sessionStorage.removeItem("lotp-v1:scroll-y")
+        sessionStorage.removeItem("lotp-v1:scroll-tab")
         // Restore scroll after a short delay to let the content render
         requestAnimationFrame(() => {
           setTimeout(() => {
-            window.scrollTo(0, parseInt(savedY, 10));
-          }, 100);
-        });
+            window.scrollTo(0, parseInt(savedY, 10))
+          }, 100)
+        })
       }
-    } catch { /* sessionStorage may not be available */ }
-  }, []);
+    } catch {
+      /* sessionStorage may not be available */
+    }
+  }, [])
 
   // Pull-to-refresh (mobile browse mode)
-  const { containerRef: pullContainerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
+  const {
+    containerRef: pullContainerRef,
+    pullDistance,
+    isRefreshing,
+    progress,
+  } = usePullToRefresh({
     onRefresh: refreshAll,
-  });
+  })
 
   // Keyboard navigation (desktop)
   useKeyboardNav({
@@ -281,20 +304,20 @@ export function Gallery() {
     onClose: () => selection.setSelectedPhoto(null),
     onViewChange: handleViewChange,
     enabled: isDesktop,
-  });
+  })
 
   const renderGalleryView = () => {
     switch (galleryView) {
-      case 'floating':
-        return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />;
-      case 'masonry':
-        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
-      case 'timeline':
-        return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />;
+      case "floating":
+        return <FloatingPlates photos={photos} onPhotoClick={handlePhotoClick} />
+      case "masonry":
+        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />
+      case "timeline":
+        return <LoveTimeline photos={photos} onPhotoClick={handlePhotoClick} />
       default:
-        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />;
+        return <MasonryGrid photos={photos} onPhotoClick={handlePhotoClick} />
     }
-  };
+  }
 
   const renderBrowseGallery = () => {
     if (photos.length === 0 && !loading) {
@@ -302,11 +325,17 @@ export function Gallery() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
           className="flex flex-col items-center justify-center py-20 text-center"
         >
           <div className="w-20 h-20 text-love mb-4">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -322,7 +351,7 @@ export function Gallery() {
           <h3 className="text-display font-display font-semibold text-ink mb-2">No photos yet</h3>
           <p className="text-ink-secondary">Start documenting your culinary journey!</p>
         </motion.div>
-      );
+      )
     }
 
     return (
@@ -335,13 +364,11 @@ export function Gallery() {
           animate="animate"
           exit="exit"
         >
-          <LayoutGroup>
-            {renderGalleryView()}
-          </LayoutGroup>
+          <LayoutGroup>{renderGalleryView()}</LayoutGroup>
         </motion.div>
       </AnimatePresence>
-    );
-  };
+    )
+  }
 
   const renderSkeletons = () => (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
@@ -349,7 +376,7 @@ export function Gallery() {
         <PhotoCardSkeleton key={i} />
       ))}
     </div>
-  );
+  )
 
   const loadMoreIndicator = (
     <>
@@ -380,11 +407,11 @@ export function Gallery() {
         </>
       )}
     </>
-  );
+  )
 
   // --- DESKTOP LAYOUT ---
   if (isDesktop) {
-    const isDesktopAnalytics = mobileTab === 'analytics';
+    const isDesktopAnalytics = mobileTab === "analytics"
 
     return (
       <div className="flex-1 overflow-y-auto min-h-0">
@@ -393,13 +420,20 @@ export function Gallery() {
             <div className="max-w-6xl mx-auto space-y-8">
               <div>
                 <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
-                <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
+                <p className="text-ink-secondary mt-1">
+                  A quick look at how the gallery is growing
+                </p>
               </div>
               <AnalyticsContent />
             </div>
           </main>
         ) : (
-          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+          <main
+            className="container mx-auto"
+            role="region"
+            aria-label="Photo gallery"
+            aria-busy={loading}
+          >
             {loading ? renderSkeletons() : renderBrowseGallery()}
             {loadMoreIndicator}
           </main>
@@ -408,26 +442,22 @@ export function Gallery() {
         {/* Photo detail modal — renders as a centered overlay */}
         <PhotoDetailSheet />
       </div>
-    );
+    )
   }
 
   // --- MOBILE LAYOUT ---
   return (
     <div className="min-h-screen pb-24">
       {/* Feed mode */}
-      {mobileTab === 'feed' && (
-        <>
-          {loading ? <FeedItemSkeleton /> : (
-            <ImmersiveFeed
-              photos={photos}
-              onPhotoTap={handlePhotoClick}
-            />
-          )}
-        </>
-      )}
+      {mobileTab === "feed" &&
+        (loading ? (
+          <FeedItemSkeleton />
+        ) : (
+          <ImmersiveFeed photos={photos} onPhotoTap={handlePhotoClick} />
+        ))}
 
       {/* Browse mode */}
-      {mobileTab === 'browse' && (
+      {mobileTab === "browse" && (
         <div ref={pullContainerRef}>
           <CollapsibleHeader />
 
@@ -444,7 +474,12 @@ export function Gallery() {
             </div>
           </div>
 
-          <main className="container mx-auto" role="region" aria-label="Photo gallery" aria-busy={loading}>
+          <main
+            className="container mx-auto"
+            role="region"
+            aria-label="Photo gallery"
+            aria-busy={loading}
+          >
             {loading ? renderSkeletons() : renderBrowseGallery()}
             {loadMoreIndicator}
           </main>
@@ -455,7 +490,7 @@ export function Gallery() {
       )}
 
       {/* Analytics mode */}
-      {mobileTab === 'analytics' && (
+      {mobileTab === "analytics" && (
         <div>
           <CollapsibleHeader />
 
@@ -463,7 +498,9 @@ export function Gallery() {
             <div className="max-w-6xl mx-auto space-y-6">
               <div>
                 <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
-                <p className="text-ink-secondary mt-1">A quick look at how the gallery is growing</p>
+                <p className="text-ink-secondary mt-1">
+                  A quick look at how the gallery is growing
+                </p>
               </div>
               <AnalyticsContent />
             </div>
@@ -475,10 +512,7 @@ export function Gallery() {
       <PhotoDetailSheet />
 
       {/* Mobile Bottom Navigation */}
-      <BottomNav
-        currentTab={mobileTab}
-        onTabChange={setMobileTab}
-      />
+      <BottomNav currentTab={mobileTab} onTabChange={setMobileTab} />
     </div>
-  );
+  )
 }

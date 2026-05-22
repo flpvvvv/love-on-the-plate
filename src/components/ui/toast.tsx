@@ -1,81 +1,85 @@
-'use client';
+"use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion"
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react"
 
-type ToastType = 'success' | 'error' | 'info';
+type ToastType = "success" | "error" | "info"
 
 interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
+  id: string
+  message: string
+  type: ToastType
 }
 
 interface ToastContextValue {
-  toasts: Toast[];
-  showToast: (message: string, type?: ToastType) => void;
-  dismissToast: (id: string) => void;
+  toasts: Toast[]
+  showToast: (message: string, type?: ToastType) => void
+  dismissToast: (id: string) => void
 }
 
-const ToastContext = createContext<ToastContextValue | null>(null);
+const ToastContext = createContext<ToastContextValue | null>(null)
 
 export function useToast() {
-  const context = useContext(ToastContext);
+  const context = useContext(ToastContext)
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error("useToast must be used within a ToastProvider")
   }
-  return context;
+  return context
 }
 
 interface ToastProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function ToastProvider({ children }: ToastProviderProps) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([])
 
-  const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const showToast = useCallback((message: string, type: ToastType = "success") => {
+    const id = Math.random().toString(36).slice(2)
+    setToasts((prev) => [...prev, { id, message, type }])
 
     // Auto dismiss after 4 seconds
     setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  }, []);
+      setToasts((prev) => prev.filter((t) => t.id !== id))
+    }, 4000)
+  }, [])
 
   const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, dismissToast }}>
       {children}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </ToastContext.Provider>
-  );
+  )
 }
 
 interface ToastContainerProps {
-  toasts: Toast[];
-  onDismiss: (id: string) => void;
+  toasts: Toast[]
+  onDismiss: (id: string) => void
 }
 
 function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none" aria-live="polite" aria-atomic="true">
+    <div
+      className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
         ))}
       </AnimatePresence>
     </div>
-  );
+  )
 }
 
 interface ToastItemProps {
-  toast: Toast;
-  onDismiss: (id: string) => void;
+  toast: Toast
+  onDismiss: (id: string) => void
 }
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
@@ -84,7 +88,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.1, type: 'spring', bounce: 0.5 }}
+        transition={{ delay: 0.1, type: "spring", bounce: 0.5 }}
       >
         <svg
           viewBox="0 0 24 24"
@@ -97,18 +101,32 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       </motion.div>
     ),
     error: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-danger" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="w-5 h-5 text-danger"
+        aria-hidden="true"
+      >
         <circle cx="12" cy="12" r="10" />
         <path strokeLinecap="round" d="M15 9l-6 6M9 9l6 6" />
       </svg>
     ),
     info: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-warmth" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="w-5 h-5 text-warmth"
+        aria-hidden="true"
+      >
         <circle cx="12" cy="12" r="10" />
         <path strokeLinecap="round" d="M12 16v-4M12 8h.01" />
       </svg>
     ),
-  };
+  }
 
   return (
     <motion.div
@@ -116,7 +134,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-      transition={{ type: 'spring', bounce: 0.3, duration: 0.4 }}
+      transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
       className="pointer-events-auto"
     >
       <button
@@ -124,11 +142,9 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         className="flex items-center gap-3 px-4 py-3 bg-canvas-elevated border border-stroke rounded-xl shadow-lg backdrop-blur-sm min-w-[200px] max-w-[90vw] text-left cursor-pointer focus-ring"
         aria-label={`Dismiss: ${toast.message}`}
       >
-        <span className="flex-shrink-0 animate-heartbeat">
-          {icons[toast.type]}
-        </span>
+        <span className="flex-shrink-0 animate-heartbeat">{icons[toast.type]}</span>
         <span className="text-caption text-ink">{toast.message}</span>
       </button>
     </motion.div>
-  );
+  )
 }

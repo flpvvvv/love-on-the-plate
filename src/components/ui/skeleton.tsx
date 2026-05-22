@@ -1,20 +1,13 @@
-'use client';
+"use client"
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils"
 
 interface SkeletonProps {
-  className?: string;
+  className?: string
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return (
-    <div
-      className={cn(
-        'rounded-lg animate-shimmer',
-        className
-      )}
-    />
-  );
+  return <div className={cn("rounded-lg animate-shimmer", className)} />
 }
 
 export function PhotoCardSkeleton() {
@@ -26,7 +19,7 @@ export function PhotoCardSkeleton() {
         <Skeleton className="h-4 w-2/3" />
       </div>
     </div>
-  );
+  )
 }
 
 /** Full-viewport skeleton mimicking the ImmersiveFeed layout */
@@ -49,5 +42,5 @@ export function FeedItemSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

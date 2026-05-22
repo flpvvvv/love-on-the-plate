@@ -1,1 +1,1 @@
-export { AnalyticsContent } from './analytics-content';
+export { AnalyticsContent } from "./analytics-content"

@@ -1,29 +1,29 @@
-'use client';
+"use client"
 
-import { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ThemeToggle } from '@/components/ui';
+import { motion } from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
+import { ThemeToggle } from "@/components/ui"
 
 export function CollapsibleHeader() {
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setCollapsed(!entry.isIntersecting);
+        setCollapsed(!entry.isIntersecting)
       },
       { threshold: 0 }
-    );
+    )
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <>
@@ -33,10 +33,10 @@ export function CollapsibleHeader() {
       {/* Large title region (visible when at top) */}
       <motion.div
         animate={{
-          height: collapsed ? 0 : 'auto',
+          height: collapsed ? 0 : "auto",
           opacity: collapsed ? 0 : 1,
         }}
-        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+        transition={{ type: "spring", stiffness: 400, damping: 35 }}
         className="overflow-hidden bg-canvas md:hidden"
       >
         <div className="px-5 pt-4 pb-1">
@@ -48,16 +48,14 @@ export function CollapsibleHeader() {
                 width={36}
                 height={36}
                 className="w-full h-full"
-                style={{ filter: 'var(--logo-filter, none)' }}
+                style={{ filter: "var(--logo-filter, none)" }}
               />
             </div>
             <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
               Love on the Plate
             </h1>
           </div>
-          <p className="font-accent text-sm text-ink-secondary pl-[48px]">
-            Happy wife, happy life
-          </p>
+          <p className="font-accent text-sm text-ink-secondary pl-[48px]">Happy wife, happy life</p>
         </div>
       </motion.div>
 
@@ -68,8 +66,8 @@ export function CollapsibleHeader() {
           y: collapsed ? 0 : -56,
           opacity: collapsed ? 1 : 0,
         }}
-        transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-        style={{ pointerEvents: collapsed ? 'auto' : 'none' }}
+        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+        style={{ pointerEvents: collapsed ? "auto" : "none" }}
       >
         <div className="glass border-b border-stroke">
           <div className="px-4 h-14 flex items-center justify-between">
@@ -81,7 +79,7 @@ export function CollapsibleHeader() {
                   width={32}
                   height={32}
                   className="w-full h-full"
-                  style={{ filter: 'var(--logo-filter, none)' }}
+                  style={{ filter: "var(--logo-filter, none)" }}
                 />
               </div>
               <span className="font-display text-base font-semibold text-ink tracking-tight">
@@ -93,5 +91,5 @@ export function CollapsibleHeader() {
         </div>
       </motion.header>
     </>
-  );
+  )
 }

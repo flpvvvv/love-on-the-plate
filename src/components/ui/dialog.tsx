@@ -1,40 +1,40 @@
-'use client';
+"use client"
 
-import { useEffect, useCallback, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { useFocusTrap } from '@/lib/hooks';
+import { AnimatePresence, motion } from "framer-motion"
+import { type ReactNode, useCallback, useEffect } from "react"
+import { useFocusTrap } from "@/lib/hooks"
+import { cn } from "@/lib/utils"
 
 interface DialogProps {
-  open: boolean;
-  onClose: () => void;
-  children: ReactNode;
-  className?: string;
+  open: boolean
+  onClose: () => void
+  children: ReactNode
+  className?: string
 }
 
 export function Dialog({ open, onClose, children, className }: DialogProps) {
-  const focusTrapRef = useFocusTrap(open);
+  const focusTrapRef = useFocusTrap(open)
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
+      if (e.key === "Escape") {
+        onClose()
       }
     },
     [onClose]
-  );
+  )
 
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = "hidden"
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
-  }, [open, handleKeyDown]);
+      document.removeEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = ""
+    }
+  }, [open, handleKeyDown])
 
   return (
     <AnimatePresence>
@@ -63,17 +63,17 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
-              'relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden',
+              "relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden",
               className
             )}
-            style={{ overscrollBehavior: 'contain' }}
+            style={{ overscrollBehavior: "contain" }}
           >
             {children}
           </motion.div>
         </div>
       )}
     </AnimatePresence>
-  );
+  )
 }
 
 export function DialogClose({ onClose }: { onClose: () => void }) {
@@ -95,5 +95,5 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
       </svg>
     </button>
-  );
+  )
 }

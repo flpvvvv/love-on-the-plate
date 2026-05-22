@@ -17,6 +17,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 |-------|------------|
 | Framework | Next.js 16.2 + React 19 + TypeScript 6 |
 | Styling | TailwindCSS v4 + Framer Motion |
+| Linting | Biome (fast unified linter + formatter) |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth (Magic Link) |
 | Storage | Supabase Storage |
@@ -44,6 +45,10 @@ cp .env.example .env.local
 
 # Start dev server
 pnpm dev
+
+# Lint and format
+pnpm lint
+pnpm format
 ```
 
 ### Supabase Setup

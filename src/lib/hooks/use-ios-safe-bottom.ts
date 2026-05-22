@@ -1,6 +1,6 @@
-'use client';
+"use client"
 
-import { useEffect } from 'react';
+import { useEffect } from "react"
 
 /**
  * Compensates for the iOS Safari dynamic toolbar overlapping fixed-bottom elements.
@@ -44,8 +44,8 @@ import { useEffect } from 'react';
  */
 export function useIOSSafeBottom(): void {
   useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
+    const vv = window.visualViewport
+    if (!vv) return
 
     // ── iOS gate ─────────────────────────────────────────────────────────
     // The dynamic-bottom-toolbar problem is specific to iOS Safari (and iOS
@@ -53,43 +53,41 @@ export function useIOSSafeBottom(): void {
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       // iPadOS 13+ reports "MacIntel" with touch support
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
 
-    if (!isIOS) return;
+    if (!isIOS) return
 
     // ── Offset tracking ──────────────────────────────────────────────────
-    const root = document.documentElement;
-    let rafId: number;
-    let lastOffset = -1;
+    const root = document.documentElement
+    let rafId: number
+    let lastOffset = -1
 
     const update = () => {
       // Layout viewport bottom minus visual viewport bottom = toolbar height.
-      const offset = Math.round(
-        window.innerHeight - vv.height - vv.offsetTop,
-      );
+      const offset = Math.round(window.innerHeight - vv.height - vv.offsetTop)
 
       // Only accept small positive offsets (1–100 px). Larger values mean
       // the virtual keyboard is open — we don't compensate for that.
-      const safeOffset = offset > 1 && offset < 100 ? offset : 0;
+      const safeOffset = offset > 1 && offset < 100 ? offset : 0
 
       if (safeOffset !== lastOffset) {
-        lastOffset = safeOffset;
-        root.style.setProperty('--ios-bottom-offset', `${safeOffset}px`);
+        lastOffset = safeOffset
+        root.style.setProperty("--ios-bottom-offset", `${safeOffset}px`)
       }
-    };
+    }
 
     const onResize = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(update);
-    };
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(update)
+    }
 
-    vv.addEventListener('resize', onResize);
-    update(); // initial measurement
+    vv.addEventListener("resize", onResize)
+    update() // initial measurement
 
     return () => {
-      vv.removeEventListener('resize', onResize);
-      cancelAnimationFrame(rafId);
-      root.style.removeProperty('--ios-bottom-offset');
-    };
-  }, []);
+      vv.removeEventListener("resize", onResize)
+      cancelAnimationFrame(rafId)
+      root.style.removeProperty("--ios-bottom-offset")
+    }
+  }, [])
 }

@@ -1,38 +1,50 @@
-'use client';
+"use client"
 
-import { forwardRef, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion"
+import { forwardRef, type ReactNode } from "react"
+import { cn } from "@/lib/utils"
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger"
+type ButtonSize = "sm" | "md" | "lg"
 
 interface ButtonProps {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  loading?: boolean;
-  disabled?: boolean;
-  className?: string;
-  children?: ReactNode;
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
+  variant?: ButtonVariant
+  size?: ButtonSize
+  loading?: boolean
+  disabled?: boolean
+  className?: string
+  children?: ReactNode
+  onClick?: () => void
+  type?: "button" | "submit" | "reset"
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-love text-white hover:bg-love-intense shadow-sm hover:shadow-md',
-  secondary: 'bg-canvas-elevated text-ink hover:bg-canvas-recessed border border-stroke',
-  ghost: 'hover:bg-canvas-recessed text-ink',
-  danger: 'bg-danger text-white hover:bg-danger-intense shadow-sm',
-};
+  primary: "bg-love text-white hover:bg-love-intense shadow-sm hover:shadow-md",
+  secondary: "bg-canvas-elevated text-ink hover:bg-canvas-recessed border border-stroke",
+  ghost: "hover:bg-canvas-recessed text-ink",
+  danger: "bg-danger text-white hover:bg-danger-intense shadow-sm",
+}
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-caption',
-  md: 'px-4 py-2 text-body',
-  lg: 'px-6 py-3 text-subheading',
-};
+  sm: "px-3 py-1.5 text-caption",
+  md: "px-4 py-2 text-body",
+  lg: "px-6 py-3 text-subheading",
+}
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading, disabled, children, type = 'button', onClick }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      loading,
+      disabled,
+      children,
+      type = "button",
+      onClick,
+    },
+    ref
+  ) => {
     return (
       <motion.button
         ref={ref}
@@ -40,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
         whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
         className={cn(
-          'rounded-xl font-medium transition-colors transition-shadow duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2',
+          "rounded-xl font-medium transition-colors transition-shadow duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2",
           variantStyles[variant],
           sizeStyles[size],
           className
@@ -73,8 +85,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {children}
       </motion.button>
-    );
+    )
   }
-);
+)
 
-Button.displayName = 'Button';
+Button.displayName = "Button"

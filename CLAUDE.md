@@ -11,9 +11,11 @@
 ## Commands
 
 ```bash
-pnpm dev      # Development server
-pnpm build    # Production build
-pnpm lint     # ESLint
+pnpm dev        # Development server
+pnpm build      # Production build
+pnpm lint       # Biome lint check
+pnpm lint:fix   # Biome lint + auto-fix
+pnpm format     # Biome format all files
 ```
 
 ## Project Structure

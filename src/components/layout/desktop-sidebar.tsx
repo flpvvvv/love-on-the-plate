@@ -1,46 +1,54 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeToggle, PlatesIcon, GridIcon, TimelineIcon, GalleryIcon, UploadIcon, AnalyticsIcon } from '@/components/ui';
-import { useGalleryContext } from './app-shell';
-import { cn } from '@/lib/utils';
-import type { GalleryView, MobileTab } from '@/types';
+import { AnimatePresence, motion } from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useState } from "react"
+import {
+  AnalyticsIcon,
+  GalleryIcon,
+  GridIcon,
+  PlatesIcon,
+  ThemeToggle,
+  TimelineIcon,
+  UploadIcon,
+} from "@/components/ui"
+import { cn } from "@/lib/utils"
+import type { GalleryView, MobileTab } from "@/types"
+import { useGalleryContext } from "./app-shell"
 
 const galleryViews: { id: GalleryView; label: string; icon: React.ReactNode }[] = [
-  { id: 'floating', label: 'Plates', icon: <PlatesIcon /> },
-  { id: 'masonry', label: 'Grid', icon: <GridIcon /> },
-  { id: 'timeline', label: 'Timeline', icon: <TimelineIcon /> },
-];
+  { id: "floating", label: "Plates", icon: <PlatesIcon /> },
+  { id: "masonry", label: "Grid", icon: <GridIcon /> },
+  { id: "timeline", label: "Timeline", icon: <TimelineIcon /> },
+]
 
 export function DesktopSidebar() {
-  const pathname = usePathname();
-  const isHome = pathname === '/';
-  const isAdmin = pathname.startsWith('/admin');
-  const { mobileTab, setMobileTab, galleryView, setGalleryView } = useGalleryContext();
-  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname()
+  const isHome = pathname === "/"
+  const isAdmin = pathname.startsWith("/admin")
+  const { mobileTab, setMobileTab, galleryView, setGalleryView } = useGalleryContext()
+  const [collapsed, setCollapsed] = useState(false)
 
   // On the home page, Gallery/Analytics are inline tabs; otherwise fall back to pathname
-  const isGalleryActive = isHome && mobileTab !== 'analytics';
-  const isAnalyticsActive = isHome && mobileTab === 'analytics';
+  const isGalleryActive = isHome && mobileTab !== "analytics"
+  const isAnalyticsActive = isHome && mobileTab === "analytics"
 
   const handleSectionChange = (tab: MobileTab) => {
     if (!isHome) {
       // If we're on another page (e.g. /admin), navigate home first
-      window.location.href = '/';
-      return;
+      window.location.href = "/"
+      return
     }
-    setMobileTab(tab);
-  };
+    setMobileTab(tab)
+  }
 
   return (
     <aside
       className={cn(
-        'hidden md:flex flex-col h-screen sticky top-0 border-r border-stroke bg-canvas-elevated/80 backdrop-blur-xl transition-all duration-300 ease-spring z-40 shrink-0',
-        collapsed ? 'w-[72px]' : 'w-[260px]'
+        "hidden md:flex flex-col h-screen sticky top-0 border-r border-stroke bg-canvas-elevated/80 backdrop-blur-xl transition-all duration-300 ease-spring z-40 shrink-0",
+        collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Logo */}
@@ -53,14 +61,14 @@ export function DesktopSidebar() {
               width={36}
               height={36}
               className="w-full h-full"
-              style={{ filter: 'var(--logo-filter, none)' }}
+              style={{ filter: "var(--logo-filter, none)" }}
             />
           </div>
           <AnimatePresence>
             {!collapsed && (
               <motion.div
                 initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
+                animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
                 className="flex flex-col overflow-hidden"
               >
@@ -84,14 +92,14 @@ export function DesktopSidebar() {
           collapsed={collapsed}
           icon={<GalleryIcon />}
           label="Gallery"
-          onClick={() => handleSectionChange('browse')}
+          onClick={() => handleSectionChange("browse")}
         />
         <SidebarButton
           active={isAnalyticsActive}
           collapsed={collapsed}
           icon={<AnalyticsIcon />}
           label="Analytics"
-          onClick={() => handleSectionChange('analytics')}
+          onClick={() => handleSectionChange("analytics")}
         />
         <SidebarLink
           href="/admin"
@@ -117,17 +125,17 @@ export function DesktopSidebar() {
                 key={view.id}
                 onClick={() => setGalleryView(view.id)}
                 className={cn(
-                  'relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium',
+                  "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
                   galleryView === view.id
-                    ? 'text-love'
-                    : 'text-ink-tertiary hover:text-ink hover:bg-canvas-recessed'
+                    ? "text-love"
+                    : "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed"
                 )}
               >
                 {galleryView === view.id && (
                   <motion.div
                     layoutId="sidebarViewIndicator"
                     className="absolute inset-0 bg-love-soft rounded-xl"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
                 <span className="relative z-10 shrink-0">{view.icon}</span>
@@ -135,7 +143,7 @@ export function DesktopSidebar() {
                   {!collapsed && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 'auto' }}
+                      animate={{ opacity: 1, width: "auto" }}
                       exit={{ opacity: 0, width: 0 }}
                       className="relative z-10 whitespace-nowrap overflow-hidden"
                     >
@@ -151,36 +159,37 @@ export function DesktopSidebar() {
 
       {/* Bottom section */}
       <div className="p-3 border-t border-stroke space-y-2 shrink-0">
-        <div className={cn('flex items-center', collapsed ? 'justify-center' : 'justify-between px-2')}>
+        <div
+          className={cn("flex items-center", collapsed ? "justify-center" : "justify-between px-2")}
+        >
           <ThemeToggle />
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-tertiary hover:text-ink hover:bg-canvas-recessed transition-colors"
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <motion.div
               animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="w-4 h-4"
-                aria-hidden="true"
-              >
-                <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">
+                <path
+                  d="M15 19l-7-7 7-7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </motion.div>
           </button>
         </div>
         {!collapsed && (
-          <p className="text-center font-accent text-sm text-ink-tertiary py-1">
-            Made with love
-          </p>
+          <p className="text-center font-accent text-sm text-ink-tertiary py-1">Made with love</p>
         )}
       </div>
     </aside>
-  );
+  )
 }
 
 function SidebarButton({
@@ -190,27 +199,25 @@ function SidebarButton({
   label,
   onClick,
 }: {
-  active: boolean;
-  collapsed: boolean;
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
+  active: boolean
+  collapsed: boolean
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium',
-        active
-          ? 'text-love'
-          : 'text-ink-secondary hover:text-ink hover:bg-canvas-recessed'
+        "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
+        active ? "text-love" : "text-ink-secondary hover:text-ink hover:bg-canvas-recessed"
       )}
     >
       {active && (
         <motion.div
           layoutId="sidebarNavIndicator"
           className="absolute inset-0 bg-love-soft rounded-xl"
-          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
       <span className="relative z-10 shrink-0">{icon}</span>
@@ -218,7 +225,7 @@ function SidebarButton({
         {!collapsed && (
           <motion.span
             initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: 'auto' }}
+            animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
             className="relative z-10 whitespace-nowrap overflow-hidden"
           >
@@ -227,7 +234,7 @@ function SidebarButton({
         )}
       </AnimatePresence>
     </button>
-  );
+  )
 }
 
 function SidebarLink({
@@ -237,27 +244,25 @@ function SidebarLink({
   icon,
   label,
 }: {
-  href: string;
-  active: boolean;
-  collapsed: boolean;
-  icon: React.ReactNode;
-  label: string;
+  href: string
+  active: boolean
+  collapsed: boolean
+  icon: React.ReactNode
+  label: string
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        'relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium',
-        active
-          ? 'text-love'
-          : 'text-ink-secondary hover:text-ink hover:bg-canvas-recessed'
+        "relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
+        active ? "text-love" : "text-ink-secondary hover:text-ink hover:bg-canvas-recessed"
       )}
     >
       {active && (
         <motion.div
           layoutId="sidebarNavIndicator"
           className="absolute inset-0 bg-love-soft rounded-xl"
-          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
       <span className="relative z-10 shrink-0">{icon}</span>
@@ -265,7 +270,7 @@ function SidebarLink({
         {!collapsed && (
           <motion.span
             initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: 'auto' }}
+            animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
             className="relative z-10 whitespace-nowrap overflow-hidden"
           >
@@ -274,5 +279,5 @@ function SidebarLink({
         )}
       </AnimatePresence>
     </Link>
-  );
+  )
 }

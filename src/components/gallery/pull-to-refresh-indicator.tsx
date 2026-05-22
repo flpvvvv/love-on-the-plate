@@ -1,12 +1,12 @@
-'use client';
+"use client"
 
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { motion } from "framer-motion"
+import Image from "next/image"
 
 interface PullToRefreshIndicatorProps {
-  pullDistance: number;
-  progress: number;
-  isRefreshing: boolean;
+  pullDistance: number
+  progress: number
+  isRefreshing: boolean
 }
 
 export function PullToRefreshIndicator({
@@ -14,13 +14,13 @@ export function PullToRefreshIndicator({
   progress,
   isRefreshing,
 }: PullToRefreshIndicatorProps) {
-  if (pullDistance === 0 && !isRefreshing) return null;
+  if (pullDistance === 0 && !isRefreshing) return null
 
   return (
     <motion.div
       className="flex justify-center items-center overflow-hidden"
       animate={{ height: pullDistance }}
-      transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+      transition={{ type: "spring", stiffness: 400, damping: 35 }}
     >
       <motion.div
         animate={{
@@ -30,8 +30,11 @@ export function PullToRefreshIndicator({
         }}
         transition={
           isRefreshing
-            ? { rotate: { repeat: Infinity, duration: 1, ease: 'linear' }, scale: { repeat: Infinity, duration: 1 } }
-            : { type: 'spring', stiffness: 300, damping: 20 }
+            ? {
+                rotate: { repeat: Infinity, duration: 1, ease: "linear" },
+                scale: { repeat: Infinity, duration: 1 },
+              }
+            : { type: "spring", stiffness: 300, damping: 20 }
         }
         className="w-8 h-8"
       >
@@ -41,9 +44,9 @@ export function PullToRefreshIndicator({
           width={32}
           height={32}
           className="w-full h-full"
-          style={{ filter: 'var(--logo-filter, none)' }}
+          style={{ filter: "var(--logo-filter, none)" }}
         />
       </motion.div>
     </motion.div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-'use client';
+"use client"
 
-import { DesktopSidebar } from '@/components/layout';
-import { Gallery } from '@/components/gallery';
-import { useGalleryContext } from '@/components/layout/app-shell';
+import { Gallery } from "@/components/gallery"
+import { DesktopSidebar } from "@/components/layout"
+import { useGalleryContext } from "@/components/layout/app-shell"
 
 export default function HomePage() {
-  const { isDesktop } = useGalleryContext();
+  const { isDesktop } = useGalleryContext()
 
   return (
     <>
@@ -22,5 +22,5 @@ export default function HomePage() {
         </main>
       </div>
     </>
-  );
+  )
 }

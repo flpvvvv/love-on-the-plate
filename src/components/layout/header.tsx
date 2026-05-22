@@ -1,13 +1,13 @@
-'use client';
+"use client"
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { ThemeToggle, Button } from '@/components/ui';
+import Image from "next/image"
+import Link from "next/link"
+import { Button, ThemeToggle } from "@/components/ui"
 
 interface HeaderProps {
-  showAdminLink?: boolean;
-  onSignOut?: () => void;
-  userEmail?: string | null;
+  showAdminLink?: boolean
+  onSignOut?: () => void
+  userEmail?: string | null
 }
 
 export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderProps) {
@@ -22,7 +22,7 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
               width={40}
               height={40}
               className="w-full h-full"
-              style={{ filter: 'var(--logo-filter, none)' }}
+              style={{ filter: "var(--logo-filter, none)" }}
             />
           </div>
           <div className="flex flex-col">
@@ -42,7 +42,14 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
               href="/admin"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-love text-white text-sm font-medium rounded-xl hover:bg-love-intense transition-colors shadow-sm hover:shadow-md cursor-pointer focus-ring"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span>Upload</span>
@@ -65,5 +72,5 @@ export function Header({ showAdminLink = true, onSignOut, userEmail }: HeaderPro
         </div>
       </div>
     </header>
-  );
+  )
 }

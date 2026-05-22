@@ -1,10 +1,10 @@
-'use client';
+"use client"
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from "react"
 
 interface UseScrollToTopOptions {
   /** Scroll distance (px) before the button appears */
-  threshold?: number;
+  threshold?: number
 }
 
 /**
@@ -12,27 +12,27 @@ interface UseScrollToTopOptions {
  * Listens on `window` scroll.
  */
 export function useScrollToTop({ threshold = 500 }: UseScrollToTopOptions = {}) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    let ticking = false;
+    let ticking = false
 
     const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
+      if (ticking) return
+      ticking = true
       requestAnimationFrame(() => {
-        setVisible(window.scrollY > threshold);
-        ticking = false;
-      });
-    };
+        setVisible(window.scrollY > threshold)
+        ticking = false
+      })
+    }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [threshold]);
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [threshold])
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [])
 
-  return { visible, scrollToTop };
+  return { visible, scrollToTop }
 }

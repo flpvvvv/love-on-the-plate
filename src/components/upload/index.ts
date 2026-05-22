@@ -1,2 +1,2 @@
-export { UploadZone } from './upload-zone';
-export { ImagePreview } from './image-preview';
+export { ImagePreview } from "./image-preview"
+export { UploadZone } from "./upload-zone"

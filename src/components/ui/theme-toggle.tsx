@@ -1,44 +1,44 @@
-'use client';
+"use client"
 
-import { useTheme } from 'next-themes';
-import { useSyncExternalStore } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion"
+import { useTheme } from "next-themes"
+import { useSyncExternalStore } from "react"
 
 // Simple way to detect if we're on the client
 function subscribe() {
-  return () => {};
+  return () => {}
 }
 
 function getSnapshot() {
-  return true;
+  return true
 }
 
 function getServerSnapshot() {
-  return false;
+  return false
 }
 
 export function ThemeToggle() {
-  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const { theme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const { theme, setTheme } = useTheme()
 
   if (!mounted) {
     return (
       <button className="w-10 h-10 rounded-full bg-canvas-elevated flex items-center justify-center border border-stroke">
         <span className="sr-only">Toggle theme</span>
       </button>
-    );
+    )
   }
 
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="w-10 h-10 rounded-full bg-canvas-elevated hover:bg-canvas-recessed flex items-center justify-center transition-colors border border-stroke overflow-hidden"
       aria-label="Toggle theme"
     >
       <AnimatePresence mode="wait" initial={false}>
-        {theme === 'dark' ? (
+        {theme === "dark" ? (
           <motion.div
             key="sun"
             initial={{ y: 20, opacity: 0, rotate: -90 }}
@@ -89,5 +89,5 @@ export function ThemeToggle() {
         )}
       </AnimatePresence>
     </motion.button>
-  );
+  )
 }

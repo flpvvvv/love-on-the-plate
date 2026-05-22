@@ -1,54 +1,65 @@
-'use client';
+"use client"
 
-import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
-import { formatDate, getDisplayDate } from '@/lib/utils';
-import type { PhotoWithUrls } from '@/types';
+import { motion, useReducedMotion } from "framer-motion"
+import Image from "next/image"
+import { formatDate, getDisplayDate } from "@/lib/utils"
+import type { PhotoWithUrls } from "@/types"
 
 interface FloatingPlatesProps {
-  photos: PhotoWithUrls[];
-  onPhotoClick: (photo: PhotoWithUrls) => void;
+  photos: PhotoWithUrls[]
+  onPhotoClick: (photo: PhotoWithUrls) => void
 }
 
-const PLATE_ROTATION = -3; // subtle consistent tilt for all plates
-const PLATE_SCALE = 1;
+const PLATE_ROTATION = -3 // subtle consistent tilt for all plates
+const PLATE_SCALE = 1
 
 function getPlateStyle() {
-  return { rotation: PLATE_ROTATION, scale: PLATE_SCALE };
+  return { rotation: PLATE_ROTATION, scale: PLATE_SCALE }
 }
 
 export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion()
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 p-4">
       {photos.map((photo, index) => {
-        const { rotation, scale } = getPlateStyle();
+        const { rotation, scale } = getPlateStyle()
         // Row-relative stagger: 2-col mobile, 3-col tablet, 4-col desktop
         // We approximate with mod-4 which covers the widest layout
-        const colPosition = index % 4;
+        const colPosition = index % 4
 
         // Above-fold items use `animate` for reliable rendering after view
         // transitions; below-fold items use `whileInView` for scroll entrance.
         const targetState = prefersReducedMotion
           ? { opacity: 1 }
-          : { opacity: 1, scale: scale, rotate: rotation };
-        const entryAnimation = index < 12
-          ? { animate: targetState }
-          : { whileInView: targetState, viewport: { once: true, amount: 0.15 } };
+          : { opacity: 1, scale: scale, rotate: rotation }
+        const entryAnimation =
+          index < 12
+            ? { animate: targetState }
+            : { whileInView: targetState, viewport: { once: true, amount: 0.15 } }
 
         return (
           <motion.button
             key={photo.id}
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.75, rotate: rotation }}
+            initial={
+              prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.75, rotate: rotation }
+            }
             {...entryAnimation}
-            whileHover={prefersReducedMotion ? undefined : {
-              scale: 1.08,
-              rotate: 0,
-              zIndex: 10,
-              transition: { type: 'spring', stiffness: 400, damping: 20 },
-            }}
-            transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 22, delay: colPosition * 0.05 }}
+            whileHover={
+              prefersReducedMotion
+                ? undefined
+                : {
+                    scale: 1.08,
+                    rotate: 0,
+                    zIndex: 10,
+                    transition: { type: "spring", stiffness: 400, damping: 20 },
+                  }
+            }
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 280, damping: 22, delay: colPosition * 0.05 }
+            }
             onClick={() => onPhotoClick(photo)}
             className="photo-grid-item relative focus:outline-none focus-ring rounded-2xl flex flex-col items-center group cursor-pointer"
           >
@@ -66,7 +77,12 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                 <div className="relative w-full h-full rounded-full overflow-hidden">
                   <Image
                     src={photo.thumbnailUrl}
-                    alt={photo.dish_name || photo.description_en || photo.description_cn || 'A homemade meal'}
+                    alt={
+                      photo.dish_name ||
+                      photo.description_en ||
+                      photo.description_cn ||
+                      "A homemade meal"
+                    }
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-cover"
@@ -76,16 +92,14 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               </div>
 
               {/* Hover/focus overlay with description — desktop only */}
-              <div
-                className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 md:group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200"
-              >
+              <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 md:group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200">
                 {(photo.dish_name || photo.description_cn || photo.description_en) && (
                   <div className="text-white text-center px-4">
-                    {photo.dish_name && (
-                      <p className="font-medium mb-1">{photo.dish_name}</p>
-                    )}
+                    {photo.dish_name && <p className="font-medium mb-1">{photo.dish_name}</p>}
                     {photo.description_cn && (
-                      <p className="text-caption line-clamp-2 text-white/90">{photo.description_cn}</p>
+                      <p className="text-caption line-clamp-2 text-white/90">
+                        {photo.description_cn}
+                      </p>
                     )}
                   </div>
                 )}
@@ -108,8 +122,8 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               </p>
             </div>
           </motion.button>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

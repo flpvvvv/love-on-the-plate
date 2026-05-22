@@ -4,7 +4,7 @@
    ========================================================================== */
 
 /* Google Fonts — loaded with display=swap to prevent FOIT. Preconnect in layout.tsx. */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 
@@ -15,36 +15,36 @@
    ========================================================================== */
 :root {
   /* Canvas Layers */
-  --canvas: #FFFBF8;
-  --canvas-elevated: #FFFFFF;
-  --canvas-recessed: #F7F0EB;
-  
+  --canvas: #fffbf8;
+  --canvas-elevated: #ffffff;
+  --canvas-recessed: #f7f0eb;
+
   /* Typography Colors */
-  --ink: #1C1512;
-  --ink-secondary: #6B5B4F;
-  --ink-tertiary: #8A7D70;
-  
+  --ink: #1c1512;
+  --ink-secondary: #6b5b4f;
+  --ink-tertiary: #8a7d70;
+
   /* Stroke/Border */
-  --stroke: #E8DDD4;
-  --stroke-emphasis: #D4C4B5;
-  
+  --stroke: #e8ddd4;
+  --stroke-emphasis: #d4c4b5;
+
   /* Brand Colors */
-  --love: #D94B38;
-  --love-soft: #F4E4E1;
-  --love-intense: #B83A28;
-  --warmth: #E8A86C;
-  --warmth-soft: #FDF5ED;
-  --freshness: #7BA085;
-  --freshness-soft: #EDF5EF;
-  
+  --love: #d94b38;
+  --love-soft: #f4e4e1;
+  --love-intense: #b83a28;
+  --warmth: #e8a86c;
+  --warmth-soft: #fdf5ed;
+  --freshness: #7ba085;
+  --freshness-soft: #edf5ef;
+
   /* Semantic Status Colors */
-  --danger: #DC2626;
-  --danger-soft: #FEF2F2;
-  --danger-intense: #B91C1C;
-  --warning: #D97706;
-  --warning-soft: #FFFBEB;
-  --warning-intense: #B45309;
-  
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-intense: #b91c1c;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --warning-intense: #b45309;
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(28, 21, 18, 0.04);
   --shadow-md: 0 4px 12px rgba(28, 21, 18, 0.08);
@@ -52,19 +52,19 @@
   --shadow-xl: 0 24px 48px rgba(28, 21, 18, 0.16);
   --shadow-glow: 0 0 24px rgba(217, 75, 56, 0.2);
   --shadow-inner: inset 0 2px 4px rgba(28, 21, 18, 0.06);
-  
+
   /* Animation Easings */
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   /* Animation Durations */
   --duration-instant: 100ms;
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
   --duration-slower: 700ms;
-  
+
   /* Fluid Typography Scale */
   --text-hero: clamp(2.5rem, 5vw, 4rem);
   --text-display: clamp(1.75rem, 3vw, 2.5rem);
@@ -73,7 +73,7 @@
   --text-body: clamp(0.9375rem, 1.25vw, 1rem);
   --text-caption: clamp(0.8125rem, 1vw, 0.875rem);
   --text-micro: 0.75rem;
-  
+
   /* Spacing Scale */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -82,7 +82,7 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   --space-3xl: 4rem;
-  
+
   /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -90,10 +90,10 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
-  
+
   /* Logo filter - no filter needed in light mode */
   --logo-filter: none;
-  
+
   /* Legacy compatibility tokens */
   --background: var(--canvas);
   --foreground: var(--ink);
@@ -110,38 +110,38 @@
    ========================================================================== */
 .dark {
   color-scheme: dark;
-  
+
   /* Canvas Layers */
-  --canvas: #0F0C0A;
-  --canvas-elevated: #1A1512;
-  --canvas-recessed: #0A0807;
-  
+  --canvas: #0f0c0a;
+  --canvas-elevated: #1a1512;
+  --canvas-recessed: #0a0807;
+
   /* Typography Colors */
-  --ink: #F5EEE8;
-  --ink-secondary: #B5A89A;
-  --ink-tertiary: #8A7E72;
-  
+  --ink: #f5eee8;
+  --ink-secondary: #b5a89a;
+  --ink-tertiary: #8a7e72;
+
   /* Stroke/Border */
-  --stroke: #2A2320;
-  --stroke-emphasis: #3D3530;
-  
+  --stroke: #2a2320;
+  --stroke-emphasis: #3d3530;
+
   /* Brand Colors */
-  --love: #FF7B68;
-  --love-soft: #2A1F1D;
-  --love-intense: #FF9484;
-  --warmth: #F0B87A;
-  --warmth-soft: #1F1A14;
-  --freshness: #8FBC9A;
-  --freshness-soft: #151D17;
-  
+  --love: #ff7b68;
+  --love-soft: #2a1f1d;
+  --love-intense: #ff9484;
+  --warmth: #f0b87a;
+  --warmth-soft: #1f1a14;
+  --freshness: #8fbc9a;
+  --freshness-soft: #151d17;
+
   /* Semantic Status Colors */
-  --danger: #EF4444;
-  --danger-soft: #2A1A1A;
-  --danger-intense: #F87171;
-  --warning: #F59E0B;
-  --warning-soft: #2A2114;
-  --warning-intense: #FBBF24;
-  
+  --danger: #ef4444;
+  --danger-soft: #2a1a1a;
+  --danger-intense: #f87171;
+  --warning: #f59e0b;
+  --warning-soft: #2a2114;
+  --warning-intense: #fbbf24;
+
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -149,10 +149,10 @@
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 32px rgba(255, 123, 104, 0.25);
   --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-  
+
   /* Logo filter - invert for dark mode visibility */
   --logo-filter: invert(1) brightness(0.95);
-  
+
   /* Legacy compatibility */
   --background: var(--canvas);
   --foreground: var(--ink);
@@ -172,16 +172,16 @@
   --color-canvas: var(--canvas);
   --color-canvas-elevated: var(--canvas-elevated);
   --color-canvas-recessed: var(--canvas-recessed);
-  
+
   /* Ink */
   --color-ink: var(--ink);
   --color-ink-secondary: var(--ink-secondary);
   --color-ink-tertiary: var(--ink-tertiary);
-  
+
   /* Stroke */
   --color-stroke: var(--stroke);
   --color-stroke-emphasis: var(--stroke-emphasis);
-  
+
   /* Brand */
   --color-love: var(--love);
   --color-love-soft: var(--love-soft);
@@ -190,7 +190,7 @@
   --color-warmth-soft: var(--warmth-soft);
   --color-freshness: var(--freshness);
   --color-freshness-soft: var(--freshness-soft);
-  
+
   /* Status */
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
@@ -198,7 +198,7 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-warning-intense: var(--warning-intense);
-  
+
   /* Legacy (keep for backward compat) */
   --color-background: var(--canvas);
   --color-foreground: var(--ink);
@@ -208,16 +208,16 @@
   --color-muted: var(--ink-secondary);
   --color-accent: var(--love);
   --color-accent-hover: var(--love-intense);
-  
+
   /* Typography */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-accent: 'Caveat', cursive;
-  
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-accent: "Caveat", cursive;
+
   /* Legacy font aliases */
-  --font-serif: 'Fraunces', Georgia, serif;
-  --font-script: 'Caveat', cursive;
-  
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-script: "Caveat", cursive;
+
   /* Shadows */
   --shadow-glow: var(--shadow-glow);
 }
@@ -228,7 +228,8 @@
 body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: var(--text-body);
   line-height: 1.6;
   min-height: 100vh;
@@ -241,7 +242,7 @@ body {
 
 /* Atmospheric noise texture — subtle paper-like warmth */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -258,26 +259,26 @@ body::before {
    TYPOGRAPHY UTILITIES
    ========================================================================== */
 .font-display {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-optical-sizing: auto;
 }
 
 .font-body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .font-accent {
-  font-family: 'Caveat', cursive;
+  font-family: "Caveat", cursive;
 }
 
 /* Legacy aliases */
 .font-serif {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-optical-sizing: auto;
 }
 
 .font-script {
-  font-family: 'Caveat', cursive;
+  font-family: "Caveat", cursive;
 }
 
 /* Fluid type classes */
@@ -326,26 +327,51 @@ body::before {
    ANIMATION UTILITIES
    ========================================================================== */
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  14% { transform: scale(1.1); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.1); }
-  56% { transform: scale(1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.1);
+  }
+  56% {
+    transform: scale(1);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 75, 56, 0.4); }
-  50% { box-shadow: 0 0 20px 10px rgba(217, 75, 56, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 75, 56, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(217, 75, 56, 0);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes fade-in-up {
@@ -430,9 +456,9 @@ select,
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }
 
@@ -506,7 +532,9 @@ select,
 }
 
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--love);
+  box-shadow:
+    0 0 0 2px var(--canvas),
+    0 0 0 4px var(--love);
 }
 
 /* Safe area padding for mobile.
@@ -516,9 +544,7 @@ select,
    for the iOS Safari dynamic toolbar that overlaps fixed-bottom elements.
    On non-iOS platforms both values are 0, so this class is a no-op. */
 .safe-bottom {
-  padding-bottom: calc(
-    env(safe-area-inset-bottom, 0px) + var(--ios-bottom-offset, 0px)
-  );
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ios-bottom-offset, 0px));
 }
 
 .safe-top {
@@ -528,13 +554,13 @@ select,
 /* Hide on mobile/desktop */
 @media (max-width: 767px) {
   .hide-mobile {
-    display: none !important;
+    display: none;
   }
 }
 
 @media (min-width: 768px) {
   .hide-desktop {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -544,7 +570,12 @@ select,
 }
 
 /* Scroll margin for anchor links */
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 [id] {
   scroll-margin-top: 5rem; /* Account for sticky header */
 }
@@ -556,13 +587,13 @@ h1, h2, h3, h4, h5, h6,
 
 /* Vaul drawer overrides for theme integration */
 [vaul-drawer-overlay] {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
 [vaul-drawer] {
-  background: var(--canvas) !important;
+  background: var(--canvas);
 }
 
 /* Feed snap scrolling -- hide scrollbar */
@@ -613,5 +644,6 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .safe-all {
-  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
 }

@@ -1,53 +1,53 @@
-'use client';
+"use client"
 
-import { useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from "framer-motion"
+import { type ChangeEvent, type DragEvent, useCallback, useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface UploadZoneProps {
-  onFileSelect: (file: File) => void;
-  disabled?: boolean;
+  onFileSelect: (file: File) => void
+  disabled?: boolean
 }
 
 export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+    e.preventDefault()
+    setIsDragging(true)
+  }, [])
 
   const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
+    e.preventDefault()
+    setIsDragging(false)
+  }, [])
 
   const handleDrop = useCallback(
     (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragging(false);
+      e.preventDefault()
+      setIsDragging(false)
 
-      if (disabled) return;
+      if (disabled) return
 
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) {
-        onFileSelect(file);
+      const file = e.dataTransfer.files[0]
+      if (file?.type.startsWith("image/")) {
+        onFileSelect(file)
       }
     },
     [disabled, onFileSelect]
-  );
+  )
 
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
+      const file = e.target.files?.[0]
       if (file) {
-        onFileSelect(file);
+        onFileSelect(file)
       }
       // Reset input so same file can be selected again
-      e.target.value = '';
+      e.target.value = ""
     },
     [onFileSelect]
-  );
+  )
 
   return (
     <div
@@ -55,9 +55,9 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={cn(
-        'relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-colors transition-shadow duration-200 text-center',
-        isDragging ? 'border-love bg-love-soft shadow-glow' : 'border-stroke hover:border-love/50',
-        disabled && 'opacity-50 pointer-events-none'
+        "relative border-2 border-dashed rounded-2xl p-8 sm:p-12 transition-colors transition-shadow duration-200 text-center",
+        isDragging ? "border-love bg-love-soft shadow-glow" : "border-stroke hover:border-love/50",
+        disabled && "opacity-50 pointer-events-none"
       )}
     >
       <AnimatePresence mode="wait">
@@ -70,7 +70,13 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             className="space-y-4"
           >
             <div className="w-16 h-16 mx-auto text-love">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -89,7 +95,13 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             className="space-y-4"
           >
             <div className="w-16 h-16 mx-auto text-ink-tertiary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -98,9 +110,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
               </svg>
             </div>
             <div>
-              <p className="text-subheading font-medium text-ink mb-1">
-                Upload a photo
-              </p>
+              <p className="text-subheading font-medium text-ink mb-1">Upload a photo</p>
               <p className="text-caption text-ink-secondary mb-4">
                 Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically
               </p>
@@ -110,7 +120,14 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               {/* Camera capture button - primary on mobile */}
               <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-love text-white font-medium rounded-xl cursor-pointer hover:bg-love-intense transition-colors shadow-sm">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -132,10 +149,17 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
                   className="hidden"
                 />
               </label>
-              
+
               {/* Choose from gallery button */}
               <label className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-canvas-elevated border border-stroke text-ink font-medium rounded-xl cursor-pointer hover:bg-canvas-recessed transition-colors">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -152,7 +176,7 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
                 />
               </label>
             </div>
-            
+
             {/* Desktop drag and drop hint */}
             <p className="text-caption text-ink-tertiary pt-2 hidden sm:block">
               or drag and drop an image here
@@ -161,5 +185,5 @@ export function UploadZone({ onFileSelect, disabled }: UploadZoneProps) {
         )}
       </AnimatePresence>
     </div>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-'use client';
+"use client"
 
-import Link from 'next/link';
-import { Header, Footer } from '@/components/layout';
-import { Button } from '@/components/ui';
-import { AnalyticsContent } from '@/components/analytics';
+import Link from "next/link"
+import { AnalyticsContent } from "@/components/analytics"
+import { Footer, Header } from "@/components/layout"
+import { Button } from "@/components/ui"
 
 export default function AnalyticsPage() {
   return (
@@ -30,5 +30,5 @@ export default function AnalyticsPage() {
 
       <Footer />
     </>
-  );
+  )
 }

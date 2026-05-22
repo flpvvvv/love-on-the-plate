@@ -1,21 +1,24 @@
-'use client';
+"use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button, Card, CardContent } from '@/components/ui';
-import type { AnalyticsResponse, DailyTrendPoint } from '@/types';
+import { motion } from "framer-motion"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Button, Card, CardContent } from "@/components/ui"
+import type { AnalyticsResponse, DailyTrendPoint } from "@/types"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Sparkline helpers — smooth curves + gradient area fill
    ───────────────────────────────────────────────────────────────────────────── */
 
 interface SparklinePoint {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 
-const SVG_W = 320;
-const SVG_H = 100;
+const SVG_W = 320
+const SVG_H = 100
+
+// Stable skeleton bar heights (avoids Math.random() during render)
+const SKELETON_BAR_HEIGHTS = [45, 72, 38, 85, 52, 67, 29, 78, 43, 91, 56, 34]
 
 /** Convert raw daily counts into SVG coordinates. */
 function computeSparklineCoords(
@@ -23,39 +26,39 @@ function computeSparklineCoords(
   width: number,
   height: number
 ): SparklinePoint[] {
-  if (points.length === 0) return [];
-  const max = Math.max(...points.map((p) => p.count), 1);
-  const pad = 8;
-  const iw = width - pad * 2;
-  const ih = height - pad * 2;
-  const step = points.length > 1 ? iw / (points.length - 1) : 0;
+  if (points.length === 0) return []
+  const max = Math.max(...points.map((p) => p.count), 1)
+  const pad = 8
+  const iw = width - pad * 2
+  const ih = height - pad * 2
+  const step = points.length > 1 ? iw / (points.length - 1) : 0
   return points.map((p, i) => ({
     x: pad + i * step,
     y: pad + ih - (p.count / max) * ih,
-  }));
+  }))
 }
 
 /** Build a smooth cubic-bezier SVG path through all points. */
 function smoothLinePath(pts: SparklinePoint[]): string {
-  if (pts.length === 0) return '';
-  if (pts.length === 1) return `M${pts[0].x},${pts[0].y}`;
-  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  if (pts.length === 0) return ""
+  if (pts.length === 1) return `M${pts[0].x},${pts[0].y}`
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`
   for (let i = 0; i < pts.length - 1; i++) {
-    const c = pts[i];
-    const n = pts[i + 1];
-    const mx = ((c.x + n.x) / 2).toFixed(1);
-    d += ` C${mx},${c.y.toFixed(1)} ${mx},${n.y.toFixed(1)} ${n.x.toFixed(1)},${n.y.toFixed(1)}`;
+    const c = pts[i]
+    const n = pts[i + 1]
+    const mx = ((c.x + n.x) / 2).toFixed(1)
+    d += ` C${mx},${c.y.toFixed(1)} ${mx},${n.y.toFixed(1)} ${n.x.toFixed(1)},${n.y.toFixed(1)}`
   }
-  return d;
+  return d
 }
 
 /** Closed area path (line → bottom-right → bottom-left → close) for fill. */
 function areaFillPath(pts: SparklinePoint[], bottom: number): string {
-  const line = smoothLinePath(pts);
-  if (!line || pts.length === 0) return '';
-  const first = pts[0];
-  const last = pts[pts.length - 1];
-  return `${line} L${last.x.toFixed(1)},${bottom} L${first.x.toFixed(1)},${bottom} Z`;
+  const line = smoothLinePath(pts)
+  if (!line || pts.length === 0) return ""
+  const first = pts[0]
+  const last = pts[pts.length - 1]
+  return `${line} L${last.x.toFixed(1)},${bottom} L${first.x.toFixed(1)},${bottom} Z`
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -63,12 +66,12 @@ function areaFillPath(pts: SparklinePoint[], bottom: number): string {
    ───────────────────────────────────────────────────────────────────────────── */
 
 function formatRelativeTime(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 10) return 'Updated just now';
-  if (seconds < 60) return `Updated ${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `Updated ${minutes}m ago`;
-  return `Updated ${Math.floor(minutes / 60)}h ago`;
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 10) return "Updated just now"
+  if (seconds < 60) return `Updated ${seconds}s ago`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `Updated ${minutes}m ago`
+  return `Updated ${Math.floor(minutes / 60)}h ago`
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -81,16 +84,16 @@ const staggerContainer = {
     opacity: 1,
     transition: { staggerChildren: 0.1 },
   },
-} as const;
+} as const
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring' as const, stiffness: 300, damping: 30 },
+    transition: { type: "spring" as const, stiffness: 300, damping: 30 },
   },
-};
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    AnalyticsContent
@@ -101,69 +104,69 @@ const fadeUp = {
  * Can be embedded inline in the Gallery or used in the standalone /analytics page.
  */
 export function AnalyticsContent() {
-  const [data, setData] = useState<AnalyticsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
-  const [timeLabel, setTimeLabel] = useState('');
+  const [data, setData] = useState<AnalyticsResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [fetchedAt, setFetchedAt] = useState<Date | null>(null)
+  const [timeLabel, setTimeLabel] = useState("")
 
   /* ── Data fetching ── */
 
   const loadAnalytics = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
-      const response = await fetch('/api/analytics', { signal });
-      if (!response.ok) throw new Error('Failed to load analytics');
+      const response = await fetch("/api/analytics", { signal })
+      if (!response.ok) throw new Error("Failed to load analytics")
 
-      const payload: AnalyticsResponse = await response.json();
-      setData(payload);
-      setFetchedAt(new Date());
+      const payload: AnalyticsResponse = await response.json()
+      setData(payload)
+      setFetchedAt(new Date())
     } catch (loadError) {
-      if (loadError instanceof Error && loadError.name === 'AbortError') return;
-      setError('Unable to load analytics right now.');
+      if (loadError instanceof Error && loadError.name === "AbortError") return
+      setError("Unable to load analytics right now.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    const controller = new AbortController();
-    loadAnalytics(controller.signal);
-    return () => controller.abort();
-  }, [loadAnalytics]);
+    const controller = new AbortController()
+    void loadAnalytics(controller.signal)
+    return () => controller.abort()
+  }, [loadAnalytics])
 
   /* Tick the "Updated Xs ago" label every 10 s */
   useEffect(() => {
-    if (!fetchedAt) return;
-    const tick = () => setTimeLabel(formatRelativeTime(fetchedAt));
-    tick();
-    const id = setInterval(tick, 10_000);
-    return () => clearInterval(id);
-  }, [fetchedAt]);
+    if (!fetchedAt) return
+    const tick = () => setTimeLabel(formatRelativeTime(fetchedAt))
+    tick()
+    const id = setInterval(tick, 10_000)
+    return () => clearInterval(id)
+  }, [fetchedAt])
 
   /* ── Derived values ── */
 
   const maxMonthCount = useMemo(() => {
-    if (!data || data.perMonth.length === 0) return 1;
-    return Math.max(...data.perMonth.map((m) => m.count), 1);
-  }, [data]);
+    if (!data || data.perMonth.length === 0) return 1
+    return Math.max(...data.perMonth.map((m) => m.count), 1)
+  }, [data])
 
   const sparkCoords = useMemo(
     () => computeSparklineCoords(data?.recentTrend ?? [], SVG_W, SVG_H),
     [data]
-  );
+  )
 
   const topDishMax = useMemo(() => {
-    if (!data || data.topDishes.length === 0) return 1;
-    return Math.max(...data.topDishes.map((d) => d.count), 1);
-  }, [data]);
+    if (!data || data.topDishes.length === 0) return 1
+    return Math.max(...data.topDishes.map((d) => d.count), 1)
+  }, [data])
 
   const thisMonthCount = useMemo(() => {
-    if (!data || data.perMonth.length === 0) return 0;
-    return data.perMonth[data.perMonth.length - 1].count;
-  }, [data]);
+    if (!data || data.perMonth.length === 0) return 0
+    return data.perMonth[data.perMonth.length - 1].count
+  }, [data])
 
   /* ══════════════════════════════════════════════════════════════════════════
      Loading — skeletons match the real 2-small + 2-full-width layout
@@ -200,11 +203,11 @@ export function AnalyticsContent() {
             <div className="animate-pulse space-y-4">
               <div className="h-4 w-40 rounded bg-canvas-recessed" />
               <div className="flex items-end gap-2 h-44">
-                {Array.from({ length: 12 }).map((_, i) => (
+                {SKELETON_BAR_HEIGHTS.map((height, i) => (
                   <div
                     key={i}
                     className="flex-1 rounded-t bg-canvas-recessed"
-                    style={{ height: `${20 + Math.random() * 60}%` }}
+                    style={{ height: `${height}%` }}
                   />
                 ))}
               </div>
@@ -229,7 +232,7 @@ export function AnalyticsContent() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
@@ -246,10 +249,10 @@ export function AnalyticsContent() {
           </Button>
         </CardContent>
       </Card>
-    );
+    )
   }
 
-  if (!data) return null;
+  if (!data) return null
 
   /* ══════════════════════════════════════════════════════════════════════════
      Main content — staggered entrance with per-element animations
@@ -285,9 +288,7 @@ export function AnalyticsContent() {
                 +{thisMonthCount} this month
               </p>
             )}
-            {timeLabel && (
-              <p className="text-micro text-ink-tertiary pt-1">{timeLabel}</p>
-            )}
+            {timeLabel && <p className="text-micro text-ink-tertiary pt-1">{timeLabel}</p>}
           </CardContent>
         </Card>
       </motion.div>
@@ -318,10 +319,7 @@ export function AnalyticsContent() {
                 {sparkCoords.length > 1 && (
                   <>
                     {/* Gradient area fill */}
-                    <path
-                      d={areaFillPath(sparkCoords, SVG_H)}
-                      fill="url(#sparkline-gradient)"
-                    />
+                    <path d={areaFillPath(sparkCoords, SVG_H)} fill="url(#sparkline-gradient)" />
                     {/* Smooth line */}
                     <path
                       d={smoothLinePath(sparkCoords)}
@@ -358,15 +356,12 @@ export function AnalyticsContent() {
 
             <div className="flex items-end gap-1 sm:gap-2">
               {data.perMonth.map((month, i) => {
-                const pct = (month.count / maxMonthCount) * 100;
+                const pct = (month.count / maxMonthCount) * 100
                 return (
-                  <div
-                    key={month.month}
-                    className="flex-1 flex flex-col items-center gap-1.5"
-                  >
+                  <div key={month.month} className="flex-1 flex flex-col items-center gap-1.5">
                     {/* Count above bar */}
                     <span className="text-[10px] sm:text-[11px] text-ink-secondary tabular-nums">
-                      {month.count > 0 ? month.count : '\u00A0'}
+                      {month.count > 0 ? month.count : "\u00A0"}
                     </span>
 
                     {/* Bar area — shared baseline, no per-bar containers */}
@@ -376,7 +371,7 @@ export function AnalyticsContent() {
                         initial={{ height: 0 }}
                         animate={{ height: `${Math.max(pct, 5)}%` }}
                         transition={{
-                          type: 'spring',
+                          type: "spring",
                           stiffness: 260,
                           damping: 24,
                           delay: 0.3 + i * 0.04,
@@ -388,11 +383,9 @@ export function AnalyticsContent() {
                     </div>
 
                     {/* Month label */}
-                    <p className="text-[11px] text-ink-tertiary leading-none">
-                      {month.label}
-                    </p>
+                    <p className="text-[11px] text-ink-tertiary leading-none">{month.label}</p>
                   </div>
-                );
+                )
               })}
             </div>
           </CardContent>
@@ -412,15 +405,15 @@ export function AnalyticsContent() {
             ) : (
               <div className="space-y-3">
                 {data.topDishes.map((dish, i) => {
-                  const widthPct = (dish.count / topDishMax) * 100;
-                  const isTop3 = i < 3;
+                  const widthPct = (dish.count / topDishMax) * 100
+                  const isTop3 = i < 3
                   return (
                     <div key={dish.dishName} className="flex gap-2.5">
                       {/* Rank number */}
                       <span
                         className={`
                           text-xs tabular-nums w-5 text-right shrink-0 pt-0.5
-                          ${isTop3 ? 'font-display font-semibold text-freshness' : 'text-ink-tertiary'}
+                          ${isTop3 ? "font-display font-semibold text-freshness" : "text-ink-tertiary"}
                         `}
                       >
                         {i + 1}
@@ -430,7 +423,7 @@ export function AnalyticsContent() {
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center justify-between gap-3">
                           <p
-                            className={`text-sm truncate ${isTop3 ? 'text-ink font-medium' : 'text-ink-secondary'}`}
+                            className={`text-sm truncate ${isTop3 ? "text-ink font-medium" : "text-ink-secondary"}`}
                           >
                             {dish.dishName}
                           </p>
@@ -440,11 +433,11 @@ export function AnalyticsContent() {
                         </div>
                         <div className="h-1.5 rounded-full bg-canvas-recessed overflow-hidden">
                           <motion.div
-                            className={`h-full rounded-full ${isTop3 ? 'bg-freshness' : 'bg-freshness/50'}`}
+                            className={`h-full rounded-full ${isTop3 ? "bg-freshness" : "bg-freshness/50"}`}
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.max(widthPct, 8)}%` }}
                             transition={{
-                              type: 'spring',
+                              type: "spring",
                               stiffness: 260,
                               damping: 24,
                               delay: 0.5 + i * 0.05,
@@ -454,7 +447,7 @@ export function AnalyticsContent() {
                         </div>
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             )}
@@ -462,5 +455,5 @@ export function AnalyticsContent() {
         </Card>
       </motion.div>
     </motion.div>
-  );
+  )
 }

@@ -1,22 +1,22 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
+        protocol: "https",
         hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname,
-        pathname: '/storage/v1/object/public/**',
+        pathname: "/storage/v1/object/public/**",
       },
     ],
   },
   // Increase body size limit for API routes that handle base64 images
   experimental: {
-    optimizePackageImports: ['framer-motion'],
+    optimizePackageImports: ["framer-motion"],
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: "10mb",
     },
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

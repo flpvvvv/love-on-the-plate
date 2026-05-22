@@ -1,32 +1,38 @@
-'use client';
+"use client"
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { useHaptics, useIOSSafeBottom } from '@/lib/hooks';
-import { AnalyticsIcon, GalleryIcon, UploadIcon } from '@/components/ui';
-import type { MobileTab } from '@/types';
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { AnalyticsIcon, GalleryIcon, UploadIcon } from "@/components/ui"
+import { useHaptics, useIOSSafeBottom } from "@/lib/hooks"
+import { cn } from "@/lib/utils"
+import type { MobileTab } from "@/types"
 
 interface BottomNavProps {
-  currentTab: MobileTab;
-  onTabChange: (tab: MobileTab) => void;
+  currentTab: MobileTab
+  onTabChange: (tab: MobileTab) => void
 }
 
 const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
   {
-    id: 'feed',
-    label: 'Feed',
+    id: "feed",
+    label: "Feed",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M3 15l5-5 4 4 4-6 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M3 15l5-5 4 4 4-6 5 5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
   },
   {
-    id: 'browse',
-    label: 'Browse',
+    id: "browse",
+    label: "Browse",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" aria-hidden="true">
         <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -37,13 +43,13 @@ const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: 'analytics',
-    label: 'Stats',
+    id: "analytics",
+    label: "Stats",
     icon: <AnalyticsIcon className="w-6 h-6" />,
   },
   {
-    id: 'upload',
-    label: 'Upload',
+    id: "upload",
+    label: "Upload",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" aria-hidden="true">
         <path
@@ -53,22 +59,28 @@ const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
           stroke="currentColor"
           strokeWidth="1.5"
         />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12.75v3.75m0 0-1.5-1.5m1.5 1.5 1.5-1.5" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 12.75v3.75m0 0-1.5-1.5m1.5 1.5 1.5-1.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
       </svg>
     ),
   },
-];
+]
 
 export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const isHome = pathname === '/';
-  const isAnalytics = pathname.startsWith('/analytics');
-  const isAdmin = pathname.startsWith('/admin');
-  const { vibrate } = useHaptics();
+  const pathname = usePathname()
+  const router = useRouter()
+  const isHome = pathname === "/"
+  const isAnalytics = pathname.startsWith("/analytics")
+  const isAdmin = pathname.startsWith("/admin")
+  const { vibrate } = useHaptics()
 
   // Track iOS Safari dynamic toolbar to prevent it from overlapping the nav
-  useIOSSafeBottom();
+  useIOSSafeBottom()
 
   // Feed mode used to auto-hide the bar based on window scroll, but ImmersiveFeed
   // scrolls an internal container — window.scrollY does not follow finger swipes.
@@ -79,23 +91,24 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   // If we're on the admin page, use a simple nav
   if (!isHome) {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain" aria-label="Site navigation">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden safe-bottom overscroll-contain"
+        aria-label="Site navigation"
+      >
         <div className="absolute inset-0 glass border-t border-stroke" />
         <div className="relative flex items-center justify-around h-16 px-2">
           <Link
             href="/"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
-              !isAnalytics && !isAdmin
-                ? 'text-love'
-                : 'text-ink-tertiary hover:text-ink-secondary'
+              "relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer",
+              !isAnalytics && !isAdmin ? "text-love" : "text-ink-tertiary hover:text-ink-secondary"
             )}
           >
             {!isAnalytics && !isAdmin && (
               <motion.div
                 layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
             <span className="relative z-10">
@@ -106,17 +119,15 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           <Link
             href="/analytics"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
-              isAnalytics
-                ? 'text-love'
-                : 'text-ink-tertiary hover:text-ink-secondary'
+              "relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer",
+              isAnalytics ? "text-love" : "text-ink-tertiary hover:text-ink-secondary"
             )}
           >
             {isAnalytics && (
               <motion.div
                 layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
             <span className="relative z-10">
@@ -127,17 +138,15 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           <Link
             href="/admin"
             className={cn(
-              'relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer',
-              isAdmin
-                ? 'text-love'
-                : 'text-ink-tertiary hover:text-ink-secondary'
+              "relative flex flex-col items-center justify-center w-20 h-14 rounded-xl transition-colors focus-ring cursor-pointer",
+              isAdmin ? "text-love" : "text-ink-tertiary hover:text-ink-secondary"
             )}
           >
             {isAdmin && (
               <motion.div
                 layoutId="secondaryNavTab"
                 className="absolute inset-1 bg-love-soft rounded-xl"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
             <span className="relative z-10">
@@ -147,7 +156,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
           </Link>
         </div>
       </nav>
-    );
+    )
   }
 
   return (
@@ -160,29 +169,29 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
 
       <div className="relative flex items-center justify-around h-16 px-2">
         {tabs.map((tab) => {
-          const isActive = currentTab === tab.id;
+          const isActive = currentTab === tab.id
 
           return (
             <button
               key={tab.id}
               onClick={() => {
-                if (tab.id === 'upload') {
+                if (tab.id === "upload") {
                   // Save scroll position so it can be restored when the user returns
                   try {
-                    sessionStorage.setItem('lotp-v1:scroll-y', String(window.scrollY));
-                    sessionStorage.setItem('lotp-v1:scroll-tab', currentTab);
-                  } catch { /* sessionStorage may be full or disabled */ }
-                  router.push('/admin');
-                  return;
+                    sessionStorage.setItem("lotp-v1:scroll-y", String(window.scrollY))
+                    sessionStorage.setItem("lotp-v1:scroll-tab", currentTab)
+                  } catch {
+                    /* sessionStorage may be full or disabled */
+                  }
+                  router.push("/admin")
+                  return
                 }
-                vibrate('light');
-                onTabChange(tab.id);
+                vibrate("light")
+                onTabChange(tab.id)
               }}
               className={cn(
-                'relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors cursor-pointer focus-ring',
-                isActive
-                  ? 'text-love'
-                  : 'text-ink-tertiary active:text-ink-secondary'
+                "relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors cursor-pointer focus-ring",
+                isActive ? "text-love" : "text-ink-tertiary active:text-ink-secondary"
               )}
               aria-label={tab.label}
             >
@@ -190,15 +199,15 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
                 <motion.div
                   layoutId="homeNavTab"
                   className="absolute inset-1 bg-love-soft rounded-xl"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <span className="relative z-10">{tab.icon}</span>
               <span className="relative z-10 text-micro mt-0.5">{tab.label}</span>
             </button>
-          );
+          )
         })}
       </div>
     </nav>
-  );
+  )
 }

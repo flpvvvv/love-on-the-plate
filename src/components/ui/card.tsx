@@ -1,9 +1,9 @@
-'use client';
+"use client"
 
-import { forwardRef, type HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils';
+import { forwardRef, type HTMLAttributes } from "react"
+import { cn } from "@/lib/utils"
 
-type CardProps = HTMLAttributes<HTMLDivElement>;
+type CardProps = HTMLAttributes<HTMLDivElement>
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, children, ...props }, ref) => {
@@ -11,27 +11,27 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'rounded-xl bg-canvas-elevated border border-stroke shadow-sm overflow-hidden',
+          "rounded-xl bg-canvas-elevated border border-stroke shadow-sm overflow-hidden",
           className
         )}
         {...props}
       >
         {children}
       </div>
-    );
+    )
   }
-);
+)
 
-Card.displayName = 'Card';
+Card.displayName = "Card"
 
 export const CardContent = forwardRef<HTMLDivElement, CardProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn('p-4', className)} {...props}>
+      <div ref={ref} className={cn("p-4", className)} {...props}>
         {children}
       </div>
-    );
+    )
   }
-);
+)
 
-CardContent.displayName = 'CardContent';
+CardContent.displayName = "CardContent"

@@ -1,69 +1,75 @@
-'use client';
+"use client"
 
-import { Suspense, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Button, Skeleton } from '@/components/ui';
-import { createClient } from '@/lib/supabase/client';
+import { motion } from "framer-motion"
+import Image from "next/image"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { Suspense, useState } from "react"
+import { Button, Skeleton } from "@/components/ui"
+import { createClient } from "@/lib/supabase/client"
 
 function LoginForm() {
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const searchParams = useSearchParams()
+  const error = searchParams.get("error")
 
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(
-    error === 'auth' ? 'Authentication failed. Please try again.' : null
-  );
+    error === "auth" ? "Authentication failed. Please try again." : null
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!email) {
-      setErrorMessage('Please enter your email');
-      return;
+      setErrorMessage("Please enter your email")
+      return
     }
 
-    setLoading(true);
-    setErrorMessage(null);
+    setLoading(true)
+    setErrorMessage(null)
 
     try {
-      const supabase = createClient();
+      const supabase = createClient()
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
-      });
+      })
 
       if (error) {
-        throw error;
+        throw error
       }
 
-      setSent(true);
+      setSent(true)
     } catch (error) {
-      console.error('Login error:', error);
-      setErrorMessage('Failed to send login link. Please try again.');
+      console.error("Login error:", error)
+      setErrorMessage("Failed to send login link. Please try again.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.2 }}
       className="bg-canvas-elevated border border-stroke rounded-2xl p-6 shadow-md"
     >
       {sent ? (
         <div className="text-center py-4">
           <div className="w-16 h-16 mx-auto mb-4 text-love">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -81,8 +87,8 @@ function LoginForm() {
           <button
             type="button"
             onClick={() => {
-              setSent(false);
-              setEmail('');
+              setSent(false)
+              setEmail("")
             }}
             className="mt-4 text-love hover:text-love-intense text-caption focus:outline-none focus-ring rounded-md px-2 py-1"
           >
@@ -118,7 +124,7 @@ function LoginForm() {
         </form>
       )}
     </motion.div>
-  );
+  )
 }
 
 function LoginFormSkeleton() {
@@ -128,7 +134,7 @@ function LoginFormSkeleton() {
       <Skeleton className="h-12 w-full rounded-xl" />
       <Skeleton className="h-10 w-full rounded-lg" />
     </div>
-  );
+  )
 }
 
 export default function LoginPage() {
@@ -148,7 +154,7 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
           className="text-center mb-8"
         >
           <div className="w-20 h-20 mx-auto mb-4">
@@ -158,12 +164,10 @@ export default function LoginPage() {
               width={80}
               height={80}
               className="w-full h-full"
-              style={{ filter: 'var(--logo-filter, none)' }}
+              style={{ filter: "var(--logo-filter, none)" }}
             />
           </div>
-          <h1 className="font-display text-display font-semibold text-ink">
-            Love on the Plate
-          </h1>
+          <h1 className="font-display text-display font-semibold text-ink">Love on the Plate</h1>
           <p className="font-accent text-lg text-ink-secondary mt-1">Admin Login</p>
         </motion.div>
 
@@ -191,13 +195,24 @@ export default function LoginPage() {
             href="/"
             className="inline-flex items-center gap-2 text-caption text-ink-tertiary hover:text-ink transition-colors"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+              />
             </svg>
             Back to Gallery
           </Link>
         </motion.div>
       </div>
     </div>
-  );
+  )
 }

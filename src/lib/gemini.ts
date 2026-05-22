@@ -1,21 +1,21 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
 
 /**
  * Custom error class for Gemini API errors with user-friendly messages
  */
 export class GeminiError extends Error {
-  public readonly code: string;
-  public readonly userMessage: string;
-  public readonly isRetryable: boolean;
+  public readonly code: string
+  public readonly userMessage: string
+  public readonly isRetryable: boolean
 
   constructor(code: string, userMessage: string, isRetryable: boolean = false) {
-    super(userMessage);
-    this.name = 'GeminiError';
-    this.code = code;
-    this.userMessage = userMessage;
-    this.isRetryable = isRetryable;
+    super(userMessage)
+    this.name = "GeminiError"
+    this.code = code
+    this.userMessage = userMessage
+    this.isRetryable = isRetryable
   }
 }
 
@@ -23,78 +23,100 @@ export class GeminiError extends Error {
  * Parse Gemini API errors and return user-friendly error messages
  */
 function parseGeminiError(error: unknown): GeminiError {
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  const errorString = errorMessage.toLowerCase();
+  const errorMessage = error instanceof Error ? error.message : String(error)
+  const errorString = errorMessage.toLowerCase()
 
   // Rate limit errors
-  if (errorString.includes('429') || errorString.includes('rate limit') || errorString.includes('quota') || errorString.includes('resource exhausted')) {
+  if (
+    errorString.includes("429") ||
+    errorString.includes("rate limit") ||
+    errorString.includes("quota") ||
+    errorString.includes("resource exhausted")
+  ) {
     return new GeminiError(
-      'RATE_LIMIT',
-      'AI service is temporarily busy. Free tier limit reached. Please wait a moment and try again.',
+      "RATE_LIMIT",
+      "AI service is temporarily busy. Free tier limit reached. Please wait a moment and try again.",
       true
-    );
+    )
   }
 
   // Invalid API key
-  if (errorString.includes('401') || errorString.includes('api key') || errorString.includes('unauthorized') || errorString.includes('invalid_api_key')) {
+  if (
+    errorString.includes("401") ||
+    errorString.includes("api key") ||
+    errorString.includes("unauthorized") ||
+    errorString.includes("invalid_api_key")
+  ) {
     return new GeminiError(
-      'AUTH_ERROR',
-      'AI service authentication failed. Please contact support.',
+      "AUTH_ERROR",
+      "AI service authentication failed. Please contact support.",
       false
-    );
+    )
   }
 
   // Content safety / blocked
-  if (errorString.includes('blocked') || errorString.includes('safety') || errorString.includes('harm')) {
+  if (
+    errorString.includes("blocked") ||
+    errorString.includes("safety") ||
+    errorString.includes("harm")
+  ) {
     return new GeminiError(
-      'CONTENT_BLOCKED',
-      'Image could not be analyzed. Please try a different photo.',
+      "CONTENT_BLOCKED",
+      "Image could not be analyzed. Please try a different photo.",
       false
-    );
+    )
   }
 
   // Model unavailable
-  if (errorString.includes('503') || errorString.includes('unavailable') || errorString.includes('overloaded')) {
+  if (
+    errorString.includes("503") ||
+    errorString.includes("unavailable") ||
+    errorString.includes("overloaded")
+  ) {
     return new GeminiError(
-      'SERVICE_UNAVAILABLE',
-      'AI service is temporarily unavailable. Please try again later.',
+      "SERVICE_UNAVAILABLE",
+      "AI service is temporarily unavailable. Please try again later.",
       true
-    );
+    )
   }
 
   // Request too large
-  if (errorString.includes('413') || errorString.includes('too large') || errorString.includes('payload')) {
+  if (
+    errorString.includes("413") ||
+    errorString.includes("too large") ||
+    errorString.includes("payload")
+  ) {
     return new GeminiError(
-      'PAYLOAD_TOO_LARGE',
-      'Image is too large to process. Please try a smaller image.',
+      "PAYLOAD_TOO_LARGE",
+      "Image is too large to process. Please try a smaller image.",
       false
-    );
+    )
   }
 
   // Timeout
-  if (errorString.includes('timeout') || errorString.includes('deadline')) {
+  if (errorString.includes("timeout") || errorString.includes("deadline")) {
     return new GeminiError(
-      'TIMEOUT',
-      'AI service took too long to respond. Please try again.',
+      "TIMEOUT",
+      "AI service took too long to respond. Please try again.",
       true
-    );
+    )
   }
 
   // Network errors
-  if (errorString.includes('network') || errorString.includes('econnrefused') || errorString.includes('fetch')) {
+  if (
+    errorString.includes("network") ||
+    errorString.includes("econnrefused") ||
+    errorString.includes("fetch")
+  ) {
     return new GeminiError(
-      'NETWORK_ERROR',
-      'Network connection issue. Please check your internet and try again.',
+      "NETWORK_ERROR",
+      "Network connection issue. Please check your internet and try again.",
       true
-    );
+    )
   }
 
   // Generic/unknown error
-  return new GeminiError(
-    'UNKNOWN_ERROR',
-    'Failed to generate description. Please try again.',
-    true
-  );
+  return new GeminiError("UNKNOWN_ERROR", "Failed to generate description. Please try again.", true)
 }
 
 const DESCRIPTION_PROMPT = `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
@@ -120,7 +142,7 @@ Example Chinese:
 "金黄酥脆的千层面在冒泡的马苏里拉奶酪下若隐若现，每一层都蕴含着浓郁肉酱与丝滑白酱的美妙交响。这是一道充满爱意的料理，温暖了整个厨房。"
 
 IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
-{"dishName": "菜名", "en": "English description here", "cn": "Chinese description here"}`;
+{"dishName": "菜名", "en": "English description here", "cn": "Chinese description here"}`
 
 /**
  * Build a prompt variant that keeps the user-provided dish name and only
@@ -150,86 +172,88 @@ Example Chinese:
 "金黄酥脆的千层面在冒泡的马苏里拉奶酪下若隐若现，每一层都蕴含着浓郁肉酱与丝滑白酱的美妙交响。这是一道充满爱意的料理，温暖了整个厨房。"
 
 IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
-{"dishName": "${dishName}", "en": "English description here", "cn": "Chinese description here"}`;
+{"dishName": "${dishName}", "en": "English description here", "cn": "Chinese description here"}`
 }
 
 export interface BilingualDescription {
-  dishName: string;
-  en: string;
-  cn: string;
+  dishName: string
+  en: string
+  cn: string
 }
 
-const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
+const DEFAULT_MODEL = "gemini-3.1-flash-lite"
 
 export async function generateDescription(
   imageBase64: string,
-  dishNameHint?: string,
+  dishNameHint?: string
 ): Promise<BilingualDescription> {
   // Validate input
   if (!imageBase64 || imageBase64.length === 0) {
-    throw new GeminiError('INVALID_INPUT', 'No image data provided.', false);
+    throw new GeminiError("INVALID_INPUT", "No image data provided.", false)
   }
 
-  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  const model = genAI.getGenerativeModel({ model: modelName });
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL
+  const model = genAI.getGenerativeModel({ model: modelName })
 
   // Use the dish-name-aware prompt when a hint is provided
-  const prompt = dishNameHint
-    ? buildDescriptionOnlyPrompt(dishNameHint)
-    : DESCRIPTION_PROMPT;
+  const prompt = dishNameHint ? buildDescriptionOnlyPrompt(dishNameHint) : DESCRIPTION_PROMPT
 
   try {
     const result = await model.generateContent([
       prompt,
       {
         inlineData: {
-          mimeType: 'image/jpeg',
+          mimeType: "image/jpeg",
           data: imageBase64,
         },
       },
-    ]);
+    ])
 
-    const response = await result.response;
-    let text = response.text().trim();
+    const response = await result.response
+    let text = response.text().trim()
 
     // Handle empty response
     if (!text) {
-      throw new GeminiError('EMPTY_RESPONSE', 'AI returned an empty response. Please try again.', true);
+      throw new GeminiError(
+        "EMPTY_RESPONSE",
+        "AI returned an empty response. Please try again.",
+        true
+      )
     }
 
     try {
       // Remove markdown code blocks if present (LLM sometimes wraps JSON in ```json ... ```)
-      if (text.startsWith('```')) {
+      if (text.startsWith("```")) {
         // Extract content between code blocks
-        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
         if (match) {
-          text = match[1].trim();
+          text = match[1].trim()
         }
       }
 
       // Parse the JSON response
-      const parsed = JSON.parse(text);
+      const parsed = JSON.parse(text)
       return {
         // If a dish name hint was provided, always use it (don't let LLM override)
-        dishName: dishNameHint || parsed.dishName || '',
-        en: parsed.en || '',
-        cn: parsed.cn || '',
-      };
+        dishName: dishNameHint || parsed.dishName || "",
+        en: parsed.en || "",
+        cn: parsed.cn || "",
+      }
     } catch {
       // Fallback: if parsing fails, use the text as English description
       return {
-        dishName: '',
+        dishName: "",
         en: text,
-        cn: '',
-      };
+        cn: "",
+      }
     }
   } catch (error) {
     // If it's already a GeminiError, rethrow it
     if (error instanceof GeminiError) {
-      throw error;
+      throw error
     }
 
     // Parse and convert to GeminiError
-    throw parseGeminiError(error);
+    throw parseGeminiError(error)
   }
 }
