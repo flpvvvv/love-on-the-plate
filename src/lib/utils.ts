@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Get the display date for a photo.
+ * Prefers taken_at (EXIF capture time) over created_at (upload time).
+ */
+export function getDisplayDate(photo: { taken_at?: string | null; created_at: string }): Date {
+  return photo.taken_at ? new Date(photo.taken_at) : new Date(photo.created_at);
+}
+
 // Date formatter using Intl.DateTimeFormat for proper i18n
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',

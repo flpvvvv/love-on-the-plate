@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion, type PanInfo } from 'framer-motion';
 import { useMediaQuery, useGestureHint } from '@/lib/hooks';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getDisplayDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface PhotoModalContentProps {
@@ -319,7 +319,7 @@ export function PhotoModalContent({
 
           {/* Date */}
           <p className="text-caption text-ink-tertiary">
-            {formatDate(photo.created_at)}
+            {formatDate(getDisplayDate(photo))}
           </p>
 
           {/* Chinese description */}

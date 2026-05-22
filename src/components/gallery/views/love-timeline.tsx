@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
-import { formatDate, groupByMonthAndDate } from '@/lib/utils';
+import { formatDate, groupByMonthAndDate, getDisplayDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface LoveTimelineProps {
@@ -14,7 +14,7 @@ interface LoveTimelineProps {
 export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
   const prefersReducedMotion = useReducedMotion();
   const monthGroups = useMemo(
-    () => groupByMonthAndDate(photos, (p) => p.created_at),
+    () => groupByMonthAndDate(photos, (p) => getDisplayDate(p)),
     [photos],
   );
 
@@ -189,7 +189,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                   </div>
                   <div className="p-4">
                     <p className="text-caption text-ink-tertiary mb-1">
-                      {formatDate(photo.created_at)}
+                      {formatDate(getDisplayDate(photo))}
                     </p>
                     {photo.dish_name && (
                       <p className="font-medium text-ink mb-2 line-clamp-1">

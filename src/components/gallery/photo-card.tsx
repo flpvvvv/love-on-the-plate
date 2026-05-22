@@ -3,7 +3,7 @@
 import { useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getDisplayDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface PhotoCardProps {
@@ -72,7 +72,7 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
         </div>
         <div className="p-3 space-y-1">
           <p className="text-caption text-ink-tertiary">
-            {formatDate(photo.created_at)}
+            {formatDate(getDisplayDate(photo))}
           </p>
           {photo.dish_name && (
             <p className="font-medium text-ink line-clamp-1">{photo.dish_name}</p>

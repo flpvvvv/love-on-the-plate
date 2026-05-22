@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getDisplayDate } from '@/lib/utils';
 import type { PhotoWithUrls } from '@/types';
 
 interface FloatingPlatesProps {
@@ -104,7 +104,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                 </p>
               )}
               <p className="text-caption text-ink-tertiary mt-0.5">
-                {formatDate(photo.created_at)}
+                {formatDate(getDisplayDate(photo))}
               </p>
             </div>
           </motion.button>

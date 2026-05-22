@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getDisplayDate } from '@/lib/utils';
 import { useHaptics, useGestureHint } from '@/lib/hooks';
 import type { PhotoWithUrls } from '@/types';
 
@@ -237,7 +237,7 @@ function FeedItem({
             className="flex items-center justify-between"
           >
             <span className="text-white/60 text-xs">
-              {formatDate(photo.created_at)}
+              {formatDate(getDisplayDate(photo))}
             </span>
             <button
               onClick={(e) => {

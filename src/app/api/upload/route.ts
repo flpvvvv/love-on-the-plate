@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Process image (resize and create thumbnail)
-    const { fullBuffer, thumbBuffer, width, height } = await processImage(buffer);
+    const { fullBuffer, thumbBuffer, width, height, takenAt } = await processImage(buffer);
 
     // Generate unique ID for the photo
     const photoId = randomUUID();
@@ -156,6 +156,7 @@ export async function POST(request: NextRequest) {
         file_size: fullBuffer.length,
         width,
         height,
+        taken_at: takenAt?.toISOString() ?? null,
         uploaded_by: user.id,
       })
       .select()
