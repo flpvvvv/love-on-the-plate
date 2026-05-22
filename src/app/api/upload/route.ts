@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { GeminiError, generateDescription } from "@/lib/gemini"
 import { bufferToBase64, processImage } from "@/lib/image-processing"
+import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -9,33 +10,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "i
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication and admin role
     const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Please sign in to upload photos.", code: "UNAUTHORIZED" },
-        { status: 401 }
-      )
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    if (profile?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Admin access required to upload photos.", code: "FORBIDDEN" },
-        { status: 403 }
-      )
-    }
+    const { user, response } = await requireAdmin(supabase)
+    if (response) return response
 
     // Parse form data with error handling
     let formData: FormData

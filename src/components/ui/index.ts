@@ -1,6 +1,7 @@
 export { Button } from "./button"
 export { Card, CardContent } from "./card"
 export { Dialog, DialogClose } from "./dialog"
+export { ErrorBoundary } from "./error-boundary"
 export {
   AnalyticsIcon,
   ChevronLeftIcon,

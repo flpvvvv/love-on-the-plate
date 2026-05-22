@@ -122,7 +122,10 @@ export default function AdminPage() {
         const originalSize = formatFileSize(file.size)
         const uploadSize = formatFileSize(getBase64Size(uploadBase64))
         const aiSize = formatFileSize(getBase64Size(aiBase64))
-        console.log(`Image compressed: ${originalSize} → upload: ${uploadSize}, AI: ${aiSize}`)
+        // Compression stats (dev only)
+        if (process.env.NODE_ENV === "development") {
+          console.log(`Image compressed: ${originalSize} → upload: ${uploadSize}, AI: ${aiSize}`)
+        }
 
         // Call describe endpoint with AI-compressed base64 image (smaller/faster)
         const response = await fetch("/api/describe", {
@@ -284,7 +287,9 @@ export default function AdminPage() {
         type: "image/jpeg",
       })
 
-      console.log(`Uploading compressed file: ${formatFileSize(compressedFile.size)}`)
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Uploading compressed file: ${formatFileSize(compressedFile.size)}`)
+      }
 
       const formData = new FormData()
       formData.append("file", compressedFile)

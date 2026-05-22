@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { AppShell } from "@/components/layout"
-import { ThemeProvider, ToastProvider } from "@/components/ui"
+import { ErrorBoundary, ThemeProvider, ToastProvider } from "@/components/ui"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -73,7 +73,9 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <ToastProvider>
-            <AppShell>{children}</AppShell>
+            <ErrorBoundary>
+              <AppShell>{children}</AppShell>
+            </ErrorBoundary>
           </ToastProvider>
         </ThemeProvider>
       </body>

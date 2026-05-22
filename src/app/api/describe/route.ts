@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { GeminiError, generateDescription } from "@/lib/gemini"
+import { checkRateLimit, cleanupExpiredEntries, DESCRIBE_RATE_LIMIT } from "@/lib/rate-limiter"
+import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { isValidBase64Image, isValidUUID, MAX_BASE64_LENGTH } from "@/lib/validation"
 
@@ -8,31 +10,26 @@ export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication and admin role
     const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    const { user, response } = await requireAdmin(supabase)
+    if (response) return response
 
-    if (authError || !user) {
+    // Check rate limit (per user) - user is guaranteed non-null when error is null
+    const rateLimitResult = checkRateLimit(user.id, DESCRIBE_RATE_LIMIT)
+    cleanupExpiredEntries(DESCRIBE_RATE_LIMIT.windowMs)
+
+    if (rateLimitResult.isLimited) {
       return NextResponse.json(
-        { error: "Please sign in to continue.", code: "UNAUTHORIZED" },
-        { status: 401 }
-      )
-    }
-
-    // Check if user is admin (required for AI description generation)
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    if (profile?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Admin access required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: `Rate limit exceeded. Please wait ${rateLimitResult.retryAfter} seconds before trying again.`,
+          code: "RATE_LIMIT",
+          isRetryable: true,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimitResult.retryAfter) },
+        }
       )
     }
 

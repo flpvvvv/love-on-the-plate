@@ -130,7 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileTab, setMobileTabState] = useState<MobileTab>(savedTab)
   // Keep in sync when the external store value changes (e.g. on mount)
   useEffect(() => {
-    void setMobileTabState(savedTab)
+    setMobileTabState(savedTab)
   }, [savedTab])
   const setMobileTab = useCallback((tab: MobileTab) => {
     setMobileTabState(tab)
@@ -141,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const savedView = useLocalStorageValue(VIEW_STORAGE_KEY, "masonry" as GalleryView, VALID_VIEWS)
   const [galleryView, setGalleryViewState] = useState<GalleryView>(savedView)
   useEffect(() => {
-    void setGalleryViewState(savedView)
+    setGalleryViewState(savedView)
   }, [savedView])
   const setGalleryView = useCallback((view: GalleryView) => {
     setGalleryViewState(view)

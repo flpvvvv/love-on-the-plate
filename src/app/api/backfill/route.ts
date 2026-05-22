@@ -1,32 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateDescription } from "@/lib/gemini"
+import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { isValidUUID } from "@/lib/validation"
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
+    // Check authentication and admin role
     const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    const { response } = await requireAdmin(supabase)
+    if (response) return response
 
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    // Check if user is admin
     const serviceClient = await createServiceClient()
-    const { data: profile } = await serviceClient
-      .from("user_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    if (profile?.role !== "admin") {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 })
-    }
 
     const body = await request.json()
     const { photoId } = body
@@ -146,28 +131,12 @@ async function backfillSinglePhoto(
 // GET endpoint to check backfill status
 export async function GET() {
   try {
+    // Check authentication and admin role
     const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const { response } = await requireAdmin(supabase)
+    if (response) return response
 
     const serviceClient = await createServiceClient()
-
-    // Check if user is admin
-    const { data: profile } = await serviceClient
-      .from("user_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    if (profile?.role !== "admin") {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 })
-    }
 
     // Run both independent count queries in parallel
     const [totalRes, backfillRes] = await Promise.all([
