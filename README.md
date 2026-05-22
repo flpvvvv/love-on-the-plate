@@ -20,7 +20,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth (Magic Link) |
 | Storage | Supabase Storage |
-| AI | Google Gemini (gemini-2.0-flash) |
+| AI | Google Gemini (gemini-3.1-flash-lite) |
 
 ## Getting Started
 
@@ -65,7 +65,7 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret!) |
 | `GOOGLE_GEMINI_API_KEY` | Google AI Studio API key |
-| `GEMINI_MODEL` | `gemini-2.0-flash` (default) |
+| `GEMINI_MODEL` | `gemini-3.1-flash-lite` (default) |
 | `NEXT_PUBLIC_APP_URL` | Your Vercel URL |
 
 4. Configure Supabase Auth:

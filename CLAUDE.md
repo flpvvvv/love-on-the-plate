@@ -6,7 +6,7 @@
 - **Styling**: TailwindCSS v4 + Framer Motion
 - **Backend**: Next.js API Routes
 - **Database/Auth/Storage**: Supabase (PostgreSQL, Magic Link, Storage)
-- **AI**: Google Gemini (gemini-2.0-flash)
+- **AI**: Google Gemini (gemini-3.1-flash-lite)
 
 ## Commands
 
@@ -131,7 +131,7 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 GOOGLE_GEMINI_API_KEY
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-3.1-flash-lite
 NEXT_PUBLIC_APP_URL
 ```
 

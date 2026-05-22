@@ -159,7 +159,7 @@ export interface BilingualDescription {
   cn: string;
 }
 
-const DEFAULT_MODEL = 'gemini-2.0-flash';
+const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
 
 export async function generateDescription(
   imageBase64: string,
