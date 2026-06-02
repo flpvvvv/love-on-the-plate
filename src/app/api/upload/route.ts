@@ -28,6 +28,19 @@ export async function POST(request: NextRequest) {
     }
 
     const file = formData.get("file") as File | null
+    const takenAtStr = formData.get("takenAt") as string | null
+
+    // Parse client-provided takenAt (from browser EXIF extraction)
+    let clientTakenAt: Date | null = null
+    if (takenAtStr) {
+      const parsed = new Date(takenAtStr)
+      if (!Number.isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear()
+        if (year >= 1990 && year <= 2100) {
+          clientTakenAt = parsed
+        }
+      }
+    }
 
     if (!file) {
       return NextResponse.json(
@@ -60,7 +73,15 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
 
     // Process image (resize and create thumbnail)
-    const { fullBuffer, thumbBuffer, width, height, takenAt } = await processImage(buffer)
+    // Prefer client-extracted EXIF (from original file) over server extraction (from compressed buffer)
+    const {
+      fullBuffer,
+      thumbBuffer,
+      width,
+      height,
+      takenAt: serverTakenAt,
+    } = await processImage(buffer)
+    const takenAt = clientTakenAt ?? serverTakenAt
 
     // Generate unique ID for the photo
     const photoId = randomUUID()

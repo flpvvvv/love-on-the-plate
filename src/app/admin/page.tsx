@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Footer, Header } from "@/components/layout"
 import { Button, Dialog, Skeleton, useToast } from "@/components/ui"
 import { ImagePreview, UploadZone } from "@/components/upload"
+import { extractTakenAt } from "@/lib/client-exif"
 import {
   base64ToBlob,
   COMPRESSION_PRESETS,
@@ -21,6 +22,7 @@ export default function AdminPage() {
   const router = useRouter()
   const { showToast } = useToast()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [takenAt, setTakenAt] = useState<string | null>(null)
   const [compressedForUpload, setCompressedForUpload] = useState<string | null>(null)
   const [dishName, setDishName] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
@@ -102,6 +104,18 @@ export default function AdminPage() {
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
+
+      // Extract EXIF DateTimeOriginal from the original file before compression strips it
+      try {
+        const exifTakenAt = await extractTakenAt(file)
+        setTakenAt(exifTakenAt)
+        if (process.env.NODE_ENV === "development") {
+          console.log(`EXIF taken_at: ${exifTakenAt ?? "not found"}`)
+        }
+      } catch (exifError) {
+        console.error("EXIF extraction error:", exifError)
+        setTakenAt(null)
+      }
 
       // Generate initial descriptions
       try {
@@ -293,6 +307,9 @@ export default function AdminPage() {
 
       const formData = new FormData()
       formData.append("file", compressedFile)
+      if (takenAt) {
+        formData.append("takenAt", takenAt)
+      }
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -367,6 +384,7 @@ export default function AdminPage() {
 
       // Reset form
       setSelectedFile(null)
+      setTakenAt(null)
       setCompressedForUpload(null)
       setDishName("")
       setDescriptionEn("")
@@ -385,10 +403,20 @@ export default function AdminPage() {
     } finally {
       setUploading(false)
     }
-  }, [selectedFile, compressedForUpload, dishName, descriptionEn, descriptionCn, router, showToast])
+  }, [
+    selectedFile,
+    compressedForUpload,
+    takenAt,
+    dishName,
+    descriptionEn,
+    descriptionCn,
+    router,
+    showToast,
+  ])
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null)
+    setTakenAt(null)
     setCompressedForUpload(null)
     setDishName("")
     setDescriptionEn("")
