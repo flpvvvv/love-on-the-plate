@@ -653,29 +653,73 @@ export default function AdminPage() {
               </h2>
               <div className="grid grid-cols-3 gap-4">
                 {recentPhotos.map((photo) => (
-                  <div
-                    key={photo.id}
-                    className="aspect-square relative rounded-xl overflow-hidden bg-canvas-elevated border border-stroke group"
-                  >
-                    <Image
-                      src={photo.thumbnailUrl}
-                      alt={photo.description_en || photo.description_cn || "Recent upload"}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 33vw, 200px"
-                    />
-                    {/* Delete button — always visible on mobile (top-right badge), hover overlay on desktop */}
-                    {/* Desktop: centered overlay on hover */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors hidden md:flex items-center justify-center">
+                  <div key={photo.id} className="space-y-2">
+                    <div className="aspect-square relative rounded-xl overflow-hidden bg-canvas-elevated border border-stroke group">
+                      <Image
+                        src={photo.thumbnailUrl}
+                        alt={photo.description_en || photo.description_cn || "Recent upload"}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 33vw, 200px"
+                      />
+                      {/* Delete button — always visible on mobile (top-right badge), hover overlay on desktop */}
+                      {/* Desktop: centered overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors hidden md:flex items-center justify-center">
+                        <button
+                          onClick={() => handleDeleteClick(photo)}
+                          disabled={deletingPhotoId === photo.id}
+                          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-danger hover:bg-danger-intense text-white min-w-[44px] min-h-[44px] p-2.5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                          aria-label="Delete photo"
+                        >
+                          {deletingPhotoId === photo.id ? (
+                            <svg
+                              className="w-5 h-5 animate-spin"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {/* Mobile: always-visible badge in top-right corner */}
                       <button
                         onClick={() => handleDeleteClick(photo)}
                         disabled={deletingPhotoId === photo.id}
-                        className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-danger hover:bg-danger-intense text-white min-w-[44px] min-h-[44px] p-2.5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                        className="absolute top-1.5 right-1.5 md:hidden bg-danger/90 backdrop-blur-sm text-white min-w-[36px] min-h-[36px] p-2 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer active:scale-95 transition-transform"
                         aria-label="Delete photo"
                       >
                         {deletingPhotoId === photo.id ? (
                           <svg
-                            className="w-5 h-5 animate-spin"
+                            className="w-4 h-4 animate-spin"
                             fill="none"
                             viewBox="0 0 24 24"
                             aria-hidden="true"
@@ -696,7 +740,7 @@ export default function AdminPage() {
                           </svg>
                         ) : (
                           <svg
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -712,51 +756,11 @@ export default function AdminPage() {
                         )}
                       </button>
                     </div>
-                    {/* Mobile: always-visible badge in top-right corner */}
-                    <button
-                      onClick={() => handleDeleteClick(photo)}
-                      disabled={deletingPhotoId === photo.id}
-                      className="absolute top-1.5 right-1.5 md:hidden bg-danger/90 backdrop-blur-sm text-white min-w-[36px] min-h-[36px] p-2 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer active:scale-95 transition-transform"
-                      aria-label="Delete photo"
-                    >
-                      {deletingPhotoId === photo.id ? (
-                        <svg
-                          className="w-4 h-4 animate-spin"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      )}
-                    </button>
+                    {photo.dish_name && (
+                      <p className="text-sm text-ink-secondary text-center truncate px-1">
+                        {photo.dish_name}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
