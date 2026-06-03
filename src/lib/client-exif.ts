@@ -28,9 +28,8 @@ export async function extractTakenAt(file: File): Promise<string | null> {
     // Parse with exifr — disable silentErrors so we can see what goes wrong
     const dateTimeOriginal: string | undefined = await exifr.parse(file, {
       pick: ["DateTimeOriginal"],
-      silentErrors: false,
       // Increase chunk sizes for HEIC files which may have larger metadata boxes
-      firstChunkSizeBrowser: 256 * 1024, // 256KB initial chunk
+      firstChunkSize: 256 * 1024, // 256KB initial chunk (browser)
       chunkSize: 128 * 1024, // 128KB per additional chunk
       chunkLimit: 10, // Up to 10 additional chunks (~1.5MB total)
     })
