@@ -833,6 +833,11 @@ export default function AdminPage() {
                   className="object-cover"
                 />
               </div>
+              {photoToDelete.dish_name && (
+                <p className="text-sm text-ink-secondary text-center py-2 px-3">
+                  {photoToDelete.dish_name}
+                </p>
+              )}
             </div>
           )}
           <div className="flex gap-3">
