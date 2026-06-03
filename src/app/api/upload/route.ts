@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { GeminiError, generateDescription } from "@/lib/gemini"
-import { bufferToBase64, processImage } from "@/lib/image-processing"
+import { bufferToBase64, extractExifTakenAt, processImage } from "@/lib/image-processing"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     const file = formData.get("file") as File | null
     const takenAtStr = formData.get("takenAt") as string | null
+    const originalFile = formData.get("originalFile") as File | null
 
     // Parse client-provided takenAt (from browser EXIF extraction)
     let clientTakenAt: Date | null = null
@@ -39,6 +40,18 @@ export async function POST(request: NextRequest) {
         if (year >= 1990 && year <= 2100) {
           clientTakenAt = parsed
         }
+      }
+    }
+
+    // Extract EXIF from original file as a server-side fallback
+    // Sharp handles HEIC natively, making this reliable for iPhone photos
+    let originalTakenAt: Date | null = null
+    if (originalFile) {
+      try {
+        const originalBuffer = Buffer.from(await originalFile.arrayBuffer())
+        originalTakenAt = await extractExifTakenAt(originalBuffer)
+      } catch (err) {
+        console.error("Failed to extract EXIF from original file:", err)
       }
     }
 
@@ -72,16 +85,15 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Process image (resize and create thumbnail)
-    // Prefer client-extracted EXIF (from original file) over server extraction (from compressed buffer)
+    // Prefer: client EXIF (from original file) → server EXIF from original file → server EXIF from compressed buffer
     const {
       fullBuffer,
       thumbBuffer,
       width,
       height,
-      takenAt: serverTakenAt,
+      takenAt: compressedTakenAt,
     } = await processImage(buffer)
-    const takenAt = clientTakenAt ?? serverTakenAt
+    const takenAt = clientTakenAt ?? originalTakenAt ?? compressedTakenAt
 
     // Generate unique ID for the photo
     const photoId = randomUUID()

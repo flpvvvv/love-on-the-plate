@@ -115,6 +115,23 @@ export async function processImage(buffer: Buffer): Promise<ProcessedImage> {
   }
 }
 
+/**
+ * Extract DateTimeOriginal from an image buffer using sharp.
+ * Used as a fallback when client-side EXIF extraction fails.
+ * Sharp handles JPEG, HEIC, PNG, WebP, and other formats natively.
+ */
+export async function extractExifTakenAt(buffer: Buffer): Promise<Date | null> {
+  try {
+    const metadata = await sharp(buffer).metadata()
+    if (metadata.exif) {
+      return extractDateTimeOriginalFromExif(metadata.exif)
+    }
+  } catch {
+    // Some formats (or corrupted files) might fail — that's ok
+  }
+  return null
+}
+
 export function bufferToBase64(buffer: Buffer): string {
   return buffer.toString("base64")
 }

@@ -21,7 +21,10 @@ describe("extractTakenAt", () => {
     expect(parsed.getUTCFullYear()).toBe(2024)
     expect(parsed.getUTCMonth()).toBe(11) // December
     expect(parsed.getUTCDate()).toBe(25)
-    expect(exifr.parse).toHaveBeenCalledWith(file, ["DateTimeOriginal"])
+    expect(exifr.parse).toHaveBeenCalledWith(
+      file,
+      expect.objectContaining({ pick: ["DateTimeOriginal"] })
+    )
   })
 
   it("returns null when DateTimeOriginal is missing", async () => {
