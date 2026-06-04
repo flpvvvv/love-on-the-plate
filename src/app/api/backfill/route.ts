@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       .from("photos")
       .select("id, dish_name, description_cn, description_en, ingredients")
       .or(
-        "dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq."
+        "dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.,ingredients.is.null"
       )
       .order("created_at", { ascending: false })
 
