@@ -106,7 +106,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { photoId, dishName, descriptionEn, descriptionCn } = await request.json()
+    const { photoId, dishName, descriptionEn, descriptionCn, ingredients } = await request.json()
 
     if (!photoId) {
       return NextResponse.json({ error: "Photo ID required" }, { status: 400 })
@@ -118,10 +118,16 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Build update object with only provided fields
-    const updateData: { dish_name?: string; description_en?: string; description_cn?: string } = {}
+    const updateData: {
+      dish_name?: string
+      description_en?: string
+      description_cn?: string
+      ingredients?: string[]
+    } = {}
     if (dishName !== undefined) updateData.dish_name = dishName
     if (descriptionEn !== undefined) updateData.description_en = descriptionEn
     if (descriptionCn !== undefined) updateData.description_cn = descriptionCn
+    if (ingredients !== undefined) updateData.ingredients = ingredients
 
     // Update via RLS-enforced client (policy checks ownership automatically)
     const { data: updatedPhoto, error: updateError } = await supabase

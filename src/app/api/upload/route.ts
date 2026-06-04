@@ -133,17 +133,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate AI descriptions (English and Chinese)
+    // Generate AI descriptions (English and Chinese) and ingredients
     let dishName = ""
     let descriptionEn = ""
     let descriptionCn = ""
+    let ingredients: string[] = []
     let descriptionWarning: string | undefined
 
     try {
-      const descriptions = await generateDescription(bufferToBase64(fullBuffer))
+      // Fetch existing ingredients for tag consistency
+      const { data: knownRows } = await serviceClient
+        .from("photos")
+        .select("ingredients")
+        .not("ingredients", "eq", "{}")
+        .limit(500)
+      const knownSet = new Set<string>()
+      for (const row of knownRows ?? []) {
+        if (Array.isArray(row.ingredients)) {
+          for (const ing of row.ingredients) {
+            if (typeof ing === "string" && ing.trim()) {
+              knownSet.add(ing.trim())
+            }
+          }
+        }
+      }
+      const knownIngredients = Array.from(knownSet)
+
+      const descriptions = await generateDescription(
+        bufferToBase64(fullBuffer),
+        undefined,
+        knownIngredients
+      )
       dishName = descriptions.dishName
       descriptionEn = descriptions.en
       descriptionCn = descriptions.cn
+      ingredients = descriptions.ingredients
     } catch (descError) {
       console.error("Description generation error:", descError)
       // Set warning message for user
@@ -169,6 +193,7 @@ export async function POST(request: NextRequest) {
         dish_name: dishName,
         description_en: descriptionEn,
         description_cn: descriptionCn,
+        ingredients,
         original_filename: file.name,
         file_size: fullBuffer.length,
         width,

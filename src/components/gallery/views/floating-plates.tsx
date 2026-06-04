@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
+import { IngredientTags } from "@/components/ui"
 import { formatDate, getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
 
@@ -93,13 +94,21 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
 
               {/* Hover/focus overlay with description — desktop only */}
               <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 md:group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200">
-                {(photo.dish_name || photo.description_cn || photo.description_en) && (
+                {(photo.dish_name ||
+                  photo.description_cn ||
+                  photo.description_en ||
+                  (photo.ingredients && photo.ingredients.length > 0)) && (
                   <div className="text-white text-center px-4">
                     {photo.dish_name && <p className="font-medium mb-1">{photo.dish_name}</p>}
                     {photo.description_cn && (
                       <p className="text-caption line-clamp-2 text-white/90">
                         {photo.description_cn}
                       </p>
+                    )}
+                    {photo.ingredients && photo.ingredients.length > 0 && (
+                      <div className="mt-1.5 flex justify-center">
+                        <IngredientTags ingredients={photo.ingredients} max={2} compact overlay />
+                      </div>
                     )}
                   </div>
                 )}

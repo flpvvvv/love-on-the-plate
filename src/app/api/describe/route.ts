@@ -71,12 +71,32 @@ export async function POST(request: NextRequest) {
       const dishNameHint =
         typeof dishName === "string" && dishName.trim().length > 0 ? dishName.trim() : undefined
 
+      // Fetch existing ingredients for tag consistency
+      const serviceClient = await createServiceClient()
+      const { data: knownRows } = await serviceClient
+        .from("photos")
+        .select("ingredients")
+        .not("ingredients", "eq", "{}")
+        .limit(500)
+      const knownSet = new Set<string>()
+      for (const row of knownRows ?? []) {
+        if (Array.isArray(row.ingredients)) {
+          for (const ing of row.ingredients) {
+            if (typeof ing === "string" && ing.trim()) {
+              knownSet.add(ing.trim())
+            }
+          }
+        }
+      }
+      const knownIngredients = Array.from(knownSet)
+
       try {
-        const descriptions = await generateDescription(imageBase64, dishNameHint)
+        const descriptions = await generateDescription(imageBase64, dishNameHint, knownIngredients)
         return NextResponse.json({
           dishName: descriptions.dishName,
           descriptionEn: descriptions.en,
           descriptionCn: descriptions.cn,
+          ingredients: descriptions.ingredients,
         })
       } catch (error) {
         // Handle Gemini-specific errors
@@ -148,8 +168,26 @@ export async function POST(request: NextRequest) {
     const base64 = Buffer.from(arrayBuffer).toString("base64")
 
     try {
-      // Generate new descriptions (English and Chinese)
-      const descriptions = await generateDescription(base64)
+      // Fetch existing ingredients for tag consistency
+      const { data: knownRows } = await serviceClient
+        .from("photos")
+        .select("ingredients")
+        .not("ingredients", "eq", "{}")
+        .limit(500)
+      const knownSet = new Set<string>()
+      for (const row of knownRows ?? []) {
+        if (Array.isArray(row.ingredients)) {
+          for (const ing of row.ingredients) {
+            if (typeof ing === "string" && ing.trim()) {
+              knownSet.add(ing.trim())
+            }
+          }
+        }
+      }
+      const knownIngredients = Array.from(knownSet)
+
+      // Generate new descriptions (English and Chinese) and ingredients
+      const descriptions = await generateDescription(base64, undefined, knownIngredients)
 
       // Update the photo record
       const { error: updateError } = await serviceClient
@@ -158,6 +196,7 @@ export async function POST(request: NextRequest) {
           dish_name: descriptions.dishName,
           description_en: descriptions.en,
           description_cn: descriptions.cn,
+          ingredients: descriptions.ingredients,
         })
         .eq("id", photoId)
 
@@ -172,6 +211,7 @@ export async function POST(request: NextRequest) {
         dishName: descriptions.dishName,
         descriptionEn: descriptions.en,
         descriptionCn: descriptions.cn,
+        ingredients: descriptions.ingredients,
       })
     } catch (error) {
       // Handle Gemini-specific errors

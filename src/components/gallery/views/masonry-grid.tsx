@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
+import { IngredientTags } from "@/components/ui"
 import type { PhotoWithUrls } from "@/types"
 import { PhotoCard } from "../photo-card"
 
@@ -76,6 +77,11 @@ export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
                     <p className="text-white text-[13px] font-semibold leading-tight line-clamp-1 drop-shadow-sm">
                       {photo.dish_name}
                     </p>
+                    {photo.ingredients && photo.ingredients.length > 0 && (
+                      <div className="mt-1">
+                        <IngredientTags ingredients={photo.ingredients} max={1} compact overlay />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

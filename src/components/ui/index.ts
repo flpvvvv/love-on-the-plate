@@ -13,6 +13,7 @@ export {
   TimelineIcon,
   UploadIcon,
 } from "./icons"
+export { IngredientTags } from "./ingredient-tags"
 export { NetworkStatusBanner } from "./network-status-banner"
 export { ResponsiveSheet } from "./responsive-sheet"
 export { ScrollToTop } from "./scroll-to-top"

@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import type { AnalyticsResponse, DailyTrendPoint, DishCount, MonthlyCount } from "@/types"
+import type {
+  AnalyticsResponse,
+  DailyTrendPoint,
+  DishCount,
+  IngredientCount,
+  MonthlyCount,
+} from "@/types"
 
 const MONTH_WINDOW = 12
 const RECENT_DAYS = 30
 const TOP_DISHES_LIMIT = 8
+const TOP_INGREDIENTS_LIMIT = 8
 
 function monthLabelFromKey(monthKey: string): string {
   const [year, month] = monthKey.split("-").map(Number)
@@ -48,12 +55,13 @@ export async function GET() {
     const dailyKeys = getDailyWindow(now)
     const dailyStart = `${dailyKeys[0]}T00:00:00.000Z`
 
-    // Run all four independent queries in parallel (was sequential — 4 round-trips → 1)
-    const [countRes, monthlyRes, dailyRes, dishRes] = await Promise.all([
+    // Run all five independent queries in parallel
+    const [countRes, monthlyRes, dailyRes, dishRes, ingredientRes] = await Promise.all([
       supabase.from("photos").select("id", { count: "exact", head: true }),
       supabase.rpc("get_monthly_photo_counts", { since: monthStart }),
       supabase.rpc("get_daily_photo_counts", { since: dailyStart }),
       supabase.rpc("get_top_dishes", { lim: TOP_DISHES_LIMIT }),
+      supabase.rpc("get_top_ingredients", { lim: TOP_INGREDIENTS_LIMIT }),
     ])
 
     if (countRes.error) {
@@ -74,6 +82,11 @@ export async function GET() {
     if (dishRes.error) {
       console.error("Top dishes error:", dishRes.error)
       return NextResponse.json({ error: "Failed to fetch top dishes" }, { status: 500 })
+    }
+
+    if (ingredientRes.error) {
+      console.error("Top ingredients error:", ingredientRes.error)
+      return NextResponse.json({ error: "Failed to fetch top ingredients" }, { status: 500 })
     }
 
     // Build lookup from DB results, then fill in missing months with 0
@@ -105,10 +118,18 @@ export async function GET() {
       })
     )
 
+    const topIngredients: IngredientCount[] = (ingredientRes.data ?? []).map(
+      (row: { ingredient_name: string; ingredient_count: number }) => ({
+        ingredientName: row.ingredient_name,
+        count: Number(row.ingredient_count),
+      })
+    )
+
     const payload: AnalyticsResponse = {
       totalCount: countRes.count ?? 0,
       perMonth,
       topDishes,
+      topIngredients,
       recentTrend,
     }
 

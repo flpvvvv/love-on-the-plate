@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [dishName, setDishName] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
   const [descriptionCn, setDescriptionCn] = useState("")
+  const [ingredients, setIngredients] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
   const [regeneratingDescOnly, setRegeneratingDescOnly] = useState(false)
@@ -39,6 +40,7 @@ export default function AdminPage() {
   const [backfillStatus, setBackfillStatus] = useState<{
     withDishName: number
     withoutDishName: number
+    withoutIngredients: number
     total: number
   } | null>(null)
   const [backfilling, setBackfilling] = useState(false)
@@ -104,6 +106,7 @@ export default function AdminPage() {
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
+      setIngredients([])
 
       // Extract EXIF DateTimeOriginal from the original file before compression strips it
       try {
@@ -161,6 +164,7 @@ export default function AdminPage() {
           setDishName(data.dishName || "")
           setDescriptionEn(data.descriptionEn || "")
           setDescriptionCn(data.descriptionCn || "")
+          setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
         } else {
           const errorData = await response.json()
           console.error("Describe API error:", errorData)
@@ -180,6 +184,7 @@ export default function AdminPage() {
           setDishName("")
           setDescriptionEn("")
           setDescriptionCn("")
+          setIngredients([])
         }
       } catch (error) {
         console.error("Preview generation error:", error)
@@ -188,6 +193,7 @@ export default function AdminPage() {
         setDishName("")
         setDescriptionEn("")
         setDescriptionCn("")
+        setIngredients([])
       } finally {
         setRegenerating(false)
       }
@@ -228,6 +234,7 @@ export default function AdminPage() {
         setDishName(data.dishName || "")
         setDescriptionEn(data.descriptionEn || "")
         setDescriptionCn(data.descriptionCn || "")
+        setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
         showToast("Descriptions regenerated!", "success")
       } else {
         const errorData = await response.json()
@@ -269,9 +276,10 @@ export default function AdminPage() {
 
       if (response.ok) {
         const data = await response.json()
-        // Keep the user's dish name, only update descriptions
+        // Keep the user's dish name, only update descriptions and ingredients
         setDescriptionEn(data.descriptionEn || "")
         setDescriptionCn(data.descriptionCn || "")
+        setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
         showToast(`Descriptions regenerated for "${dishName.trim()}"!`, "success")
       } else {
         const errorData = await response.json()
@@ -348,11 +356,13 @@ export default function AdminPage() {
         showToast(photo.warning as string, "info")
       }
 
-      // If user edited descriptions, update them
+      // If user edited descriptions or ingredients, update them
       const needsUpdate =
         (dishName && dishName !== photo.dish_name) ||
         (descriptionEn && descriptionEn !== photo.description_en) ||
-        (descriptionCn && descriptionCn !== photo.description_cn)
+        (descriptionCn && descriptionCn !== photo.description_cn) ||
+        (ingredients.length > 0 &&
+          JSON.stringify(ingredients) !== JSON.stringify(photo.ingredients))
 
       if (needsUpdate) {
         try {
@@ -364,6 +374,7 @@ export default function AdminPage() {
               dishName,
               descriptionEn,
               descriptionCn,
+              ingredients,
             }),
           })
 
@@ -371,6 +382,7 @@ export default function AdminPage() {
             photo.dish_name = dishName
             photo.description_en = descriptionEn
             photo.description_cn = descriptionCn
+            photo.ingredients = ingredients
           } else {
             console.error("Failed to update descriptions")
             // Don't fail the whole upload, just log it
@@ -391,6 +403,7 @@ export default function AdminPage() {
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
+      setIngredients([])
 
       // Show success toast with heartbeat
       showToast("Photo uploaded with love!", "success")
@@ -412,6 +425,7 @@ export default function AdminPage() {
     dishName,
     descriptionEn,
     descriptionCn,
+    ingredients,
     router,
     showToast,
   ])
@@ -423,6 +437,18 @@ export default function AdminPage() {
     setDishName("")
     setDescriptionEn("")
     setDescriptionCn("")
+    setIngredients([])
+  }, [])
+
+  const handleAddIngredient = useCallback((ingredient: string) => {
+    setIngredients((prev) => {
+      if (prev.includes(ingredient)) return prev
+      return [...prev, ingredient]
+    })
+  }, [])
+
+  const handleRemoveIngredient = useCallback((ingredient: string) => {
+    setIngredients((prev) => prev.filter((i) => i !== ingredient))
   }, [])
 
   const handleLogout = async () => {
@@ -630,9 +656,12 @@ export default function AdminPage() {
               dishName={dishName}
               descriptionEn={descriptionEn}
               descriptionCn={descriptionCn}
+              ingredients={ingredients}
               onDishNameChange={setDishName}
               onDescriptionEnChange={setDescriptionEn}
               onDescriptionCnChange={setDescriptionCn}
+              onAddIngredient={handleAddIngredient}
+              onRemoveIngredient={handleRemoveIngredient}
               onRegenerateDescription={handleRegenerateDescription}
               onRegenerateDescriptionsOnly={handleRegenerateDescriptionsOnly}
               onUpload={handleUpload}
@@ -768,31 +797,45 @@ export default function AdminPage() {
           )}
 
           {/* Backfill Section */}
-          {backfillStatus && backfillStatus.withoutDishName > 0 && (
-            <div className="mt-12 p-6 bg-warning-soft border border-warning/20 rounded-xl">
-              <h2 className="font-display text-heading font-semibold text-ink mb-2">
-                Backfill Missing Data
-              </h2>
-              <p className="text-ink-secondary mb-4">
-                {backfillStatus.withoutDishName} photo
-                {backfillStatus.withoutDishName > 1 ? "s" : ""} missing dish name or descriptions
-                (out of {backfillStatus.total} total).
-              </p>
-              <Button
-                onClick={handleBackfill}
-                loading={backfilling}
-                disabled={backfilling}
-                aria-busy={backfilling}
-              >
-                {backfilling ? "Generating with AI…" : "Generate Missing Data with AI"}
-              </Button>
-              {backfilling && (
-                <p className="text-sm text-ink-secondary mt-2" role="status" aria-live="polite">
-                  This may take a while. Please don&apos;t close this page.
+          {backfillStatus &&
+            (backfillStatus.withoutDishName > 0 || backfillStatus.withoutIngredients > 0) && (
+              <div className="mt-12 p-6 bg-warning-soft border border-warning/20 rounded-xl">
+                <h2 className="font-display text-heading font-semibold text-ink mb-2">
+                  Backfill Missing Data
+                </h2>
+                <p className="text-ink-secondary mb-4 space-y-1">
+                  {backfillStatus.withoutDishName > 0 && (
+                    <span className="block">
+                      {backfillStatus.withoutDishName} photo
+                      {backfillStatus.withoutDishName > 1 ? "s" : ""} missing dish name or
+                      descriptions
+                    </span>
+                  )}
+                  {backfillStatus.withoutIngredients > 0 && (
+                    <span className="block">
+                      {backfillStatus.withoutIngredients} photo
+                      {backfillStatus.withoutIngredients > 1 ? "s" : ""} missing ingredient tags
+                    </span>
+                  )}
+                  <span className="block text-ink-tertiary">
+                    out of {backfillStatus.total} total
+                  </span>
                 </p>
-              )}
-            </div>
-          )}
+                <Button
+                  onClick={handleBackfill}
+                  loading={backfilling}
+                  disabled={backfilling}
+                  aria-busy={backfilling}
+                >
+                  {backfilling ? "Generating with AI…" : "Generate Missing Data with AI"}
+                </Button>
+                {backfilling && (
+                  <p className="text-sm text-ink-secondary mt-2" role="status" aria-live="polite">
+                    This may take a while. Please don&apos;t close this page.
+                  </p>
+                )}
+              </div>
+            )}
         </div>
       </main>
 

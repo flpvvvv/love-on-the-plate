@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
 import { useMemo } from "react"
+import { IngredientTags } from "@/components/ui"
 import { formatDate, getDisplayDate, groupByMonthAndDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
 
@@ -133,6 +134,11 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                                 {photo.description_cn}
                               </p>
                             )}
+                            {photo.ingredients && photo.ingredients.length > 0 && (
+                              <div className="mt-1">
+                                <IngredientTags ingredients={photo.ingredients} max={2} compact />
+                              </div>
+                            )}
                           </div>
 
                           {/* Chevron */}
@@ -226,6 +232,11 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                       <p className="text-caption text-ink-secondary line-clamp-2">
                         {photo.description_cn}
                       </p>
+                    )}
+                    {photo.ingredients && photo.ingredients.length > 0 && (
+                      <div className="mt-2">
+                        <IngredientTags ingredients={photo.ingredients} max={2} compact />
+                      </div>
                     )}
                   </div>
                 </motion.div>

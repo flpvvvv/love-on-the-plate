@@ -119,12 +119,26 @@ function parseGeminiError(error: unknown): GeminiError {
   return new GeminiError("UNKNOWN_ERROR", "Failed to generate description. Please try again.", true)
 }
 
-const DESCRIPTION_PROMPT = `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
+const DESCRIPTION_PROMPT_BASE = `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
 
 Analyze this food photo and provide:
 1. The dish name in Chinese (Simplified) - be specific and concise (e.g., "红烧肉", "番茄炒蛋")
 2. A brief, heartfelt description in English (2-3 sentences)
 3. A brief, heartfelt description in Chinese (Simplified) (2-3 sentences)
+4. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.`
+
+const INGREDIENTS_CONSISTENCY_GUIDE = `\n\nIf the following existing ingredient tags from the app apply, use the EXACT same text. Only invent new ingredient names if none of these match:
+{existingIngredients}`
+
+function buildDescriptionPrompt(existingIngredients: string[]): string {
+  let prompt = DESCRIPTION_PROMPT_BASE
+  if (existingIngredients.length > 0) {
+    prompt += INGREDIENTS_CONSISTENCY_GUIDE.replace(
+      "{existingIngredients}",
+      existingIngredients.join(", ")
+    )
+  }
+  prompt += `
 
 Guidelines for descriptions:
 - Focus on colors, textures, and what the dish appears to be
@@ -134,6 +148,7 @@ Guidelines for descriptions:
 - Avoid generic phrases like "looks delicious" or "看起来很好吃" - be specific
 
 Example dish name: "香煎三文鱼配柠檬黄油酱"
+Example ingredients: ["三文鱼", "柠檬", "黄油", "芦笋"]
 
 Example English:
 "Golden-crusted lasagna layers peek through bubbling mozzarella, each stratum promising a symphony of rich bolognese and silky béchamel. A labor of love that fills the kitchen with warmth."
@@ -142,13 +157,20 @@ Example Chinese:
 "金黄酥脆的千层面在冒泡的马苏里拉奶酪下若隐若现，每一层都蕴含着浓郁肉酱与丝滑白酱的美妙交响。这是一道充满爱意的料理，温暖了整个厨房。"
 
 IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
-{"dishName": "菜名", "en": "English description here", "cn": "Chinese description here"}`
+{"dishName": "菜名", "en": "English description here", "cn": "Chinese description here", "ingredients": ["牛肉", "土豆", "胡萝卜"]}`
+  return prompt
+}
 
 /**
  * Build a prompt variant that keeps the user-provided dish name and only
- * regenerates the bilingual descriptions based on the image + dish name.
+ * regenerates the bilingual descriptions + ingredients based on the image + dish name.
  */
-function buildDescriptionOnlyPrompt(dishName: string): string {
+function buildDescriptionOnlyPrompt(dishName: string, existingIngredients: string[]): string {
+  let ingredientsGuide = ""
+  if (existingIngredients.length > 0) {
+    ingredientsGuide = `\nIf the following existing ingredient tags from the app apply, use the EXACT same text. Only invent new ingredient names if none of these match:\n${existingIngredients.join(", ")}`
+  }
+
   return `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
 
 The dish in this photo is called "${dishName}". Do NOT change or suggest a different dish name.
@@ -156,6 +178,7 @@ The dish in this photo is called "${dishName}". Do NOT change or suggest a diffe
 Based on the image and this dish name, provide:
 1. A brief, heartfelt description in English (2-3 sentences)
 2. A brief, heartfelt description in Chinese (Simplified) (2-3 sentences)
+3. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used in "${dishName}". Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.${ingredientsGuide}
 
 Guidelines for descriptions:
 - Focus on colors, textures, and what the dish appears to be
@@ -172,20 +195,22 @@ Example Chinese:
 "金黄酥脆的千层面在冒泡的马苏里拉奶酪下若隐若现，每一层都蕴含着浓郁肉酱与丝滑白酱的美妙交响。这是一道充满爱意的料理，温暖了整个厨房。"
 
 IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
-{"dishName": "${dishName}", "en": "English description here", "cn": "Chinese description here"}`
+{"dishName": "${dishName}", "en": "English description here", "cn": "Chinese description here", "ingredients": ["牛肉", "土豆", "胡萝卜"]}`
 }
 
 export interface BilingualDescription {
   dishName: string
   en: string
   cn: string
+  ingredients: string[]
 }
 
 const DEFAULT_MODEL = "gemini-3.1-flash-lite"
 
 export async function generateDescription(
   imageBase64: string,
-  dishNameHint?: string
+  dishNameHint?: string,
+  existingIngredients?: string[]
 ): Promise<BilingualDescription> {
   // Validate input
   if (!imageBase64 || imageBase64.length === 0) {
@@ -195,8 +220,12 @@ export async function generateDescription(
   const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL
   const model = genAI.getGenerativeModel({ model: modelName })
 
+  const knownIngredients = existingIngredients ?? []
+
   // Use the dish-name-aware prompt when a hint is provided
-  const prompt = dishNameHint ? buildDescriptionOnlyPrompt(dishNameHint) : DESCRIPTION_PROMPT
+  const prompt = dishNameHint
+    ? buildDescriptionOnlyPrompt(dishNameHint, knownIngredients)
+    : buildDescriptionPrompt(knownIngredients)
 
   try {
     const result = await model.generateContent([
@@ -233,11 +262,17 @@ export async function generateDescription(
 
       // Parse the JSON response
       const parsed = JSON.parse(text)
+      const ingredients = Array.isArray(parsed.ingredients)
+        ? parsed.ingredients
+            .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
+            .map((i: string) => i.trim())
+        : []
       return {
         // If a dish name hint was provided, always use it (don't let LLM override)
         dishName: dishNameHint || parsed.dishName || "",
         en: parsed.en || "",
         cn: parsed.cn || "",
+        ingredients,
       }
     } catch {
       // Fallback: if parsing fails, use the text as English description
@@ -245,6 +280,7 @@ export async function generateDescription(
         dishName: "",
         en: text,
         cn: "",
+        ingredients: [],
       }
     }
   } catch (error) {

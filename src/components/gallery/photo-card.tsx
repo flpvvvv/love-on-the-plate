@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion"
 import Image from "next/image"
 import { useCallback, useRef } from "react"
+import { IngredientTags } from "@/components/ui"
 import { formatDate, getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
 
@@ -88,6 +89,11 @@ export function PhotoCard({ photo, onClick, priority = false }: PhotoCardProps) 
           )}
           {photo.description_cn && (
             <p className="text-caption text-ink-secondary line-clamp-2">{photo.description_cn}</p>
+          )}
+          {photo.ingredients && photo.ingredients.length > 0 && (
+            <div className="mt-1">
+              <IngredientTags ingredients={photo.ingredients} max={2} compact />
+            </div>
           )}
         </div>
       </motion.div>

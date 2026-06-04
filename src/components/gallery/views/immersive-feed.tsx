@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { IngredientTags } from "@/components/ui"
 import { useGestureHint, useHaptics } from "@/lib/hooks"
 import { formatDate, getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
@@ -241,6 +242,22 @@ function FeedItem({
             >
               {photo.description_cn}
             </motion.p>
+          )}
+
+          {/* Ingredients tags */}
+          {photo.ingredients && photo.ingredients.length > 0 && (
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.25 }
+              }
+              className="mb-2"
+            >
+              <IngredientTags ingredients={photo.ingredients} max={3} compact overlay />
+            </motion.div>
           )}
 
           {/* Date + "tap for more" */}

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, type PanInfo, useReducedMotion } from "framer-motion"
 import Image from "next/image"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { IngredientTags } from "@/components/ui"
 import { useGestureHint, useMediaQuery } from "@/lib/hooks"
 import { formatDate, getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
@@ -341,6 +342,11 @@ export function PhotoModalContent({
             <h2 className="font-display text-xl font-semibold text-ink leading-snug">
               {photo.dish_name}
             </h2>
+          )}
+
+          {/* Ingredients tags */}
+          {photo.ingredients && photo.ingredients.length > 0 && (
+            <IngredientTags ingredients={photo.ingredients} />
           )}
 
           {/* Date */}

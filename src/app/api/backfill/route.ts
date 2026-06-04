@@ -26,11 +26,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result)
     }
 
-    // Otherwise, backfill all photos without dish names or descriptions
+    // Otherwise, backfill all photos without dish names, descriptions, or ingredients
     // Only fetch necessary fields for filtering
     const { data: photos, error: fetchError } = await serviceClient
       .from("photos")
-      .select("id, dish_name, description_cn, description_en")
+      .select("id, dish_name, description_cn, description_en, ingredients")
       .or(
         "dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq."
       )
@@ -103,7 +103,7 @@ async function backfillSinglePhoto(
   const arrayBuffer = await imageData.arrayBuffer()
   const base64 = Buffer.from(arrayBuffer).toString("base64")
 
-  // Generate new descriptions with dish name
+  // Generate new descriptions with dish name and ingredients
   const descriptions = await generateDescription(base64)
 
   // Update the photo record
@@ -113,6 +113,7 @@ async function backfillSinglePhoto(
       dish_name: descriptions.dishName,
       description_en: descriptions.en,
       description_cn: descriptions.cn,
+      ingredients: descriptions.ingredients,
     })
     .eq("id", photoId)
 
@@ -125,6 +126,7 @@ async function backfillSinglePhoto(
     dishName: descriptions.dishName,
     descriptionEn: descriptions.en,
     descriptionCn: descriptions.cn,
+    ingredients: descriptions.ingredients,
   }
 }
 
@@ -138,8 +140,8 @@ export async function GET() {
 
     const serviceClient = await createServiceClient()
 
-    // Run both independent count queries in parallel
-    const [totalRes, backfillRes] = await Promise.all([
+    // Run three independent count queries in parallel
+    const [totalRes, backfillRes, ingredientsRes] = await Promise.all([
       serviceClient.from("photos").select("*", { count: "exact", head: true }),
       serviceClient
         .from("photos")
@@ -147,15 +149,21 @@ export async function GET() {
         .or(
           "dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq."
         ),
+      serviceClient
+        .from("photos")
+        .select("*", { count: "exact", head: true })
+        .is("ingredients", null),
     ])
 
     const total = totalRes.count || 0
     const needsBackfill = backfillRes.count || 0
+    const needsIngredients = ingredientsRes.count || 0
     const complete = total - needsBackfill
 
     return NextResponse.json({
       withDishName: complete,
       withoutDishName: needsBackfill,
+      withoutIngredients: needsIngredients,
       total,
     })
   } catch (error) {

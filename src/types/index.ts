@@ -5,6 +5,7 @@ export interface Photo {
   dish_name: string | null
   description_en: string | null
   description_cn: string | null
+  ingredients: string[] | null
   original_filename: string | null
   file_size: number | null
   width: number | null
@@ -41,6 +42,11 @@ export interface DishCount {
   count: number
 }
 
+export interface IngredientCount {
+  ingredientName: string
+  count: number
+}
+
 export interface DailyTrendPoint {
   date: string
   count: number
@@ -50,5 +56,6 @@ export interface AnalyticsResponse {
   totalCount: number
   perMonth: MonthlyCount[]
   topDishes: DishCount[]
+  topIngredients: IngredientCount[]
   recentTrend: DailyTrendPoint[]
 }

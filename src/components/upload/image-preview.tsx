@@ -3,16 +3,19 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { useEffect, useMemo } from "react"
-import { Button } from "@/components/ui"
+import { Button, IngredientTags } from "@/components/ui"
 
 interface ImagePreviewProps {
   file: File
   dishName: string
   descriptionEn: string
   descriptionCn: string
+  ingredients: string[]
   onDishNameChange: (dishName: string) => void
   onDescriptionEnChange: (description: string) => void
   onDescriptionCnChange: (description: string) => void
+  onAddIngredient: (ingredient: string) => void
+  onRemoveIngredient: (ingredient: string) => void
   onRegenerateDescription: () => void
   onRegenerateDescriptionsOnly: () => void
   onUpload: () => void
@@ -27,9 +30,12 @@ export function ImagePreview({
   dishName,
   descriptionEn,
   descriptionCn,
+  ingredients,
   onDishNameChange,
   onDescriptionEnChange,
   onDescriptionCnChange,
+  onAddIngredient,
+  onRemoveIngredient,
   onRegenerateDescription,
   onRegenerateDescriptionsOnly,
   onUpload,
@@ -163,6 +169,19 @@ export function ImagePreview({
               Edit the name, then tap the refresh button to regenerate descriptions
             </p>
           )}
+        </div>
+
+        {/* Ingredients Tags */}
+        <div>
+          <span className="block text-caption font-medium text-ink mb-2">
+            主要食材 / Main Ingredients
+          </span>
+          <IngredientTags
+            ingredients={ingredients}
+            onAdd={onAddIngredient}
+            onRemove={onRemoveIngredient}
+            editable
+          />
         </div>
 
         {/* Chinese Description */}

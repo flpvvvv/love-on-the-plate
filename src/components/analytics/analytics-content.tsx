@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { Button, Card, CardContent } from "@/components/ui"
 import type { AnalyticsResponse, DailyTrendPoint } from "@/types"
 
+type RankView = "ingredients" | "dishes"
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Sparkline helpers — smooth curves + gradient area fill
    ───────────────────────────────────────────────────────────────────────────── */
@@ -109,6 +111,7 @@ export function AnalyticsContent() {
   const [error, setError] = useState<string | null>(null)
   const [fetchedAt, setFetchedAt] = useState<Date | null>(null)
   const [timeLabel, setTimeLabel] = useState("")
+  const [rankView, setRankView] = useState<RankView>("ingredients")
 
   /* ── Data fetching ── */
 
@@ -158,10 +161,12 @@ export function AnalyticsContent() {
     [data]
   )
 
-  const topDishMax = useMemo(() => {
-    if (!data || data.topDishes.length === 0) return 1
-    return Math.max(...data.topDishes.map((d) => d.count), 1)
-  }, [data])
+  const rankMax = useMemo(() => {
+    if (!data) return 1
+    const items = rankView === "ingredients" ? data.topIngredients : data.topDishes
+    if (items.length === 0) return 1
+    return Math.max(...items.map((d) => d.count), 1)
+  }, [data, rankView])
 
   const thisMonthCount = useMemo(() => {
     if (!data || data.perMonth.length === 0) return 0
@@ -214,11 +219,14 @@ export function AnalyticsContent() {
             </div>
           </CardContent>
         </Card>
-        {/* Full-width: Top dishes skeleton */}
+        {/* Full-width: Top ranking skeleton */}
         <Card className="md:col-span-2">
           <CardContent>
             <div className="animate-pulse space-y-4">
-              <div className="h-4 w-28 rounded bg-canvas-recessed" />
+              <div className="flex items-center gap-3">
+                <div className="h-4 w-28 rounded bg-canvas-recessed" />
+                <div className="h-6 w-20 rounded bg-canvas-recessed" />
+              </div>
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="h-4 w-4 rounded bg-canvas-recessed shrink-0" />
@@ -392,63 +400,111 @@ export function AnalyticsContent() {
         </Card>
       </motion.div>
 
-      {/* ── Top Dishes (freshness palette + rank indicators) ──────────── */}
+      {/* ── Top Ingredients / Top Dishes Toggle ──────────────────────── */}
       <motion.div variants={fadeUp} className="md:col-span-2">
         <Card>
           <CardContent className="space-y-4">
-            <p className="text-sm text-ink-secondary">Top dishes</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-ink-secondary">
+                {rankView === "ingredients" ? "Top ingredients" : "Top dishes"}
+              </p>
+              <div className="flex rounded-lg bg-canvas-recessed p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setRankView("ingredients")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                    rankView === "ingredients"
+                      ? "bg-canvas text-ink shadow-sm"
+                      : "text-ink-tertiary hover:text-ink-secondary"
+                  }`}
+                >
+                  Ingredients
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRankView("dishes")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                    rankView === "dishes"
+                      ? "bg-canvas text-ink shadow-sm"
+                      : "text-ink-tertiary hover:text-ink-secondary"
+                  }`}
+                >
+                  Dishes
+                </button>
+              </div>
+            </div>
 
-            {data.topDishes.length === 0 ? (
+            {(rankView === "ingredients" ? data.topIngredients : data.topDishes).length === 0 ? (
               <p className="text-ink-tertiary font-accent text-lg">
-                No dish names yet — start uploading!
+                {rankView === "ingredients"
+                  ? "No ingredient tags yet — start uploading!"
+                  : "No dish names yet — start uploading!"}
               </p>
             ) : (
               <div className="space-y-3">
-                {data.topDishes.map((dish, i) => {
-                  const widthPct = (dish.count / topDishMax) * 100
-                  const isTop3 = i < 3
-                  return (
-                    <div key={dish.dishName} className="flex gap-2.5">
-                      {/* Rank number */}
-                      <span
-                        className={`
+                {(rankView === "ingredients" ? data.topIngredients : data.topDishes).map(
+                  (item, i) => {
+                    const widthPct =
+                      (("ingredientName" in item ? item.count : item.count) / rankMax) * 100
+                    const name = "ingredientName" in item ? item.ingredientName : item.dishName
+                    const count = item.count
+                    const isTop3 = i < 3
+                    const isIngredients = rankView === "ingredients"
+                    return (
+                      <div key={name} className="flex gap-2.5">
+                        {/* Rank number */}
+                        <span
+                          className={`
                           text-xs tabular-nums w-5 text-right shrink-0 pt-0.5
-                          ${isTop3 ? "font-display font-semibold text-freshness" : "text-ink-tertiary"}
+                          ${
+                            isTop3
+                              ? `font-display font-semibold ${isIngredients ? "text-warmth" : "text-freshness"}`
+                              : "text-ink-tertiary"
+                          }
                         `}
-                      >
-                        {i + 1}
-                      </span>
+                        >
+                          {i + 1}
+                        </span>
 
-                      {/* Name, count, progress bar */}
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p
-                            className={`text-sm truncate ${isTop3 ? "text-ink font-medium" : "text-ink-secondary"}`}
-                          >
-                            {dish.dishName}
-                          </p>
-                          <span className="text-sm text-ink-tertiary tabular-nums shrink-0">
-                            {dish.count}
-                          </span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-canvas-recessed overflow-hidden">
-                          <motion.div
-                            className={`h-full rounded-full ${isTop3 ? "bg-freshness" : "bg-freshness/50"}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.max(widthPct, 8)}%` }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 260,
-                              damping: 24,
-                              delay: 0.5 + i * 0.05,
-                            }}
-                            aria-hidden="true"
-                          />
+                        {/* Name, count, progress bar */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <p
+                              className={`text-sm truncate ${isTop3 ? "text-ink font-medium" : "text-ink-secondary"}`}
+                            >
+                              {name}
+                            </p>
+                            <span className="text-sm text-ink-tertiary tabular-nums shrink-0">
+                              {count}
+                            </span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-canvas-recessed overflow-hidden">
+                            <motion.div
+                              className={`h-full rounded-full ${
+                                isTop3
+                                  ? isIngredients
+                                    ? "bg-warmth"
+                                    : "bg-freshness"
+                                  : isIngredients
+                                    ? "bg-warmth/50"
+                                    : "bg-freshness/50"
+                              }`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.max(widthPct, 8)}%` }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 260,
+                                damping: 24,
+                                delay: 0.5 + i * 0.05,
+                              }}
+                              aria-hidden="true"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  }
+                )}
               </div>
             )}
           </CardContent>
