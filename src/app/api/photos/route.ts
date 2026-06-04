@@ -15,12 +15,22 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from("photos")
       .select("*")
+      .order("taken_at", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(limit + 1) // Fetch one extra to check if there are more
 
-    // Cursor-based pagination
+    // Cursor-based pagination with compound cursor: "taken_at||created_at"
+    // "null" taken_at uses created_at to avoid re-fetching the same null-taken_at photos
     if (cursor) {
-      query = query.lt("created_at", cursor)
+      const parts = cursor.split("||")
+      if (parts.length === 2) {
+        const [cursorTakenAt, cursorCreatedAt] = parts
+        if (cursorTakenAt === "null") {
+          query = query.is("taken_at", null).lt("created_at", cursorCreatedAt)
+        } else {
+          query = query.lt("taken_at", cursorTakenAt)
+        }
+      }
     }
 
     const { data: photos, error } = await query
@@ -59,9 +69,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get cursor for next page
+    // Get cursor for next page — compound format: "taken_at||created_at"
     const nextCursor =
-      hasMore && returnPhotos.length > 0 ? returnPhotos[returnPhotos.length - 1].created_at : null
+      hasMore && returnPhotos.length > 0
+        ? `${returnPhotos[returnPhotos.length - 1].taken_at || "null"}||${returnPhotos[returnPhotos.length - 1].created_at}`
+        : null
 
     return NextResponse.json(
       {
