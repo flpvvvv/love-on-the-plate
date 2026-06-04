@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateDescription } from "@/lib/gemini"
+import { generateDescription, generateIngredients } from "@/lib/gemini"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { isValidUUID } from "@/lib/validation"
@@ -22,7 +22,16 @@ export async function POST(request: NextRequest) {
       if (!isValidUUID(photoId)) {
         return NextResponse.json({ error: "Invalid photo ID format" }, { status: 400 })
       }
-      const result = await backfillSinglePhoto(serviceClient, photoId)
+      const { data: photo, error: fetchError } = await serviceClient
+        .from("photos")
+        .select("id, dish_name, description_cn, description_en, ingredients, storage_path")
+        .eq("id", photoId)
+        .single()
+
+      if (fetchError || !photo) {
+        return NextResponse.json({ error: "Photo not found" }, { status: 404 })
+      }
+      const result = await backfillSinglePhoto(serviceClient, photo)
       return NextResponse.json(result)
     }
 
@@ -30,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Only fetch necessary fields for filtering
     const { data: photos, error: fetchError } = await serviceClient
       .from("photos")
-      .select("id, dish_name, description_cn, description_en, ingredients")
+      .select("id, storage_path, dish_name, description_cn, description_en, ingredients")
       .or(
         "dish_name.is.null,dish_name.eq.,description_cn.is.null,description_cn.eq.,description_en.is.null,description_en.eq.,ingredients.is.null"
       )
@@ -51,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Process photos one by one to avoid rate limiting
     for (const photo of photos) {
       try {
-        await backfillSinglePhoto(serviceClient, photo.id)
+        await backfillSinglePhoto(serviceClient, photo)
         results.success++
       } catch (error) {
         results.failed++
@@ -75,25 +84,29 @@ export async function POST(request: NextRequest) {
   }
 }
 
+interface BackfillPhoto {
+  id: string
+  storage_path?: string
+  dish_name: string | null
+  description_cn: string | null
+  description_en: string | null
+  ingredients: string[] | null
+}
+
 async function backfillSinglePhoto(
   serviceClient: Awaited<ReturnType<typeof createServiceClient>>,
-  photoId: string
+  photo: BackfillPhoto
 ) {
-  // Get photo from database (only fields needed for backfill)
-  const { data: photo, error: fetchError } = await serviceClient
-    .from("photos")
-    .select("id, storage_path")
-    .eq("id", photoId)
-    .single()
-
-  if (fetchError || !photo) {
+  // Fetch storage_path if not already available
+  const storagePath = photo.storage_path
+  if (!storagePath) {
     throw new Error("Photo not found")
   }
 
   // Download the image from storage
   const { data: imageData, error: downloadError } = await serviceClient.storage
     .from("photos")
-    .download(photo.storage_path)
+    .download(storagePath)
 
   if (downloadError || !imageData) {
     throw new Error("Failed to fetch image")
@@ -103,29 +116,47 @@ async function backfillSinglePhoto(
   const arrayBuffer = await imageData.arrayBuffer()
   const base64 = Buffer.from(arrayBuffer).toString("base64")
 
-  // Generate new descriptions with dish name and ingredients
+  const hasDishName = photo.dish_name && photo.dish_name.trim().length > 0
+  const needsIngredients = !photo.ingredients || photo.ingredients.length === 0
+
+  // Only ingredients missing — use light prompt, don't touch dish name or descriptions
+  if (hasDishName && needsIngredients) {
+    const ingredients = await generateIngredients(base64, photo.dish_name!)
+
+    const { error: updateError } = await serviceClient
+      .from("photos")
+      .update({ ingredients })
+      .eq("id", photo.id)
+
+    if (updateError) {
+      throw new Error("Failed to update photo")
+    }
+
+    return { photoId: photo.id, dishName: photo.dish_name, ingredients }
+  }
+
+  // Dish name or descriptions are missing — full regeneration needed
   const descriptions = await generateDescription(base64)
 
-  // Update the photo record
+  const updateData: Record<string, unknown> = { ingredients: descriptions.ingredients }
+  if (!hasDishName) updateData.dish_name = descriptions.dishName
+  if (!photo.description_en) updateData.description_en = descriptions.en
+  if (!photo.description_cn) updateData.description_cn = descriptions.cn
+
   const { error: updateError } = await serviceClient
     .from("photos")
-    .update({
-      dish_name: descriptions.dishName,
-      description_en: descriptions.en,
-      description_cn: descriptions.cn,
-      ingredients: descriptions.ingredients,
-    })
-    .eq("id", photoId)
+    .update(updateData)
+    .eq("id", photo.id)
 
   if (updateError) {
     throw new Error("Failed to update photo")
   }
 
   return {
-    photoId,
-    dishName: descriptions.dishName,
-    descriptionEn: descriptions.en,
-    descriptionCn: descriptions.cn,
+    photoId: photo.id,
+    dishName: hasDishName ? photo.dish_name : descriptions.dishName,
+    descriptionEn: photo.description_en || descriptions.en,
+    descriptionCn: photo.description_cn || descriptions.cn,
     ingredients: descriptions.ingredients,
   }
 }

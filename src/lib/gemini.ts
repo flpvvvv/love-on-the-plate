@@ -293,3 +293,84 @@ export async function generateDescription(
     throw parseGeminiError(error)
   }
 }
+
+const INGREDIENTS_ONLY_PROMPT = `You are analyzing a food photo for "Love on the Plate".
+
+The dish in this photo is called "{dishName}".
+
+List 3-5 main ingredients used in this dish, in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.
+
+If the following existing ingredient tags from the app apply, use the EXACT same text. Only invent new ingredient names if none of these match:
+{existingIngredients}
+
+IMPORTANT: Return your response in this exact JSON format (no markdown, no code blocks):
+{"ingredients": ["牛肉", "土豆", "胡萝卜"]}`
+
+/**
+ * Generate only ingredients for an existing photo that already has a dish name
+ * and descriptions. Does NOT overwrite dish name or descriptions.
+ */
+export async function generateIngredients(
+  imageBase64: string,
+  dishName: string,
+  existingIngredients?: string[]
+): Promise<string[]> {
+  if (!imageBase64 || imageBase64.length === 0) {
+    throw new GeminiError("INVALID_INPUT", "No image data provided.", false)
+  }
+
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL
+  const model = genAI.getGenerativeModel({ model: modelName })
+
+  const knownIngredients = existingIngredients ?? []
+  const prompt = INGREDIENTS_ONLY_PROMPT.replace("{dishName}", dishName).replace(
+    "{existingIngredients}",
+    knownIngredients.length > 0 ? knownIngredients.join(", ") : "(none yet)"
+  )
+
+  try {
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64,
+        },
+      },
+    ])
+
+    const response = await result.response
+    let text = response.text().trim()
+
+    if (!text) {
+      throw new GeminiError(
+        "EMPTY_RESPONSE",
+        "AI returned an empty response. Please try again.",
+        true
+      )
+    }
+
+    try {
+      if (text.startsWith("```")) {
+        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+        if (match) {
+          text = match[1].trim()
+        }
+      }
+
+      const parsed = JSON.parse(text)
+      return Array.isArray(parsed.ingredients)
+        ? parsed.ingredients
+            .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
+            .map((i: string) => i.trim())
+        : []
+    } catch {
+      return []
+    }
+  } catch (error) {
+    if (error instanceof GeminiError) {
+      throw error
+    }
+    throw parseGeminiError(error)
+  }
+}
