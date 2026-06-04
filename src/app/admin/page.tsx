@@ -315,8 +315,6 @@ export default function AdminPage() {
 
       const formData = new FormData()
       formData.append("file", compressedFile)
-      // Also send original file so server can extract EXIF via sharp (handles HEIC natively)
-      formData.append("originalFile", selectedFile)
       if (takenAt) {
         formData.append("takenAt", takenAt)
       }

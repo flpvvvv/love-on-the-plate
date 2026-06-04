@@ -25,13 +25,15 @@ export async function extractTakenAt(file: File): Promise<string | null> {
   }
 
   try {
-    // Parse with exifr — disable silentErrors so we can see what goes wrong
+    // Parse with exifr — chunk-based reading avoids loading the entire file
+    // This is why we don't need to send the original file to the server
     const dateTimeOriginal: string | undefined = await exifr.parse(file, {
       pick: ["DateTimeOriginal"],
-      // Increase chunk sizes for HEIC files which may have larger metadata boxes
+      // HEIC files can have large metadata boxes (depth maps, Live Photos, etc.)
+      // that push EXIF deeper into the file. Read up to ~8MB to cover edge cases
       firstChunkSize: 256 * 1024, // 256KB initial chunk (browser)
-      chunkSize: 128 * 1024, // 128KB per additional chunk
-      chunkLimit: 10, // Up to 10 additional chunks (~1.5MB total)
+      chunkSize: 256 * 1024, // 256KB per additional chunk
+      chunkLimit: 30, // Up to 30 additional chunks (~8MB total)
     })
 
     if (!dateTimeOriginal) {
