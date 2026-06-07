@@ -1,43 +1,69 @@
 /**
  * Client-side EXIF extraction utility
- * Extracts DateTimeOriginal from a raw File object before compression
+ * Extracts the capture date from a raw File object before compression
  * (canvas.toDataURL() strips all EXIF metadata)
  */
 import * as exifr from "exifr"
 
-const DATE_TAGS = [
+/**
+ * EXIF date format pattern: "YYYY:MM:DD HH:MM:SS"
+ * Matches standard EXIF date strings.
+ */
+const EXIF_DATE_RE = /^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/
+
+/**
+ * Priority order for known EXIF date tags.
+ * DateTimeOriginal is the camera's capture time — the most accurate.
+ * Fall through to other tags if the primary one is missing.
+ */
+const PRIORITY_TAGS = [
   "DateTimeOriginal",
   "CreateDate",
   "DateTimeDigitized",
   "ModifyDate",
   "DateTime",
-] as const
+]
 
 /**
- * Convert an EXIF date string ("YYYY:MM:DD HH:MM:SS") to ISO 8601.
- * Returns null if the date is invalid or out of range.
+ * Convert a raw EXIF date string to a date-only "YYYY-MM-DD" string.
+ * Returns null if the date is invalid or out of reasonable range.
  */
-function exifDateToISO(rawDate: string): string | null {
-  const isoString = rawDate.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3").replace(" ", "T")
-
-  const date = new Date(isoString)
+function toDateOnly(rawDate: string): string | null {
+  // Replace EXIF colon-separated date with ISO dash format
+  const iso = rawDate.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3")
+  const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return null
-
   const year = date.getFullYear()
   if (year < 1990 || year > 2100) return null
-
-  return date.toISOString()
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 }
 
 /**
- * Extract the DateTimeOriginal timestamp from a photo file.
+ * Search all EXIF string values for date-like patterns.
+ * Fallback when none of the standard priority tags contain a valid date.
+ */
+function findAnyDate(exif: Record<string, unknown>): string | null {
+  for (const [_key, value] of Object.entries(exif)) {
+    if (typeof value !== "string") continue
+    if (!EXIF_DATE_RE.test(value)) continue
+    const result = toDateOnly(value)
+    if (result) return result
+  }
+  return null
+}
+
+/**
+ * Extract the capture date from a photo file (date only, no time).
  * Must be called on the original File before any canvas-based compression.
  *
- * Uses exifr for JPEG/HEIC/AVIF support, with verbose error logging
- * to help diagnose format-specific issues.
+ * Strategy:
+ * 1. Parse all EXIF data from the file (no tag filtering — exifr reads only
+ *    the metadata portion, not the entire file)
+ * 2. Check known date tags in priority order
+ * 3. Fall back to searching all string values for date patterns
  *
  * @param file - The original photo File object
- * @returns ISO 8601 date string, or null if no valid EXIF date found
+ * @returns "YYYY-MM-DD" string, or null if no valid date found
  */
 export async function extractTakenAt(file: File): Promise<string | null> {
   const isDev = typeof process !== "undefined" && process.env?.NODE_ENV === "development"
@@ -49,41 +75,40 @@ export async function extractTakenAt(file: File): Promise<string | null> {
   }
 
   try {
-    // Parse with exifr — chunk-based reading avoids loading the entire file
-    // Multiple date tags for compatibility: some cameras use CreateDate instead of DateTimeOriginal
-    const exif: Record<string, unknown> | undefined = await exifr.parse(file, {
-      pick: [...DATE_TAGS],
-      // HEIC files can have large metadata boxes (depth maps, Live Photos, etc.)
-      // that push EXIF deeper into the file. Read up to ~8MB to cover edge cases
-      firstChunkSize: 256 * 1024, // 256KB initial chunk (browser)
-      chunkSize: 256 * 1024, // 256KB per additional chunk
-      chunkLimit: 30, // Up to 30 additional chunks (~8MB total)
-    })
+    // Parse all EXIF data at once — exifr only reads the metadata portion
+    const exif = await exifr.parse(file)
 
-    if (!exif) {
+    if (!exif || Object.keys(exif).length === 0) {
       if (isDev) console.log("[exif] No EXIF data found in file")
       return null
     }
 
-    // Try each date tag in priority order: DateTimeOriginal > CreateDate > DateTimeDigitized > ModifyDate > DateTime
-    for (const tag of DATE_TAGS) {
-      const rawDate = exif[tag]
-      if (typeof rawDate !== "string") continue
-
-      const iso = exifDateToISO(rawDate)
-      if (iso) {
-        if (isDev) console.log(`[exif] Success (${tag}):`, iso)
-        return iso
+    // 1. Check known priority tags
+    for (const tag of PRIORITY_TAGS) {
+      const raw = exif[tag]
+      if (typeof raw !== "string") continue
+      const result = toDateOnly(raw)
+      if (result) {
+        if (isDev) console.log(`[exif] Found via ${tag}:`, result)
+        return result
       }
     }
 
+    // 2. Fallback: search any string value for date patterns
+    const anyDate = findAnyDate(exif)
+    if (anyDate) {
+      if (isDev) console.log("[exif] Found via full scan:", anyDate)
+      return anyDate
+    }
+
     if (isDev) {
-      const foundTags = Object.keys(exif).filter((k) => typeof exif[k] === "string")
-      console.log("[exif] No valid date found. Tags present:", foundTags)
+      const stringKeys = Object.entries(exif)
+        .filter(([, v]) => typeof v === "string")
+        .map(([k]) => k)
+      console.log("[exif] No valid date found. String tags:", stringKeys)
     }
     return null
   } catch (err) {
-    // Log the error for diagnostics — this helps identify format-specific issues
     console.error("[exif] Parse error:", err instanceof Error ? err.message : err, {
       fileName: file.name,
       fileType: file.type,

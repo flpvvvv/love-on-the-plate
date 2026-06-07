@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { GeminiError, generateDescription } from "@/lib/gemini"
-import { bufferToBase64, extractExifTakenAt, processImage } from "@/lib/image-processing"
+import { bufferToBase64, processImage } from "@/lib/image-processing"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 
@@ -29,31 +29,17 @@ export async function POST(request: NextRequest) {
 
     const file = formData.get("file") as File | null
     const takenAtStr = formData.get("takenAt") as string | null
-    const originalHeaderBase64 = formData.get("originalHeader") as string | null
 
-    // Parse client-provided takenAt (from browser EXIF extraction via exifr)
-    // exifr reads only metadata chunks — reliable for JPEG, HEIC, and other formats
+    // Parse client-provided takenAt (date-only "YYYY-MM-DD" string from client EXIF / date picker)
     let clientTakenAt: Date | null = null
     if (takenAtStr) {
-      const parsed = new Date(takenAtStr)
+      // Parse as UTC midnight to avoid timezone offset shifts
+      const parsed = new Date(`${takenAtStr}T00:00:00Z`)
       if (!Number.isNaN(parsed.getTime())) {
         const year = parsed.getFullYear()
         if (year >= 1990 && year <= 2100) {
           clientTakenAt = parsed
         }
-      }
-    }
-
-    // Parse original header (first 2MB of original file) for server-side EXIF fallback.
-    // The header contains the full EXIF metadata and is small enough to avoid
-    // Vercel's 4.5MB body size limit (header ~2MB + compressed file ~1MB = ~3MB total).
-    let headerTakenAt: Date | null = null
-    if (!clientTakenAt && originalHeaderBase64) {
-      try {
-        const headerBuffer = Buffer.from(originalHeaderBase64, "base64")
-        headerTakenAt = await extractExifTakenAt(headerBuffer)
-      } catch (headerErr) {
-        console.error("Failed to extract EXIF from file header:", headerErr)
       }
     }
 
@@ -87,7 +73,7 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Prefer client EXIF (exifr) → server EXIF from file header → server EXIF from compressed buffer
+    // Prefer client EXIF → server EXIF from compressed buffer (sharp metadata)
     const {
       fullBuffer,
       thumbBuffer,
@@ -95,7 +81,7 @@ export async function POST(request: NextRequest) {
       height,
       takenAt: compressedTakenAt,
     } = await processImage(buffer)
-    const takenAt = clientTakenAt ?? headerTakenAt ?? compressedTakenAt
+    const takenAt = clientTakenAt ?? compressedTakenAt
 
     // Generate unique ID for the photo
     const photoId = randomUUID()

@@ -11,9 +11,11 @@ interface ImagePreviewProps {
   descriptionEn: string
   descriptionCn: string
   ingredients: string[]
+  takenDate: string
   onDishNameChange: (dishName: string) => void
   onDescriptionEnChange: (description: string) => void
   onDescriptionCnChange: (description: string) => void
+  onTakenDateChange: (date: string) => void
   onAddIngredient: (ingredient: string) => void
   onRemoveIngredient: (ingredient: string) => void
   onRegenerateDescription: () => void
@@ -31,9 +33,11 @@ export function ImagePreview({
   descriptionEn,
   descriptionCn,
   ingredients,
+  takenDate,
   onDishNameChange,
   onDescriptionEnChange,
   onDescriptionCnChange,
+  onTakenDateChange,
   onAddIngredient,
   onRemoveIngredient,
   onRegenerateDescription,
@@ -169,6 +173,22 @@ export function ImagePreview({
               Edit the name, then tap the refresh button to regenerate descriptions
             </p>
           )}
+        </div>
+
+        {/* Taken Date */}
+        <div>
+          <label htmlFor="takenDate" className="block text-caption font-medium text-ink mb-2">
+            烹饪日期 / Cooked Date
+          </label>
+          <input
+            id="takenDate"
+            type="date"
+            value={takenDate}
+            onChange={(e) => onTakenDateChange(e.target.value)}
+            max={new Date().toISOString().split("T")[0]}
+            disabled={uploading}
+            className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink [color-scheme:light]"
+          />
         </div>
 
         {/* Ingredients Tags */}
