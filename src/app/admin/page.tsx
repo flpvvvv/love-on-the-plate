@@ -23,6 +23,7 @@ export default function AdminPage() {
   const { showToast } = useToast()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [takenAt, setTakenAt] = useState<string | null>(null)
+  const [originalHeader, setOriginalHeader] = useState<string | null>(null)
   const [compressedForUpload, setCompressedForUpload] = useState<string | null>(null)
   const [dishName, setDishName] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
@@ -103,14 +104,16 @@ export default function AdminPage() {
     async (file: File) => {
       setSelectedFile(file)
       setCompressedForUpload(null)
+      setOriginalHeader(null)
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
       setIngredients([])
 
       // Extract EXIF DateTimeOriginal from the original file before compression strips it
+      let exifTakenAt: string | null = null
       try {
-        const exifTakenAt = await extractTakenAt(file)
+        exifTakenAt = await extractTakenAt(file)
         setTakenAt(exifTakenAt)
         if (process.env.NODE_ENV === "development") {
           console.log(`EXIF taken_at: ${exifTakenAt ?? "not found"}`)
@@ -118,6 +121,25 @@ export default function AdminPage() {
       } catch (exifError) {
         console.error("EXIF extraction error:", exifError)
         setTakenAt(null)
+      }
+
+      // Read first 2MB of original file header for server-side EXIF fallback.
+      // EXIF data is always in the file header (first ~128KB for JPEG, up to ~2MB
+      // for HEIC with Live Photos). Sending just the header avoids Vercel's 4.5MB body limit.
+      try {
+        const HEADER_SIZE = 2 * 1024 * 1024 // 2MB
+        const headerSlice = file.slice(0, HEADER_SIZE)
+        const headerBuffer = await headerSlice.arrayBuffer()
+        const headerBase64 = Buffer.from(headerBuffer).toString("base64")
+        setOriginalHeader(headerBase64)
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            `Header read: ${(headerBuffer.byteLength / 1024).toFixed(0)}KB (for server EXIF fallback)`
+          )
+        }
+      } catch (headerError) {
+        console.error("Failed to read file header:", headerError)
+        setOriginalHeader(null)
       }
 
       // Generate initial descriptions
@@ -317,6 +339,9 @@ export default function AdminPage() {
       formData.append("file", compressedFile)
       if (takenAt) {
         formData.append("takenAt", takenAt)
+      } else if (originalHeader) {
+        // Fallback: send original file header for server-side EXIF extraction
+        formData.append("originalHeader", originalHeader)
       }
 
       const response = await fetch("/api/upload", {
@@ -426,11 +451,13 @@ export default function AdminPage() {
     ingredients,
     router,
     showToast,
+    originalHeader,
   ])
 
   const handleCancel = useCallback(() => {
     setSelectedFile(null)
     setTakenAt(null)
+    setOriginalHeader(null)
     setCompressedForUpload(null)
     setDishName("")
     setDescriptionEn("")

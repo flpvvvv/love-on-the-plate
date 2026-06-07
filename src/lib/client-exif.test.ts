@@ -10,12 +10,11 @@ import * as exifr from "exifr"
 
 describe("extractTakenAt", () => {
   it("returns ISO string when valid DateTimeOriginal is found", async () => {
-    vi.mocked(exifr.parse).mockResolvedValue("2024:12:25 14:30:00")
+    vi.mocked(exifr.parse).mockResolvedValue({ DateTimeOriginal: "2024:12:25 14:30:00" })
 
     const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
     const result = await extractTakenAt(file)
 
-    // Result should be a valid non-null ISO string (timezone varies, so check components)
     expect(result).not.toBeNull()
     const parsed = new Date(result!)
     expect(parsed.getUTCFullYear()).toBe(2024)
@@ -23,11 +22,47 @@ describe("extractTakenAt", () => {
     expect(parsed.getUTCDate()).toBe(25)
     expect(exifr.parse).toHaveBeenCalledWith(
       file,
-      expect.objectContaining({ pick: ["DateTimeOriginal"] })
+      expect.objectContaining({
+        pick: expect.arrayContaining(["DateTimeOriginal"]),
+      })
     )
   })
 
-  it("returns null when DateTimeOriginal is missing", async () => {
+  it("falls back to CreateDate when DateTimeOriginal is missing", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({ CreateDate: "2024:12:25 14:30:00" })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+    const parsed = new Date(result!)
+    expect(parsed.getUTCFullYear()).toBe(2024)
+  })
+
+  it("falls back to ModifyDate when no other date is found", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({ ModifyDate: "2024:12:25 14:30:00" })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+  })
+
+  it("prefers DateTimeOriginal over other date tags", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({
+      DateTimeOriginal: "2024:12:25 14:30:00",
+      CreateDate: "2023:01:01 00:00:00",
+    })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+    const parsed = new Date(result!)
+    expect(parsed.getUTCFullYear()).toBe(2024)
+  })
+
+  it("returns null when no EXIF data is found", async () => {
     vi.mocked(exifr.parse).mockResolvedValue(undefined)
 
     const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
@@ -36,8 +71,11 @@ describe("extractTakenAt", () => {
     expect(result).toBeNull()
   })
 
-  it("returns null when DateTimeOriginal is an invalid date string", async () => {
-    vi.mocked(exifr.parse).mockResolvedValue("not-a-date")
+  it("returns null when all date tags are invalid strings", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({
+      DateTimeOriginal: "not-a-date",
+      CreateDate: "also-invalid",
+    })
 
     const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
     const result = await extractTakenAt(file)
@@ -46,7 +84,7 @@ describe("extractTakenAt", () => {
   })
 
   it("returns null when year is before 1990", async () => {
-    vi.mocked(exifr.parse).mockResolvedValue("1980:01:01 00:00:00")
+    vi.mocked(exifr.parse).mockResolvedValue({ DateTimeOriginal: "1980:01:01 00:00:00" })
 
     const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
     const result = await extractTakenAt(file)
@@ -70,5 +108,40 @@ describe("extractTakenAt", () => {
     const result = await extractTakenAt(file)
 
     expect(result).toBeNull()
+  })
+
+  it("handles DateTimeDigitized tag", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({ DateTimeDigitized: "2024:06:15 10:00:00" })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+    const parsed = new Date(result!)
+    expect(parsed.getUTCFullYear()).toBe(2024)
+    expect(parsed.getUTCMonth()).toBe(5) // June
+  })
+
+  it("handles DateTime tag as last resort", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({ DateTime: "2024:03:10 08:30:00" })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+  })
+
+  it("skips non-string tag values", async () => {
+    vi.mocked(exifr.parse).mockResolvedValue({
+      DateTimeOriginal: 12345,
+      DateTime: "2024:03:10 08:30:00",
+    })
+
+    const file = new File(["dummy"], "photo.jpg", { type: "image/jpeg" })
+    const result = await extractTakenAt(file)
+
+    expect(result).not.toBeNull()
+    const parsed = new Date(result!)
+    expect(parsed.getUTCFullYear()).toBe(2024)
   })
 })

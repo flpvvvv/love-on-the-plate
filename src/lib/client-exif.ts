@@ -5,6 +5,30 @@
  */
 import * as exifr from "exifr"
 
+const DATE_TAGS = [
+  "DateTimeOriginal",
+  "CreateDate",
+  "DateTimeDigitized",
+  "ModifyDate",
+  "DateTime",
+] as const
+
+/**
+ * Convert an EXIF date string ("YYYY:MM:DD HH:MM:SS") to ISO 8601.
+ * Returns null if the date is invalid or out of range.
+ */
+function exifDateToISO(rawDate: string): string | null {
+  const isoString = rawDate.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3").replace(" ", "T")
+
+  const date = new Date(isoString)
+  if (Number.isNaN(date.getTime())) return null
+
+  const year = date.getFullYear()
+  if (year < 1990 || year > 2100) return null
+
+  return date.toISOString()
+}
+
 /**
  * Extract the DateTimeOriginal timestamp from a photo file.
  * Must be called on the original File before any canvas-based compression.
@@ -26,9 +50,9 @@ export async function extractTakenAt(file: File): Promise<string | null> {
 
   try {
     // Parse with exifr — chunk-based reading avoids loading the entire file
-    // This is why we don't need to send the original file to the server
-    const dateTimeOriginal: string | undefined = await exifr.parse(file, {
-      pick: ["DateTimeOriginal"],
+    // Multiple date tags for compatibility: some cameras use CreateDate instead of DateTimeOriginal
+    const exif: Record<string, unknown> | undefined = await exifr.parse(file, {
+      pick: [...DATE_TAGS],
       // HEIC files can have large metadata boxes (depth maps, Live Photos, etc.)
       // that push EXIF deeper into the file. Read up to ~8MB to cover edge cases
       firstChunkSize: 256 * 1024, // 256KB initial chunk (browser)
@@ -36,32 +60,28 @@ export async function extractTakenAt(file: File): Promise<string | null> {
       chunkLimit: 30, // Up to 30 additional chunks (~8MB total)
     })
 
-    if (!dateTimeOriginal) {
-      if (isDev) console.log("[exif] No DateTimeOriginal found in file")
+    if (!exif) {
+      if (isDev) console.log("[exif] No EXIF data found in file")
       return null
     }
 
-    // EXIF DateTimeOriginal uses "YYYY:MM:DD HH:MM:SS" format,
-    // convert to ISO 8601: "YYYY-MM-DDTHH:MM:SS"
-    const isoString = dateTimeOriginal
-      .replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3")
-      .replace(" ", "T")
+    // Try each date tag in priority order: DateTimeOriginal > CreateDate > DateTimeDigitized > ModifyDate > DateTime
+    for (const tag of DATE_TAGS) {
+      const rawDate = exif[tag]
+      if (typeof rawDate !== "string") continue
 
-    const date = new Date(isoString)
-
-    // Sanity check: year must be between 1990 and 2100
-    if (Number.isNaN(date.getTime())) {
-      if (isDev) console.log("[exif] Invalid date parsed:", dateTimeOriginal)
-      return null
-    }
-    const year = date.getFullYear()
-    if (year < 1990 || year > 2100) {
-      if (isDev) console.log("[exif] Date out of range:", dateTimeOriginal)
-      return null
+      const iso = exifDateToISO(rawDate)
+      if (iso) {
+        if (isDev) console.log(`[exif] Success (${tag}):`, iso)
+        return iso
+      }
     }
 
-    if (isDev) console.log("[exif] Success:", date.toISOString())
-    return date.toISOString()
+    if (isDev) {
+      const foundTags = Object.keys(exif).filter((k) => typeof exif[k] === "string")
+      console.log("[exif] No valid date found. Tags present:", foundTags)
+    }
+    return null
   } catch (err) {
     // Log the error for diagnostics — this helps identify format-specific issues
     console.error("[exif] Parse error:", err instanceof Error ? err.message : err, {
