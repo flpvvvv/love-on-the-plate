@@ -413,6 +413,9 @@ export default function AdminPage() {
       // Show success toast with heartbeat
       showToast("Photo uploaded with love!", "success")
 
+      // Flag gallery to force-refresh on next load (skip cache, reset pagination)
+      sessionStorage.setItem("lotp-v1:needs-refresh", "1")
+
       // Redirect to main gallery after successful upload
       router.push("/")
     } catch (error) {

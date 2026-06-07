@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
         if (cursorTakenAt === "null") {
           query = query.is("taken_at", null).lt("created_at", cursorCreatedAt)
         } else {
-          query = query.lt("taken_at", cursorTakenAt)
+          query = query.or(
+            `taken_at.lt.${cursorTakenAt},and(taken_at.eq.${cursorTakenAt},created_at.lt.${cursorCreatedAt})`
+          )
         }
       }
     }

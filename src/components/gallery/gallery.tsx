@@ -166,7 +166,7 @@ export function Gallery() {
         url.searchParams.set("cursor", pageCursor)
       }
 
-      const response = await fetch(url.toString())
+      const response = await fetch(url.toString(), { cache: "no-store" })
       if (!response.ok) throw new Error("Failed to fetch photos")
 
       const contentType = response.headers.get("content-type")
@@ -199,6 +199,16 @@ export function Gallery() {
   useEffect(() => {
     const loadInitial = async () => {
       setLoading(true)
+
+      // After an upload, force-fresh load and reset all pagination state
+      try {
+        if (sessionStorage.getItem("lotp-v1:needs-refresh")) {
+          sessionStorage.removeItem("lotp-v1:needs-refresh")
+        }
+      } catch {
+        /* sessionStorage may not be available */
+      }
+
       const data = await fetchPhotos()
       if (data) {
         setPhotos(data.photos)
