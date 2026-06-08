@@ -82,6 +82,16 @@ describe("formatRelativeTime", () => {
 })
 
 describe("getDisplayDate", () => {
+  it("prefers display_date over taken_at and created_at", () => {
+    const photo = {
+      display_date: "2026-03-20",
+      taken_at: "2026-01-10",
+      created_at: "2026-02-15",
+    }
+    const result = getDisplayDate(photo)
+    expect(result.toISOString().slice(0, 10)).toBe("2026-03-20")
+  })
+
   it("returns taken_at when available", () => {
     const photo = { taken_at: "2026-01-10", created_at: "2026-02-15" }
     const result = getDisplayDate(photo)

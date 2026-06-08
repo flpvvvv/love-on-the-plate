@@ -135,7 +135,9 @@ export async function GET() {
 
     return NextResponse.json(payload, {
       headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        // Short cache so the total count reflects reality shortly after an upload.
+        // The count query (head: true) and aggregation RPCs are cheap.
+        "Cache-Control": "no-store",
       },
     })
   } catch (error) {

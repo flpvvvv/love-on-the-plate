@@ -11,6 +11,8 @@ export interface Photo {
   width: number | null
   height: number | null
   taken_at: string | null
+  // Generated column: COALESCE(taken_at, created_at). Drives gallery ordering/display.
+  display_date: string
   created_at: string
   updated_at: string
   uploaded_by: string | null

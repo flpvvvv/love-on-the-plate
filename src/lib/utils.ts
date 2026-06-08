@@ -7,10 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Get the display date for a photo.
- * Prefers taken_at (EXIF capture time) over created_at (upload time).
+ * Prefers the generated display_date column (COALESCE(taken_at, created_at)),
+ * falling back to taken_at then created_at for payloads without it.
  */
-export function getDisplayDate(photo: { taken_at?: string | null; created_at: string }): Date {
-  return photo.taken_at ? new Date(photo.taken_at) : new Date(photo.created_at)
+export function getDisplayDate(photo: {
+  display_date?: string | null
+  taken_at?: string | null
+  created_at: string
+}): Date {
+  return new Date(photo.display_date ?? photo.taken_at ?? photo.created_at)
 }
 
 // Date formatter using Intl.DateTimeFormat for proper i18n

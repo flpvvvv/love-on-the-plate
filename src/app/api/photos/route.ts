@@ -15,23 +15,20 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from("photos")
       .select("*")
-      .order("taken_at", { ascending: false })
-      .order("created_at", { ascending: false })
+      .order("display_date", { ascending: false })
+      .order("id", { ascending: false })
       .limit(limit + 1) // Fetch one extra to check if there are more
 
-    // Cursor-based pagination with compound cursor: "taken_at||created_at"
-    // "null" taken_at uses created_at to avoid re-fetching the same null-taken_at photos
+    // Keyset pagination on the compound cursor "display_date||id".
+    // display_date is a generated column (COALESCE(taken_at, created_at)) that is
+    // never null, so a single keyset comparison covers every row with no gaps.
     if (cursor) {
       const parts = cursor.split("||")
       if (parts.length === 2) {
-        const [cursorTakenAt, cursorCreatedAt] = parts
-        if (cursorTakenAt === "null") {
-          query = query.is("taken_at", null).lt("created_at", cursorCreatedAt)
-        } else {
-          query = query.or(
-            `taken_at.lt.${cursorTakenAt},and(taken_at.eq.${cursorTakenAt},created_at.lt.${cursorCreatedAt})`
-          )
-        }
+        const [cursorDisplayDate, cursorId] = parts
+        query = query.or(
+          `display_date.lt.${cursorDisplayDate},and(display_date.eq.${cursorDisplayDate},id.lt.${cursorId})`
+        )
       }
     }
 
@@ -71,10 +68,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get cursor for next page — compound format: "taken_at||created_at"
+    // Get cursor for next page — compound keyset format: "display_date||id"
     const nextCursor =
       hasMore && returnPhotos.length > 0
-        ? `${returnPhotos[returnPhotos.length - 1].taken_at || "null"}||${returnPhotos[returnPhotos.length - 1].created_at}`
+        ? `${returnPhotos[returnPhotos.length - 1].display_date}||${returnPhotos[returnPhotos.length - 1].id}`
         : null
 
     return NextResponse.json(

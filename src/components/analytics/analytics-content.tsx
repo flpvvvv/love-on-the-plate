@@ -120,7 +120,7 @@ export function AnalyticsContent() {
     setError(null)
 
     try {
-      const response = await fetch("/api/analytics", { signal })
+      const response = await fetch("/api/analytics", { signal, cache: "no-store" })
       if (!response.ok) throw new Error("Failed to load analytics")
 
       const payload: AnalyticsResponse = await response.json()
@@ -137,7 +137,21 @@ export function AnalyticsContent() {
   useEffect(() => {
     const controller = new AbortController()
     void loadAnalytics(controller.signal)
-    return () => controller.abort()
+
+    // Refetch when the tab regains focus/visibility so the total count is current
+    // after the user uploads a photo and returns to Analytics.
+    const refetch = () => void loadAnalytics()
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refetch()
+    }
+    window.addEventListener("focus", refetch)
+    document.addEventListener("visibilitychange", onVisible)
+
+    return () => {
+      controller.abort()
+      window.removeEventListener("focus", refetch)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
   }, [loadAnalytics])
 
   /* Tick the "Updated Xs ago" label every 10 s */
