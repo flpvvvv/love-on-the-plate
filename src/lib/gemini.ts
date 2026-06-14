@@ -6,14 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
  * Ingredients that should never appear in main ingredient lists.
  * These are either liquids, garnishes, or decorative elements that are not primary components.
  */
-const NON_ESSENTIAL_INGREDIENTS = new Set([
-  "水",
-  "清水",
-  "开水",
-  "凉水",
-  "温水",
-  "热水",
-])
+const NON_ESSENTIAL_INGREDIENTS = new Set(["水", "清水", "开水", "凉水", "温水", "热水"])
 
 function filterEssentialIngredients(ingredients: string[]): string[] {
   return ingredients.filter((i) => !NON_ESSENTIAL_INGREDIENTS.has(i))
