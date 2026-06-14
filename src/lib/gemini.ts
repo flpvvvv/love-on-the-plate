@@ -3,6 +3,23 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
 
 /**
+ * Ingredients that should never appear in main ingredient lists.
+ * These are either liquids, garnishes, or decorative elements that are not primary components.
+ */
+const NON_ESSENTIAL_INGREDIENTS = new Set([
+  "水",
+  "清水",
+  "开水",
+  "凉水",
+  "温水",
+  "热水",
+])
+
+function filterEssentialIngredients(ingredients: string[]): string[] {
+  return ingredients.filter((i) => !NON_ESSENTIAL_INGREDIENTS.has(i))
+}
+
+/**
  * Custom error class for Gemini API errors with user-friendly messages
  */
 export class GeminiError extends Error {
@@ -125,7 +142,7 @@ Analyze this food photo and provide:
 1. The dish name in Chinese (Simplified) - be specific and concise (e.g., "红烧肉", "番茄炒蛋")
 2. A brief, heartfelt description in English (2-3 sentences)
 3. A brief, heartfelt description in Chinese (Simplified) (2-3 sentences)
-4. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.`
+4. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential. Do NOT include water or other liquids, garnishes (e.g., scallions, cilantro, sesame seeds), or aromatics used only for flavoring.`
 
 const INGREDIENTS_CONSISTENCY_GUIDE = `\n\nIf the following existing ingredient tags from the app apply, use the EXACT same text. Only invent new ingredient names if none of these match:
 {existingIngredients}`
@@ -178,7 +195,7 @@ The dish in this photo is called "${dishName}". Do NOT change or suggest a diffe
 Based on the image and this dish name, provide:
 1. A brief, heartfelt description in English (2-3 sentences)
 2. A brief, heartfelt description in Chinese (Simplified) (2-3 sentences)
-3. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used in "${dishName}". Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.${ingredientsGuide}
+3. An array of 3-5 main ingredients in Chinese (Simplified). Focus only on the primary ingredients visible or likely used in "${dishName}". Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential. Do NOT include water or other liquids, garnishes (e.g., scallions, cilantro, sesame seeds), or aromatics used only for flavoring.${ingredientsGuide}
 
 Guidelines for descriptions:
 - Focus on colors, textures, and what the dish appears to be
@@ -262,11 +279,13 @@ export async function generateDescription(
 
       // Parse the JSON response
       const parsed = JSON.parse(text)
-      const ingredients = Array.isArray(parsed.ingredients)
-        ? parsed.ingredients
-            .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
-            .map((i: string) => i.trim())
-        : []
+      const ingredients = filterEssentialIngredients(
+        Array.isArray(parsed.ingredients)
+          ? parsed.ingredients
+              .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
+              .map((i: string) => i.trim())
+          : []
+      )
       return {
         // If a dish name hint was provided, always use it (don't let LLM override)
         dishName: dishNameHint || parsed.dishName || "",
@@ -298,7 +317,7 @@ const INGREDIENTS_ONLY_PROMPT = `You are analyzing a food photo for "Love on the
 
 The dish in this photo is called "{dishName}".
 
-List 3-5 main ingredients used in this dish, in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential.
+List 3-5 main ingredients used in this dish, in Chinese (Simplified). Focus only on the primary ingredients visible or likely used. Use common, standard Chinese ingredient names (e.g., "牛肉", "土豆", "胡萝卜", "芹菜", "香菇") — not cooking techniques or seasonings. Be consistent with naming: prefer broader terms ("猪肉") over overly specific ones ("猪五花肉片") unless the specificity is essential. Do NOT include water or other liquids, garnishes (e.g., scallions, cilantro, sesame seeds), or aromatics used only for flavoring.
 
 If the following existing ingredient tags from the app apply, use the EXACT same text. Only invent new ingredient names if none of these match:
 {existingIngredients}
@@ -359,11 +378,13 @@ export async function generateIngredients(
       }
 
       const parsed = JSON.parse(text)
-      return Array.isArray(parsed.ingredients)
-        ? parsed.ingredients
-            .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
-            .map((i: string) => i.trim())
-        : []
+      return filterEssentialIngredients(
+        Array.isArray(parsed.ingredients)
+          ? parsed.ingredients
+              .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
+              .map((i: string) => i.trim())
+          : []
+      )
     } catch {
       return []
     }
