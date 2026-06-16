@@ -8,6 +8,7 @@ export interface CompressionOptions {
   maxHeight?: number
   quality?: number // 0-1
   format?: "image/jpeg" | "image/webp"
+  fit?: "inside" | "cover"
 }
 
 const DEFAULT_OPTIONS: Required<CompressionOptions> = {
@@ -15,6 +16,7 @@ const DEFAULT_OPTIONS: Required<CompressionOptions> = {
   maxHeight: 1920,
   quality: 0.8,
   format: "image/jpeg",
+  fit: "inside",
 }
 
 /**
@@ -25,6 +27,8 @@ export const COMPRESSION_PRESETS = {
   upload: { maxWidth: 1920, maxHeight: 1920, quality: 0.8, format: "image/jpeg" as const },
   /** For AI description generation - smaller/faster */
   ai: { maxWidth: 1280, maxHeight: 1280, quality: 0.7, format: "image/jpeg" as const },
+  /** Thumbnail generation - small, center-cropped square */
+  thumbnail: { maxWidth: 400, maxHeight: 400, quality: 0.8, format: "image/jpeg" as const, fit: "cover" as const },
 } as const
 
 /**
@@ -60,16 +64,39 @@ export async function compressImage(file: File, options: CompressionOptions = {}
       img.onload = () => {
         // Calculate new dimensions while maintaining aspect ratio
         let { width, height } = img
+        let sx = 0
+        let sy = 0
+        let sw = width
+        let sh = height
 
-        if (width > opts.maxWidth || height > opts.maxHeight) {
+        if (opts.fit === "cover") {
+          // Cover: crop to fill exact dimensions, center-positioned
           const aspectRatio = width / height
+          const targetRatio = opts.maxWidth / opts.maxHeight
 
-          if (width > height) {
-            width = opts.maxWidth
-            height = width / aspectRatio
+          if (aspectRatio > targetRatio) {
+            // Image is wider than target ratio - crop sides
+            sw = height * targetRatio
+            sx = (width - sw) / 2
           } else {
-            height = opts.maxHeight
-            width = height * aspectRatio
+            // Image is taller than target ratio - crop top/bottom
+            sh = width / targetRatio
+            sy = (height - sh) / 2
+          }
+          width = opts.maxWidth
+          height = opts.maxHeight
+        } else {
+          // Inside: maintain aspect ratio, fit within bounds
+          if (width > opts.maxWidth || height > opts.maxHeight) {
+            const aspectRatio = width / height
+
+            if (width > height) {
+              width = opts.maxWidth
+              height = width / aspectRatio
+            } else {
+              height = opts.maxHeight
+              width = height * aspectRatio
+            }
           }
         }
 
@@ -88,7 +115,11 @@ export async function compressImage(file: File, options: CompressionOptions = {}
         ctx.imageSmoothingEnabled = true
         ctx.imageSmoothingQuality = "high"
 
-        ctx.drawImage(img, 0, 0, width, height)
+        if (opts.fit === "cover") {
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height)
+        } else {
+          ctx.drawImage(img, 0, 0, width, height)
+        }
 
         // Convert to compressed format
         const dataUrl = canvas.toDataURL(opts.format, opts.quality)
@@ -149,4 +180,17 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/**
+ * Generate a center-cropped thumbnail from the original file.
+ * Uses the same canvas-based approach as compressImage but with cover fit.
+ */
+export async function generateThumbnail(file: File): Promise<{
+  base64: string
+  width: number
+  height: number
+}> {
+  const base64 = await compressImage(file, COMPRESSION_PRESETS.thumbnail)
+  return { base64, width: 400, height: 400 }
 }

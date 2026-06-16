@@ -13,6 +13,7 @@ import {
   COMPRESSION_PRESETS,
   compressImage,
   formatFileSize,
+  generateThumbnail,
   getBase64Size,
 } from "@/lib/client-image-compression"
 import { createClient } from "@/lib/supabase/client"
@@ -29,6 +30,7 @@ export default function AdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [takenDate, setTakenDate] = useState<string | null>(null)
   const [compressedForUpload, setCompressedForUpload] = useState<string | null>(null)
+  const [compressedThumbnail, setCompressedThumbnail] = useState<string | null>(null)
   const [dishName, setDishName] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
   const [descriptionCn, setDescriptionCn] = useState("")
@@ -139,6 +141,10 @@ export default function AdminPage() {
         // Compress for upload (1920px - higher quality for storage)
         const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload)
         setCompressedForUpload(uploadBase64)
+
+        // Generate thumbnail (400x400 - center-cropped)
+        const thumbnail = await generateThumbnail(file)
+        setCompressedThumbnail(thumbnail.base64)
 
         // Compress for AI (1280px - smaller/faster for description)
         const aiBase64 = await compressImage(file, COMPRESSION_PRESETS.ai)
@@ -322,6 +328,15 @@ export default function AdminPage() {
 
       const formData = new FormData()
       formData.append("file", compressedFile)
+      if (compressedThumbnail) {
+        const thumbBlob = base64ToBlob(compressedThumbnail, "image/jpeg")
+        formData.append(
+          "thumbnail",
+          new File([thumbBlob], `thumb-${selectedFile.name.replace(/\.[^.]+$/, ".jpg")}`, {
+            type: "image/jpeg",
+          })
+        )
+      }
       if (takenDate) {
         formData.append("takenAt", takenDate)
       }
@@ -405,6 +420,7 @@ export default function AdminPage() {
       setSelectedFile(null)
       setTakenDate(null)
       setCompressedForUpload(null)
+      setCompressedThumbnail(null)
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
@@ -429,6 +445,7 @@ export default function AdminPage() {
   }, [
     selectedFile,
     compressedForUpload,
+    compressedThumbnail,
     takenDate,
     dishName,
     descriptionEn,
@@ -442,6 +459,7 @@ export default function AdminPage() {
     setSelectedFile(null)
     setTakenDate(null)
     setCompressedForUpload(null)
+    setCompressedThumbnail(null)
     setDishName("")
     setDescriptionEn("")
     setDescriptionCn("")

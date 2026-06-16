@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { GeminiError, generateDescription } from "@/lib/gemini"
-import { bufferToBase64, processImage } from "@/lib/image-processing"
+import { bufferToBase64, getDimensions } from "@/lib/image-processing"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 
@@ -28,18 +28,15 @@ export async function POST(request: NextRequest) {
     }
 
     const file = formData.get("file") as File | null
+    const thumbnailFile = formData.get("thumbnail") as File | null
     const takenAtStr = formData.get("takenAt") as string | null
 
     // Parse client-provided takenAt (date-only "YYYY-MM-DD" string from client EXIF / date picker)
-    let clientTakenAt: Date | null = null
+    let takenAt: Date | null = null
     if (takenAtStr) {
-      // Parse as UTC midnight to avoid timezone offset shifts
       const parsed = new Date(`${takenAtStr}T00:00:00Z`)
       if (!Number.isNaN(parsed.getTime())) {
-        const year = parsed.getFullYear()
-        if (year >= 1990 && year <= 2100) {
-          clientTakenAt = parsed
-        }
+        takenAt = parsed
       }
     }
 
@@ -69,19 +66,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert file to buffer
+    // Convert files to buffers
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const fullBuffer = Buffer.from(arrayBuffer)
 
-    // Prefer client EXIF → server EXIF from compressed buffer (sharp metadata)
-    const {
-      fullBuffer,
-      thumbBuffer,
-      width,
-      height,
-      takenAt: compressedTakenAt,
-    } = await processImage(buffer)
-    const takenAt = clientTakenAt ?? compressedTakenAt
+    let thumbBuffer: Buffer | null = null
+    if (thumbnailFile) {
+      const thumbArrayBuffer = await thumbnailFile.arrayBuffer()
+      thumbBuffer = Buffer.from(thumbArrayBuffer)
+    }
+
+    // Get image dimensions from JPEG header (no native libs needed)
+    const { width, height } = getDimensions(fullBuffer)
 
     // Generate unique ID for the photo
     const photoId = randomUUID()
@@ -92,33 +88,44 @@ export async function POST(request: NextRequest) {
     const fullPath = `photos/${photoId}/full.jpg`
     const thumbPath = `photos/${photoId}/thumb.jpg`
 
-    // Upload full image and thumbnail in parallel
-    const [fullUploadRes, thumbUploadRes] = await Promise.all([
+    // Build upload queue
+    const uploads: Promise<unknown>[] = [
       serviceClient.storage.from("photos").upload(fullPath, fullBuffer, {
         contentType: "image/jpeg",
         upsert: false,
       }),
-      serviceClient.storage.from("photos").upload(thumbPath, thumbBuffer, {
-        contentType: "image/jpeg",
-        upsert: false,
-      }),
-    ])
+    ]
 
-    if (fullUploadRes.error || thumbUploadRes.error) {
-      // Clean up any successfully uploaded files
-      const toRemove: string[] = []
-      if (!fullUploadRes.error) toRemove.push(fullPath)
-      if (!thumbUploadRes.error) toRemove.push(thumbPath)
-      if (toRemove.length > 0) {
-        await serviceClient.storage.from("photos").remove(toRemove)
-      }
+    if (thumbBuffer) {
+      uploads.push(
+        serviceClient.storage.from("photos").upload(thumbPath, thumbBuffer, {
+          contentType: "image/jpeg",
+          upsert: false,
+        })
+      )
+    }
 
-      const uploadError = fullUploadRes.error || thumbUploadRes.error
-      console.error("Storage upload error:", uploadError)
+    // Upload full image (and thumbnail if available) in parallel
+    const [fullUploadRes, thumbUploadRes] = await Promise.allSettled(uploads) as [
+      PromiseSettledResult<{ error: unknown } | null>,
+      PromiseSettledResult<{ error: unknown } | null> | undefined,
+    ]
+
+    if (fullUploadRes.status === "rejected" || (fullUploadRes.status === "fulfilled" && fullUploadRes.value?.error)) {
+      console.error("Full image upload error:", fullUploadRes.status === "rejected" ? fullUploadRes.reason : fullUploadRes.value?.error)
       return NextResponse.json(
-        { error: "Failed to upload image to storage.", code: "STORAGE_UPLOAD_ERROR" },
+        { error: "Failed to upload full image to storage.", code: "STORAGE_UPLOAD_ERROR" },
         { status: 500 }
       )
+    }
+
+    if (thumbUploadRes?.status === "rejected") {
+      console.error("Thumbnail upload error:", thumbUploadRes.reason)
+      // Non-fatal: continue without thumbnail
+    }
+    if (thumbUploadRes?.status === "fulfilled" && thumbUploadRes.value?.error) {
+      console.error("Thumbnail storage error:", thumbUploadRes.value.error)
+      // Non-fatal: continue without thumbnail
     }
 
     // Generate AI descriptions (English and Chinese) and ingredients
@@ -158,7 +165,6 @@ export async function POST(request: NextRequest) {
       ingredients = descriptions.ingredients
     } catch (descError) {
       console.error("Description generation error:", descError)
-      // Set warning message for user
       if (descError instanceof GeminiError) {
         if (descError.code === "RATE_LIMIT") {
           descriptionWarning = "AI description skipped (rate limit). You can regenerate it later."
@@ -168,7 +174,6 @@ export async function POST(request: NextRequest) {
       } else {
         descriptionWarning = "AI description generation failed. You can regenerate it later."
       }
-      // Continue without description - user can regenerate later
     }
 
     // Insert photo record into database
@@ -177,7 +182,7 @@ export async function POST(request: NextRequest) {
       .insert({
         id: photoId,
         storage_path: fullPath,
-        thumbnail_path: thumbPath,
+        thumbnail_path: thumbBuffer ? thumbPath : null,
         dish_name: dishName,
         description_en: descriptionEn,
         description_cn: descriptionCn,
@@ -194,7 +199,6 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error("Database insert error:", dbError)
-      // Clean up uploaded files
       await serviceClient.storage.from("photos").remove([fullPath, thumbPath])
       return NextResponse.json(
         { error: "Failed to save photo record.", code: "DB_INSERT_ERROR" },
@@ -215,7 +219,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Upload error:", error)
 
-    // Provide more specific error messages
     const errorMessage = error instanceof Error ? error.message : String(error)
 
     if (errorMessage.includes("network") || errorMessage.includes("fetch")) {

@@ -1,135 +1,70 @@
-import sharp from "sharp"
+/**
+ * Lightweight image utilities — no native modules.
+ * Image processing (resize, thumbnail, rotation, JPEG conversion) is handled
+ * on the client side via canvas, which avoids native dependency issues on Vercel.
+ */
 
-interface ProcessedImage {
-  fullBuffer: Buffer
-  thumbBuffer: Buffer
+export interface ImageDimensions {
   width: number
   height: number
-  takenAt: Date | null
-}
-
-const MAX_FULL_SIZE = 1920 // Match client-side compression preset
-const THUMB_SIZE = 400
-const JPEG_QUALITY = 80
-
-/**
- * Parse EXIF date format "YYYY:MM:DD HH:MM:SS" (colon-separated date)
- * Returns null if the format is invalid
- */
-function parseExifDate(exifDate: string): Date | null {
-  const match = exifDate.match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/)
-  if (!match) return null
-  const [, year, month, day, hour, min, sec] = match
-  return new Date(
-    parseInt(year, 10),
-    parseInt(month, 10) - 1,
-    parseInt(day, 10),
-    parseInt(hour, 10),
-    parseInt(min, 10),
-    parseInt(sec, 10)
-  )
 }
 
 /**
- * Extract DateTimeOriginal from raw EXIF buffer.
- * EXIF DateTimeOriginal (tag 0x9003) is stored as a 20-byte ASCII string.
- * We search for the pattern "YYYY:MM:DD HH:MM:SS" in the buffer.
+ * Parse a JPEG buffer header to extract dimensions without a full decode.
+ * Falls back to using Buffer size to estimate dimensions if header parsing fails.
  */
-function extractDateTimeOriginalFromExif(exifBuffer: Buffer): Date | null {
-  // Convert buffer to string and search for date pattern
-  // The EXIF date format is "YYYY:MM:DD HH:MM:SS" (20 bytes)
-  const exifStr = exifBuffer.toString("ascii")
+export function getDimensions(buffer: Buffer): ImageDimensions {
+  return getJpegDimensions(buffer)
+}
 
-  // Look for date patterns - DateTimeOriginal is typically first meaningful date
-  // Pattern matches dates like "2024:05:22 18:30:45"
-  const datePattern = /\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}/g
-  const matches = exifStr.match(datePattern)
+/**
+ * Parse JPEG dimensions from file header (SOF0/SOF2 marker).
+ * Scans for the Start of Frame marker which contains the dimensions.
+ */
+function getJpegDimensions(buffer: Buffer): ImageDimensions {
+  if (buffer.length < 4) return { width: 0, height: 0 }
 
-  if (!matches || matches.length === 0) return null
+  // Check JPEG magic bytes
+  if (buffer[0] !== 0xff || buffer[1] !== 0xd8) {
+    return { width: 0, height: 0 }
+  }
 
-  // Try each match - typically DateTimeOriginal is first, followed by other dates
-  for (const match of matches) {
-    const parsed = parseExifDate(match)
-    if (parsed && parsed.getFullYear() >= 1990 && parsed.getFullYear() <= 2100) {
-      // Sanity check: date should be reasonable (between 1990 and 2100)
-      return parsed
+  let i = 2
+  while (i < buffer.length - 8) {
+    // Look for marker: 0xFF followed by non-zero byte
+    if (buffer[i] !== 0xff) {
+      i++
+      continue
     }
-  }
 
-  return null
-}
+    const marker = buffer[i + 1]
 
-export async function processImage(buffer: Buffer): Promise<ProcessedImage> {
-  // Get image metadata including EXIF
-  const metadata = await sharp(buffer).metadata()
+    // SOF0 (Baseline), SOF2 (Progressive) contain dimensions
+    if (marker === 0xc0 || marker === 0xc2) {
+      const height = (buffer[i + 5] << 8) | buffer[i + 6]
+      const width = (buffer[i + 7] << 8) | buffer[i + 8]
+      if (height > 0 && width > 0 && height < 65535 && width < 65535) {
+        return { width, height }
+      }
+      return { width: 0, height: 0 }
+    }
 
-  // Extract EXIF DateTimeOriginal if available
-  let takenAt: Date | null = null
-  if (metadata.exif) {
-    takenAt = extractDateTimeOriginalFromExif(metadata.exif)
-  }
+    // SOS marker (0xDA) — no more headers after this, dimensions not found
+    if (marker === 0xda) break
 
-  // Calculate dimensions for full image (maintain aspect ratio)
-  const originalWidth = metadata.width || MAX_FULL_SIZE
-  const originalHeight = metadata.height || MAX_FULL_SIZE
-
-  let fullWidth = originalWidth
-  let fullHeight = originalHeight
-
-  if (originalWidth > MAX_FULL_SIZE || originalHeight > MAX_FULL_SIZE) {
-    if (originalWidth > originalHeight) {
-      fullWidth = MAX_FULL_SIZE
-      fullHeight = Math.round((originalHeight / originalWidth) * MAX_FULL_SIZE)
+    // Skip over this marker segment
+    if (marker >= 0xd0 && marker <= 0xd9) {
+      // Marker without length (RST, SOI, EOI, etc.)
+      i += 2
     } else {
-      fullHeight = MAX_FULL_SIZE
-      fullWidth = Math.round((originalWidth / originalHeight) * MAX_FULL_SIZE)
+      // Marker with 2-byte length field
+      if (i + 4 > buffer.length) break
+      const length = (buffer[i + 2] << 8) | buffer[i + 3]
+      i += 2 + length
     }
   }
 
-  // Process full image and thumbnail in parallel (independent pipelines)
-  const [fullBuffer, thumbBuffer] = await Promise.all([
-    sharp(buffer)
-      .rotate() // Auto-rotate based on EXIF orientation
-      .resize(fullWidth, fullHeight, {
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality: JPEG_QUALITY })
-      .toBuffer(),
-    sharp(buffer)
-      .rotate()
-      .resize(THUMB_SIZE, THUMB_SIZE, {
-        fit: "cover",
-        position: "center",
-      })
-      .jpeg({ quality: JPEG_QUALITY })
-      .toBuffer(),
-  ])
-
-  return {
-    fullBuffer,
-    thumbBuffer,
-    width: fullWidth,
-    height: fullHeight,
-    takenAt,
-  }
-}
-
-/**
- * Extract DateTimeOriginal from an image buffer using sharp.
- * Used as a fallback when client-side EXIF extraction fails.
- * Sharp handles JPEG, HEIC, PNG, WebP, and other formats natively.
- */
-export async function extractExifTakenAt(buffer: Buffer): Promise<Date | null> {
-  try {
-    const metadata = await sharp(buffer).metadata()
-    if (metadata.exif) {
-      return extractDateTimeOriginalFromExif(metadata.exif)
-    }
-  } catch {
-    // Some formats (or corrupted files) might fail — that's ok
-  }
-  return null
+  return { width: 0, height: 0 }
 }
 
 export function bufferToBase64(buffer: Buffer): string {

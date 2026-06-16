@@ -17,8 +17,6 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@img/sharp-libvips-linux-x64": "1.3.0",
-    "@img/sharp-linux-x64": "0.35.1",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "clsx": "^2.1.1",
@@ -28,18 +26,8 @@
     "next-themes": "^0.4.6",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "sharp": "^0.35.1",
     "tailwind-merge": "^3.6.0",
     "vaul": "^1.1.2"
-  },
-  "pnpm": {
-    "supportedArchitectures": {
-      "os": ["darwin", "linux"],
-      "cpu": ["x64", "arm64"]
-    },
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
@@ -52,6 +40,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.9",
     "jsdom": "^29.1.1",
+    "sharp": "^0.35.1",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
