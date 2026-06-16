@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Prevent sharp from being bundled — it's a native module with platform-specific binaries
+  serverExternalPackages: ["sharp"],
   // Increase body size limit for API routes that handle base64 images
   experimental: {
     optimizePackageImports: ["framer-motion"],
