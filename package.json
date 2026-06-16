@@ -33,6 +33,10 @@
     "vaul": "^1.1.2"
   },
   "pnpm": {
+    "supportedArchitectures": {
+      "os": ["darwin", "linux"],
+      "cpu": ["x64", "arm64"]
+    },
     "onlyBuiltDependencies": [
       "sharp"
     ]
