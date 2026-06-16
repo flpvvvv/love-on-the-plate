@@ -20,7 +20,13 @@
     "@img/sharp-linux-x64": "0.35.1"
   },
   "pnpm": {
+    "supportedArchitectures": {
+      "os": ["darwin", "linux"],
+      "cpu": ["x64", "arm64"]
+    },
     "onlyBuiltDependencies": [
+      "@img/sharp-libvips-linux-x64",
+      "@img/sharp-linux-x64",
       "sharp"
     ]
   },
