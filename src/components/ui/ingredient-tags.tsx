@@ -29,6 +29,7 @@ export function IngredientTags({
   const [allIngredients, setAllIngredients] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const suggestionRef = useRef(false)
 
   // Fetch known ingredients for autocomplete
   useEffect(() => {
@@ -55,7 +56,7 @@ export function IngredientTags({
     setSuggestions(filtered)
   }, [inputValue, allIngredients, ingredients])
 
-  // Click outside to close add input
+  // Click outside closes the input (onBlur handles commit on both mobile & desktop)
   useEffect(() => {
     if (!adding) return
     const handleClick = (e: MouseEvent) => {
@@ -83,6 +84,15 @@ export function IngredientTags({
     setAdding(false)
     setSuggestions([])
   }, [inputValue, onAdd])
+
+  const handleBlur = useCallback(() => {
+    // If a suggestion click is in-flight, let the click handler commit it
+    if (suggestionRef.current) {
+      suggestionRef.current = false
+      return
+    }
+    handleAdd()
+  }, [handleAdd])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -188,6 +198,7 @@ export function IngredientTags({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
             placeholder="输入食材…"
             autoComplete="off"
             className={`rounded-full border bg-transparent outline-none
@@ -209,6 +220,7 @@ export function IngredientTags({
                 <button
                   key={s}
                   type="button"
+                  onMouseDown={() => { suggestionRef.current = true }}
                   onClick={() => handleSuggestionClick(s)}
                   className={`block w-full text-left px-3 py-2 text-xs hover:bg-canvas-recessed transition-colors cursor-pointer
                     ${overlay ? "text-ink" : "text-ink-secondary"}
