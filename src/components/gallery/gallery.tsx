@@ -10,10 +10,12 @@ import {
   PhotoCardSkeleton,
   ResponsiveSheet,
   ScrollToTop,
+  SearchBar,
   ViewSwitcher,
 } from "@/components/ui"
 import { useKeyboardNav, usePullToRefresh } from "@/lib/hooks"
 import type { GalleryView, PaginatedPhotos, PhotoWithUrls } from "@/types"
+import type { SearchField } from "@/components/ui"
 import { PhotoModalContent } from "./photo-modal"
 import { PullToRefreshIndicator } from "./pull-to-refresh-indicator"
 import { MasonryGrid } from "./views/masonry-grid"
@@ -151,6 +153,11 @@ export function Gallery() {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const isLoadingMoreRef = useRef(false)
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchField, setSearchField] = useState<SearchField>("all")
+  const [isSearching, setIsSearching] = useState(false)
+
   const handleViewChange = (newView: GalleryView) => {
     if (newView !== galleryView) {
       setPrevView(galleryView)
@@ -159,28 +166,35 @@ export function Gallery() {
   }
 
   // Fetch photos
-  const fetchPhotos = useCallback(async (pageCursor?: string | null) => {
-    try {
-      const url = new URL("/api/photos", window.location.origin)
-      if (pageCursor) {
-        url.searchParams.set("cursor", pageCursor)
+  const fetchPhotos = useCallback(
+    async (pageCursor?: string | null, search?: { q: string; field: string }) => {
+      try {
+        const url = new URL("/api/photos", window.location.origin)
+        if (pageCursor) {
+          url.searchParams.set("cursor", pageCursor)
+        }
+        if (search?.q) {
+          url.searchParams.set("q", search.q)
+          url.searchParams.set("field", search.field)
+        }
+
+        const response = await fetch(url.toString(), { cache: "no-store" })
+        if (!response.ok) throw new Error("Failed to fetch photos")
+
+        const contentType = response.headers.get("content-type")
+        if (!contentType?.includes("application/json")) {
+          throw new Error("Invalid response format")
+        }
+
+        const data: PaginatedPhotos = await response.json()
+        return data
+      } catch (error) {
+        console.error("Error fetching photos:", error)
+        return null
       }
-
-      const response = await fetch(url.toString(), { cache: "no-store" })
-      if (!response.ok) throw new Error("Failed to fetch photos")
-
-      const contentType = response.headers.get("content-type")
-      if (!contentType?.includes("application/json")) {
-        throw new Error("Invalid response format")
-      }
-
-      const data: PaginatedPhotos = await response.json()
-      return data
-    } catch (error) {
-      console.error("Error fetching photos:", error)
-      return null
-    }
-  }, [])
+    },
+    []
+  )
 
   const refreshAll = useCallback(async () => {
     const data = await fetchPhotos()
@@ -190,6 +204,22 @@ export function Gallery() {
       setHasMore(data.hasMore)
     }
   }, [fetchPhotos, setPhotos, setCursor, setHasMore])
+
+  // Search handlers
+  const handleSearch = useCallback(
+    (params: { q: string; field: SearchField }) => {
+      setSearchQuery(params.q)
+      setSearchField(params.field)
+    },
+    []
+  )
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("")
+    setSearchField("all")
+    setIsSearching(false)
+    refreshAll()
+  }, [refreshAll])
 
   useEffect(() => {
     setRefreshPhotos(refreshAll)
@@ -227,7 +257,10 @@ export function Gallery() {
 
     isLoadingMoreRef.current = true
     setLoadingMore(true)
-    const data = await fetchPhotos(cursor)
+    const data = await fetchPhotos(
+      cursor,
+      searchQuery.trim() ? { q: searchQuery.trim(), field: searchField } : undefined
+    )
     if (data) {
       setPhotos((prev: PhotoWithUrls[]) => [...prev, ...data.photos])
       setCursor(data.nextCursor)
@@ -235,7 +268,7 @@ export function Gallery() {
     }
     isLoadingMoreRef.current = false
     setLoadingMore(false)
-  }, [cursor, hasMore, fetchPhotos, setPhotos, setCursor, setHasMore, setLoadingMore])
+  }, [cursor, hasMore, fetchPhotos, searchQuery, searchField, setPhotos, setCursor, setHasMore, setLoadingMore])
 
   // Keep a stable ref to the latest loadMore so the observer callback never goes stale
   const loadMoreFnRef = useRef(loadMore)
@@ -272,6 +305,27 @@ export function Gallery() {
       }
     }
   }, [])
+
+  // Search effect — debounced fetch when query or field changes
+  useEffect(() => {
+    if (!searchQuery.trim()) return
+
+    setIsSearching(true)
+    const timer = setTimeout(async () => {
+      const data = await fetchPhotos(null, {
+        q: searchQuery.trim(),
+        field: searchField,
+      })
+      if (data) {
+        setPhotos(data.photos)
+        setCursor(data.nextCursor)
+        setHasMore(data.hasMore)
+      }
+      setIsSearching(false)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery, searchField, fetchPhotos, setPhotos, setCursor, setHasMore])
 
   const transition = getViewTransition(prevView, galleryView)
   const viewVariants = getViewTransitionVariants(prefersReducedMotion)
@@ -331,6 +385,44 @@ export function Gallery() {
 
   const renderBrowseGallery = () => {
     if (photos.length === 0 && !loading) {
+      // Empty search results — distinct from "no photos yet"
+      if (isSearching) {
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="flex flex-col items-center justify-center py-20 text-center px-4"
+          >
+            <div className="w-16 h-16 text-ink-tertiary mb-4">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-display font-display font-semibold text-ink mb-2">
+              No dishes match &ldquo;{searchQuery}&rdquo;
+            </h3>
+            <p className="text-ink-secondary mb-4">Try a different search term</p>
+            <button
+              onClick={handleClearSearch}
+              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium font-body bg-canvas-elevated border border-stroke text-ink hover:bg-canvas-recessed transition-colors cursor-pointer focus-ring"
+            >
+              Clear search
+            </button>
+          </motion.div>
+        )
+      }
+
       return (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -438,15 +530,22 @@ export function Gallery() {
             </div>
           </main>
         ) : (
-          <main
-            className="container mx-auto"
-            role="region"
-            aria-label="Photo gallery"
-            aria-busy={loading}
-          >
-            {loading ? renderSkeletons() : renderBrowseGallery()}
-            {loadMoreIndicator}
-          </main>
+          <>
+            <SearchBar
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              isSearching={isSearching}
+            />
+            <main
+              className="container mx-auto"
+              role="region"
+              aria-label="Photo gallery"
+              aria-busy={loading}
+            >
+              {loading ? renderSkeletons() : renderBrowseGallery()}
+              {loadMoreIndicator}
+            </main>
+          </>
         )}
 
         {/* Photo detail modal — renders as a centered overlay */}
@@ -483,6 +582,13 @@ export function Gallery() {
               <ViewSwitcher currentView={galleryView} onViewChange={handleViewChange} />
             </div>
           </div>
+
+          {/* Search bar */}
+          <SearchBar
+            onSearch={handleSearch}
+            onClear={handleClearSearch}
+            isSearching={isSearching}
+          />
 
           <main
             className="container mx-auto"

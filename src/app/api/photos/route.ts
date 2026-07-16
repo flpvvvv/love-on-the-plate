@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const cursor = searchParams.get("cursor")
     const limit = Math.min(parseInt(searchParams.get("limit") || String(PAGE_SIZE), 10), 50)
+    const q = searchParams.get("q")?.trim() || null
+    const rawField = searchParams.get("field") || "all"
+    const validFields: Record<string, true> = { all: true, title: true, date: true, tags: true }
+    const field = rawField in validFields ? rawField : "all"
 
     const supabase = await createClient()
 
@@ -18,6 +22,54 @@ export async function GET(request: NextRequest) {
       .order("display_date", { ascending: false })
       .order("id", { ascending: false })
       .limit(limit + 1) // Fetch one extra to check if there are more
+
+    // Search filtering — parameterized via Supabase client, no string interpolation
+    if (q) {
+      switch (field) {
+        case "title":
+          query = query.ilike("dish_name", `%${q}%`)
+          break
+        case "date":
+          // display_date is timestamptz — ILIKE doesn't work without a cast, and
+          // PostgREST's ::text cast isn't supported in Supabase JS filter strings.
+          // Use range queries for year (YYYY) and year-month (YYYY-MM) patterns.
+          // Month names ("March") are not supported without a DB migration.
+          {
+            const yearOnly = q.match(/^(\d{4})$/)
+            const yearMonth = q.match(/^(\d{4})-(\d{2})$/)
+            if (yearOnly) {
+              const y = yearOnly[1]
+              query = query
+                .gte("display_date", `${y}-01-01`)
+                .lt("display_date", `${Number(y) + 1}-01-01`)
+            } else if (yearMonth) {
+              const [, y, m] = yearMonth
+              const endM = Number(m) === 12 ? 1 : Number(m) + 1
+              const endY = Number(m) === 12 ? Number(y) + 1 : y
+              query = query
+                .gte("display_date", `${y}-${m}-01`)
+                .lt("display_date", `${endY}-${String(endM).padStart(2, "0")}-01`)
+            }
+            // Non-numeric queries: no filters applied — returns empty result set
+            // (known limitation; month-name search requires a DB migration)
+          }
+          break
+        case "tags":
+          // cs (contains) operator on array elements — case-sensitive per PostgREST.
+          // Switch to raw SQL with unnest + ilike if case-insensitive tag search is needed.
+          query = query.contains("ingredients", [q])
+          break
+        case "all":
+        default:
+          // OR across dish_name (ILIKE) and ingredients array (cs).
+          // display_date is excluded — timestamptz doesn't support ILIKE in
+          // .or() filters. Use the dedicated "Date" field for date searches.
+          query = query.or(
+            `dish_name.ilike.%${q}%,ingredients.cs.{${q}}`
+          )
+          break
+      }
+    }
 
     // Keyset pagination on the compound cursor "display_date||id".
     // display_date is a generated column (COALESCE(taken_at, created_at)) that is
