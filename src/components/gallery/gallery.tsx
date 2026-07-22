@@ -386,7 +386,7 @@ export function Gallery() {
   const renderBrowseGallery = () => {
     if (photos.length === 0 && !loading) {
       // Empty search results — distinct from "no photos yet"
-      if (isSearching) {
+      if (searchQuery.trim() && !loading) {
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -409,10 +409,12 @@ export function Gallery() {
                 />
               </svg>
             </div>
-            <h3 className="text-display font-display font-semibold text-ink mb-2">
+            <h3 className="text-heading font-display font-semibold text-ink mb-2">
               No dishes match &ldquo;{searchQuery}&rdquo;
             </h3>
-            <p className="text-ink-secondary mb-4">Try a different search term</p>
+            <p className="text-ink-secondary mb-4">
+              Try a different search term or use the filter chips above
+            </p>
             <button
               onClick={handleClearSearch}
               className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium font-body bg-canvas-elevated border border-stroke text-ink hover:bg-canvas-recessed transition-colors cursor-pointer focus-ring"
@@ -576,19 +578,17 @@ export function Gallery() {
             isRefreshing={isRefreshing}
           />
 
-          {/* View switcher -- top-14 to sit below the compact header (h-14) */}
-          <div className="sticky top-14 z-30 glass border-b border-stroke py-2">
-            <div className="flex justify-center px-4">
+          {/* Toolbar: view switcher + search — sticky below the compact header */}
+          <div className="sticky top-14 z-30 glass border-b border-stroke">
+            <div className="flex justify-center px-4 pt-2">
               <ViewSwitcher currentView={galleryView} onViewChange={handleViewChange} />
             </div>
+            <SearchBar
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              isSearching={isSearching}
+            />
           </div>
-
-          {/* Search bar */}
-          <SearchBar
-            onSearch={handleSearch}
-            onClear={handleClearSearch}
-            isSearching={isSearching}
-          />
 
           <main
             className="container mx-auto"
