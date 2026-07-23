@@ -11,9 +11,11 @@ export interface SearchBarProps {
   onSearch: (params: { q: string; field: SearchField }) => void
   onClear: () => void
   isSearching: boolean
-  /** When true, the search bar is always in input mode — no collapse toggle.
-   *  Intended for mobile where an extra tap to expand is friction. */
-  alwaysExpanded?: boolean
+  /**
+   * When false (mobile default), the bar collapses to a compact icon button
+   * and stays expanded until explicitly cleared — no blur-collapse.
+   * When true (desktop), blur on empty input collapses the bar. */
+  collapsible?: boolean
 }
 
 const FIELD_ICON: Record<SearchField, typeof SearchIcon> = {
@@ -81,30 +83,24 @@ export function SearchBar({
   onSearch,
   onClear,
   isSearching,
-  alwaysExpanded = false,
+  collapsible = false,
 }: SearchBarProps) {
   const [query, setQuery] = useState("")
   const [field, setField] = useState<SearchField>("all")
-  const [expanded, setExpanded] = useState(alwaysExpanded)
+  const [expanded, setExpanded] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([])
   const [tagSuggestionsLoading, setTagSuggestionsLoading] = useState(false)
   const tagsFetchedRef = useRef(false)
 
-  useEffect(() => {
-    if (alwaysExpanded) setExpanded(true)
-  }, [alwaysExpanded])
-
   const handleExpand = useCallback(() => {
-    if (alwaysExpanded) return
     setExpanded(true)
     requestAnimationFrame(() => {
       inputRef.current?.focus()
     })
-  }, [alwaysExpanded])
+  }, [])
 
   const handleQueryChange = useCallback(
     (value: string) => {
@@ -168,22 +164,22 @@ export function SearchBar({
   const handleClear = useCallback(() => {
     setQuery("")
     setField("all")
-    if (!alwaysExpanded) setExpanded(false)
+    setExpanded(false)
     if (blurTimeoutRef.current) {
       clearTimeout(blurTimeoutRef.current)
       blurTimeoutRef.current = null
     }
     onClear()
-  }, [onClear, alwaysExpanded])
+  }, [onClear])
 
   const handleBlur = useCallback(() => {
-    if (alwaysExpanded) return
+    if (!collapsible) return
     if (!query.trim()) {
       blurTimeoutRef.current = setTimeout(() => {
         setExpanded(false)
       }, 300)
     }
-  }, [query, alwaysExpanded])
+  }, [query, collapsible])
 
   const handleFocus = useCallback(() => {
     if (blurTimeoutRef.current) {
@@ -202,13 +198,13 @@ export function SearchBar({
         if (query.trim()) {
           setQuery("")
           onClear()
-        } else if (!alwaysExpanded) {
+        } else {
           setExpanded(false)
           onClear()
         }
       }
     },
-    [query, onClear, alwaysExpanded]
+    [query, onClear]
   )
 
   useEffect(() => {
@@ -218,6 +214,29 @@ export function SearchBar({
   const ActiveIcon = FIELD_ICON[field]
   const showDatePresets = field === "date"
   const showTagSuggestions = field === "tags" && tagSuggestions.length > 0
+
+  const collapsedButton = (
+    <motion.button
+      key="collapsed"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      onClick={handleExpand}
+      className={cn(
+        "inline-flex items-center justify-center w-[44px] h-[44px] rounded-xl",
+        "bg-canvas-elevated border border-stroke",
+        "text-ink-tertiary cursor-pointer",
+        "hover:border-ink-tertiary/40 hover:text-ink-secondary",
+        "transition-colors duration-200",
+        "focus-ring"
+      )}
+      aria-label="Open search"
+      style={{ touchAction: "manipulation" }}
+    >
+      <SearchIcon className="w-4 h-4" />
+    </motion.button>
+  )
 
   const expandedContent = (
     <motion.div
@@ -230,7 +249,6 @@ export function SearchBar({
         "bg-canvas-elevated border border-stroke rounded-xl overflow-hidden",
         isSearching && "border-love/30 shadow-[0_0_0_1px_var(--love-soft)]"
       )}
-      ref={containerRef}
     >
       {/* Input row */}
       <div className="flex items-center gap-2.5 px-4 min-h-[44px]">
@@ -240,6 +258,15 @@ export function SearchBar({
         />
 
         <input
+          ref={inputRef}
+          type="search"
+          value={showDatePresets ? "" : query}
+          onChange={(e) => handleQueryChange(e.target.value)}
+          onBlur={handleBlur}
+          onFocus={handleFocus}
+          onKeyDown={handleKeyDown}
+          placeholder={PLACEHOLDERS[field]}
+          readOnly={showDatePresets}
           className={cn(
             "flex-1 bg-transparent border-none outline-none",
             "text-sm font-body text-ink",
@@ -382,30 +409,6 @@ export function SearchBar({
     </motion.div>
   )
 
-  const collapsedButton = (
-    <motion.button
-      key="collapsed"
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 35 }}
-      onClick={handleExpand}
-      className={cn(
-        "w-full flex items-center gap-2.5 min-h-[44px] px-4",
-        "bg-canvas-elevated border border-stroke rounded-xl",
-        "text-ink-tertiary cursor-pointer",
-        "hover:border-ink-tertiary/40 hover:text-ink-secondary",
-        "transition-colors duration-200",
-        "focus-ring"
-      )}
-      aria-label="Open search"
-      style={{ touchAction: "manipulation" }}
-    >
-      <SearchIcon className="w-4 h-4 shrink-0" />
-      <span className="text-sm font-body truncate">Search dishes...</span>
-    </motion.button>
-  )
-
   return (
     <div
       className="px-4 py-2"
@@ -413,13 +416,9 @@ export function SearchBar({
       aria-label="Search gallery"
       style={{ touchAction: "manipulation" }}
     >
-      {alwaysExpanded ? (
-        expandedContent
-      ) : (
-        <AnimatePresence mode="wait">
-          {!expanded ? collapsedButton : expandedContent}
-        </AnimatePresence>
-      )}
+      <AnimatePresence mode="wait">
+        {!expanded ? collapsedButton : expandedContent}
+      </AnimatePresence>
     </div>
   )
 }
