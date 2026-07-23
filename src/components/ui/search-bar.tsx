@@ -240,19 +240,11 @@ export function SearchBar({
         />
 
         <input
-          ref={inputRef}
-          type="search"
-          value={showDatePresets ? "" : query}
-          onChange={(e) => handleQueryChange(e.target.value)}
-          onBlur={handleBlur}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          placeholder={PLACEHOLDERS[field]}
-          readOnly={showDatePresets}
           className={cn(
             "flex-1 bg-transparent border-none outline-none",
             "text-sm font-body text-ink",
             "placeholder:text-ink-tertiary",
+            "[&::-webkit-search-cancel-button]:hidden",
             showDatePresets && "cursor-default",
             "focus-ring"
           )}
