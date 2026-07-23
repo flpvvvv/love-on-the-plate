@@ -587,6 +587,7 @@ export function Gallery() {
               onSearch={handleSearch}
               onClear={handleClearSearch}
               isSearching={isSearching}
+              alwaysExpanded
             />
           </div>
 
