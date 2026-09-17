@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { GeminiError, generateDescription } from "@/lib/gemini"
+import { AIError, generateDescription } from "@/lib/ai"
 import { checkRateLimit, cleanupExpiredEntries, DESCRIBE_RATE_LIMIT } from "@/lib/rate-limiter"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
@@ -99,9 +99,9 @@ export async function POST(request: NextRequest) {
           ingredients: descriptions.ingredients,
         })
       } catch (error) {
-        // Handle Gemini-specific errors
-        if (error instanceof GeminiError) {
-          console.error(`Gemini error [${error.code}]:`, error.message)
+        // Handle AI provider errors
+        if (error instanceof AIError) {
+          console.error(`AI error [${error.code}]:`, error.message)
           return NextResponse.json(
             {
               error: error.userMessage,
@@ -214,9 +214,9 @@ export async function POST(request: NextRequest) {
         ingredients: descriptions.ingredients,
       })
     } catch (error) {
-      // Handle Gemini-specific errors
-      if (error instanceof GeminiError) {
-        console.error(`Gemini error [${error.code}]:`, error.message)
+      // Handle AI provider errors
+      if (error instanceof AIError) {
+        console.error(`AI error [${error.code}]:`, error.message)
         return NextResponse.json(
           {
             error: error.userMessage,

@@ -5,7 +5,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 ## Features
 
 - **Three Gallery Views**: Floating Plates, Masonry Grid, Love Timeline
-- **Bilingual AI Descriptions**: English + Chinese captions via Google Gemini
+- **Bilingual AI Descriptions**: English + Chinese captions via DeepSeek
 - **Magic Link Auth**: Passwordless admin authentication
 - **Image Optimization**: Two-tier client-side compression + server thumbnails
 - **Dark/Light Mode**: Automatic theme switching
@@ -21,7 +21,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth (Magic Link) |
 | Storage | Supabase Storage |
-| AI | Google Gemini (gemini-3.1-flash-lite) |
+| AI | DeepSeek (deepseek-flash) |
 
 ## Getting Started
 
@@ -29,7 +29,7 @@ A webapp to document and celebrate homemade meals with AI-generated bilingual de
 
 - Node.js 18+
 - Supabase account
-- Google AI Studio API key
+- DeepSeek API key
 
 ### Setup
 
@@ -74,8 +74,8 @@ pnpm test:coverage
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret!) |
-| `GOOGLE_GEMINI_API_KEY` | Google AI Studio API key |
-| `GEMINI_MODEL` | `gemini-3.1-flash-lite` (default) |
+| `DEEPSEEK_API_KEY` | DeepSeek API key |
+| `DEEPSEEK_MODEL` | `deepseek-flash` (default) |
 | `NEXT_PUBLIC_APP_URL` | Your Vercel URL |
 
 4. Configure Supabase Auth:
@@ -91,13 +91,13 @@ Two-tier client-side compression prevents upload failures:
 | Tier | Resolution | Quality | Purpose |
 |------|------------|---------|---------|
 | Upload | 1920×1920 | 80% | Gallery display (~500KB-1.5MB) |
-| AI | 1280×1280 | 70% | Gemini API (~200-600KB) |
+| AI | 1280×1280 | 70% | DeepSeek API (~200-600KB) |
 
 ## Error Handling
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "AI service is temporarily busy..." | Gemini rate limit | Wait and retry |
+| "AI service is temporarily busy..." | DeepSeek rate limit | Wait and retry |
 | "Session expired" | Auth cookie lost | Re-login |
 | "Image file is too large" | File > 10MB | Use smaller image |
 
@@ -116,7 +116,7 @@ pnpm test:coverage # With coverage report
 Test coverage includes:
 - Utility functions (validation, date formatting, image compression helpers)
 - React hooks (useHeartbeat)
-- Gemini error handling
+- AI error handling
 
 ## Security
 

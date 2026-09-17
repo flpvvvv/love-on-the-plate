@@ -6,7 +6,7 @@
 - **Styling**: TailwindCSS v4 + Framer Motion
 - **Backend**: Next.js API Routes
 - **Database/Auth/Storage**: Supabase (PostgreSQL, Magic Link, Storage)
-- **AI**: Google Gemini (gemini-3.1-flash-lite)
+- **AI**: DeepSeek (deepseek-flash, OpenAI-compatible API)
 
 ## Commands
 
@@ -39,7 +39,7 @@ src/
 ├── lib/
 │   ├── hooks/                # useHeartbeat
 │   ├── supabase/             # Client + server utilities
-│   ├── gemini.ts             # AI integration
+│   ├── ai.ts                 # AI integration
 │   ├── validation.ts         # Input validation (UUID, base64)
 │   └── client-image-compression.ts
 └── types/
@@ -117,7 +117,7 @@ Uses `useAnimation()` for programmatic control with momentum-preserving gestures
 | Preset | Resolution | Quality | Purpose |
 |--------|------------|---------|---------|
 | `upload` | 1920x1920 | 0.8 | Supabase storage |
-| `ai` | 1280x1280 | 0.7 | Gemini API |
+| `ai` | 1280x1280 | 0.7 | DeepSeek API |
 
 ```tsx
 import { compressImage, COMPRESSION_PRESETS } from '@/lib/client-image-compression';
@@ -147,7 +147,7 @@ const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
 { "error": "Message", "code": "ERROR_CODE", "isRetryable": true }
 ```
 
-**Gemini Error Codes**: `RATE_LIMIT`, `AUTH_ERROR`, `CONTENT_BLOCKED`, `SERVICE_UNAVAILABLE`, `PAYLOAD_TOO_LARGE`, `TIMEOUT`, `NETWORK_ERROR`
+**AI Error Codes**: `RATE_LIMIT`, `AUTH_ERROR`, `CONTENT_BLOCKED`, `SERVICE_UNAVAILABLE`, `PAYLOAD_TOO_LARGE`, `INVALID_REQUEST`, `TIMEOUT`, `NETWORK_ERROR`, `EMPTY_RESPONSE`, `INVALID_INPUT`
 
 ## Environment Variables
 
@@ -155,8 +155,8 @@ const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
-GOOGLE_GEMINI_API_KEY
-GEMINI_MODEL=gemini-3.1-flash-lite
+DEEPSEEK_API_KEY
+DEEPSEEK_MODEL=deepseek-flash
 NEXT_PUBLIC_APP_URL
 ```
 

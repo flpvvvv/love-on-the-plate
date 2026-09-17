@@ -1,28 +1,47 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
+/**
+ * DeepSeek (OpenAI-compatible) client for the vision tasks behind "Love on the Plate":
+ * photo -> dish name, bilingual descriptions, and ingredient tags.
+ *
+ * Requests go straight to the REST endpoint with `fetch`; the app needs exactly one
+ * call shape, so no SDK dependency is warranted.
+ */
+const DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY!)
+const DEFAULT_MODEL = "deepseek-flash"
+
+/**
+ * Upper bound for one vision request. `/api/describe` caps the enclosing
+ * invocation at 60s, so this must fail first.
+ */
+const REQUEST_TIMEOUT_MS = 50_000
+
+/** Dish name + two short descriptions + up to five ingredients fits well inside this. */
+const MAX_OUTPUT_TOKENS = 2000
 
 /**
  * Ingredients that should never appear in main ingredient lists.
  * These are either liquids, garnishes, or decorative elements that are not primary components.
  */
-const NON_ESSENTIAL_INGREDIENTS = new Set(["水", "清水", "开水", "凉水", "温水", "热水"])
-
-function filterEssentialIngredients(ingredients: string[]): string[] {
-  return ingredients.filter((i) => !NON_ESSENTIAL_INGREDIENTS.has(i))
+const NON_ESSENTIAL_INGREDIENTS: Record<string, true> = {
+  水: true,
+  清水: true,
+  开水: true,
+  凉水: true,
+  温水: true,
+  热水: true,
 }
 
 /**
- * Custom error class for Gemini API errors with user-friendly messages
+ * Custom error class for AI API errors with user-friendly messages
  */
-export class GeminiError extends Error {
+export class AIError extends Error {
   public readonly code: string
   public readonly userMessage: string
   public readonly isRetryable: boolean
 
   constructor(code: string, userMessage: string, isRetryable: boolean = false) {
     super(userMessage)
-    this.name = "GeminiError"
+    this.name = "AIError"
     this.code = code
     this.userMessage = userMessage
     this.isRetryable = isRetryable
@@ -30,103 +49,164 @@ export class GeminiError extends Error {
 }
 
 /**
- * Parse Gemini API errors and return user-friendly error messages
+ * Map a DeepSeek HTTP error response to a user-friendly AIError.
+ * @see https://api-docs.deepseek.com/quick_start/error_codes
  */
-function parseGeminiError(error: unknown): GeminiError {
-  const errorMessage = error instanceof Error ? error.message : String(error)
-  const errorString = errorMessage.toLowerCase()
+export function classifyHttpError(status: number, body: string): AIError {
+  const errorString = body.toLowerCase()
 
-  // Rate limit errors
-  if (
-    errorString.includes("429") ||
-    errorString.includes("rate limit") ||
-    errorString.includes("quota") ||
-    errorString.includes("resource exhausted")
-  ) {
-    return new GeminiError(
-      "RATE_LIMIT",
-      "AI service is temporarily busy. Free tier limit reached. Please wait a moment and try again.",
-      true
-    )
-  }
-
-  // Invalid API key
-  if (
-    errorString.includes("401") ||
-    errorString.includes("api key") ||
-    errorString.includes("unauthorized") ||
-    errorString.includes("invalid_api_key")
-  ) {
-    return new GeminiError(
-      "AUTH_ERROR",
-      "AI service authentication failed. Please contact support.",
-      false
-    )
-  }
-
-  // Content safety / blocked
-  if (
-    errorString.includes("blocked") ||
-    errorString.includes("safety") ||
-    errorString.includes("harm")
-  ) {
-    return new GeminiError(
+  // Content moderation (not part of the documented code list, but returned in-band)
+  if (errorString.includes("flagged") || errorString.includes("moderation")) {
+    return new AIError(
       "CONTENT_BLOCKED",
       "Image could not be analyzed. Please try a different photo.",
       false
     )
   }
 
-  // Model unavailable
-  if (
-    errorString.includes("503") ||
-    errorString.includes("unavailable") ||
-    errorString.includes("overloaded")
-  ) {
-    return new GeminiError(
-      "SERVICE_UNAVAILABLE",
-      "AI service is temporarily unavailable. Please try again later.",
+  if (status === 429) {
+    return new AIError(
+      "RATE_LIMIT",
+      "AI service is temporarily busy. Please wait a moment and try again.",
       true
     )
   }
 
-  // Request too large
-  if (
-    errorString.includes("413") ||
-    errorString.includes("too large") ||
-    errorString.includes("payload")
-  ) {
-    return new GeminiError(
+  // 401 wrong API key, 402 out of balance — both need an operator, not a retry
+  if (status === 401 || status === 402) {
+    return new AIError(
+      "AUTH_ERROR",
+      "AI service authentication failed. Please contact support.",
+      false
+    )
+  }
+
+  if (status === 413) {
+    return new AIError(
       "PAYLOAD_TOO_LARGE",
       "Image is too large to process. Please try a smaller image.",
       false
     )
   }
 
-  // Timeout
-  if (errorString.includes("timeout") || errorString.includes("deadline")) {
-    return new GeminiError(
-      "TIMEOUT",
-      "AI service took too long to respond. Please try again.",
+  // 500 server error, 503 overloaded
+  if (status >= 500) {
+    return new AIError(
+      "SERVICE_UNAVAILABLE",
+      "AI service is temporarily unavailable. Please try again later.",
       true
     )
   }
 
-  // Network errors
+  // 400 invalid format, 422 invalid parameters
+  return new AIError("INVALID_REQUEST", "Failed to generate description. Please try again.", false)
+}
+
+/**
+ * Map a thrown transport failure (timeout, DNS, connection reset) to an AIError.
+ */
+function toTransportError(error: unknown): AIError {
   if (
-    errorString.includes("network") ||
-    errorString.includes("econnrefused") ||
-    errorString.includes("fetch")
+    error instanceof Error &&
+    (error.name === "TimeoutError" ||
+      error.name === "AbortError" ||
+      error.message.toLowerCase().includes("timeout"))
   ) {
-    return new GeminiError(
-      "NETWORK_ERROR",
-      "Network connection issue. Please check your internet and try again.",
-      true
-    )
+    return new AIError("TIMEOUT", "AI service took too long to respond. Please try again.", true)
   }
 
-  // Generic/unknown error
-  return new GeminiError("UNKNOWN_ERROR", "Failed to generate description. Please try again.", true)
+  return new AIError(
+    "NETWORK_ERROR",
+    "Network connection issue. Please check your internet and try again.",
+    true
+  )
+}
+
+/**
+ * Strip markdown code fences — models occasionally wrap JSON despite instructions.
+ */
+function stripCodeFences(text: string): string {
+  if (!text.startsWith("```")) return text
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  return match ? match[1].trim() : text
+}
+
+/**
+ * Coerce the model's `ingredients` field into a clean list of non-empty strings.
+ */
+function normalizeIngredients(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((i): i is string => typeof i === "string" && i.trim().length > 0)
+    .map((i) => i.trim())
+    .filter((i) => !(i in NON_ESSENTIAL_INGREDIENTS))
+}
+
+/**
+ * Send one prompt + image to DeepSeek and return the raw response text.
+ * Callers own the prompt-specific parsing.
+ */
+async function requestCompletion(prompt: string, imageBase64: string): Promise<string> {
+  const apiKey = process.env.DEEPSEEK_API_KEY
+  if (!apiKey) {
+    throw new AIError("AUTH_ERROR", "AI service is not configured. Please contact support.", false)
+  }
+
+  const modelName = process.env.DEEPSEEK_MODEL || DEFAULT_MODEL
+
+  let response: Response
+  try {
+    response = await fetch(DEEPSEEK_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image_url",
+                image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
+              },
+            ],
+          },
+        ],
+        response_format: { type: "json_object" },
+        // Captioning needs no chain-of-thought; thinking is on by default and
+        // would only add latency to the upload path.
+        thinking: { type: "disabled" },
+        max_tokens: MAX_OUTPUT_TOKENS,
+      }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+  } catch (error) {
+    throw toTransportError(error)
+  }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "")
+    console.error(`DeepSeek error [${response.status}]:`, body.slice(0, 500))
+    throw classifyHttpError(response.status, body)
+  }
+
+  let payload: { choices?: { message?: { content?: string } }[] }
+  try {
+    payload = await response.json()
+  } catch {
+    throw new AIError("EMPTY_RESPONSE", "AI returned an empty response. Please try again.", true)
+  }
+
+  const text = payload.choices?.[0]?.message?.content?.trim() ?? ""
+  if (!text) {
+    throw new AIError("EMPTY_RESPONSE", "AI returned an empty response. Please try again.", true)
+  }
+
+  return text
 }
 
 const DESCRIPTION_PROMPT_BASE = `You are a warm and romantic food writer for "Love on the Plate" - a personal food diary celebrating homemade meals.
@@ -215,8 +295,6 @@ export interface BilingualDescription {
   ingredients: string[]
 }
 
-const DEFAULT_MODEL = "gemini-3.1-flash-lite"
-
 export async function generateDescription(
   imageBase64: string,
   dishNameHint?: string,
@@ -224,11 +302,8 @@ export async function generateDescription(
 ): Promise<BilingualDescription> {
   // Validate input
   if (!imageBase64 || imageBase64.length === 0) {
-    throw new GeminiError("INVALID_INPUT", "No image data provided.", false)
+    throw new AIError("INVALID_INPUT", "No image data provided.", false)
   }
-
-  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL
-  const model = genAI.getGenerativeModel({ model: modelName })
 
   const knownIngredients = existingIngredients ?? []
 
@@ -237,72 +312,26 @@ export async function generateDescription(
     ? buildDescriptionOnlyPrompt(dishNameHint, knownIngredients)
     : buildDescriptionPrompt(knownIngredients)
 
+  const rawText = await requestCompletion(prompt, imageBase64)
+  const text = stripCodeFences(rawText)
+
   try {
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: "image/jpeg",
-          data: imageBase64,
-        },
-      },
-    ])
-
-    const response = await result.response
-    let text = response.text().trim()
-
-    // Handle empty response
-    if (!text) {
-      throw new GeminiError(
-        "EMPTY_RESPONSE",
-        "AI returned an empty response. Please try again.",
-        true
-      )
+    const parsed = JSON.parse(text)
+    return {
+      // If a dish name hint was provided, always use it (don't let the model override)
+      dishName: dishNameHint || parsed.dishName || "",
+      en: parsed.en || "",
+      cn: parsed.cn || "",
+      ingredients: normalizeIngredients(parsed.ingredients),
     }
-
-    try {
-      // Remove markdown code blocks if present (LLM sometimes wraps JSON in ```json ... ```)
-      if (text.startsWith("```")) {
-        // Extract content between code blocks
-        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-        if (match) {
-          text = match[1].trim()
-        }
-      }
-
-      // Parse the JSON response
-      const parsed = JSON.parse(text)
-      const ingredients = filterEssentialIngredients(
-        Array.isArray(parsed.ingredients)
-          ? parsed.ingredients
-              .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
-              .map((i: string) => i.trim())
-          : []
-      )
-      return {
-        // If a dish name hint was provided, always use it (don't let LLM override)
-        dishName: dishNameHint || parsed.dishName || "",
-        en: parsed.en || "",
-        cn: parsed.cn || "",
-        ingredients,
-      }
-    } catch {
-      // Fallback: if parsing fails, use the text as English description
-      return {
-        dishName: "",
-        en: text,
-        cn: "",
-        ingredients: [],
-      }
+  } catch {
+    // Fallback: if parsing fails, use the text as English description
+    return {
+      dishName: "",
+      en: text,
+      cn: "",
+      ingredients: [],
     }
-  } catch (error) {
-    // If it's already a GeminiError, rethrow it
-    if (error instanceof GeminiError) {
-      throw error
-    }
-
-    // Parse and convert to GeminiError
-    throw parseGeminiError(error)
   }
 }
 
@@ -328,11 +357,8 @@ export async function generateIngredients(
   existingIngredients?: string[]
 ): Promise<string[]> {
   if (!imageBase64 || imageBase64.length === 0) {
-    throw new GeminiError("INVALID_INPUT", "No image data provided.", false)
+    throw new AIError("INVALID_INPUT", "No image data provided.", false)
   }
-
-  const modelName = process.env.GEMINI_MODEL || DEFAULT_MODEL
-  const model = genAI.getGenerativeModel({ model: modelName })
 
   const knownIngredients = existingIngredients ?? []
   const prompt = INGREDIENTS_ONLY_PROMPT.replace("{dishName}", dishName).replace(
@@ -340,51 +366,12 @@ export async function generateIngredients(
     knownIngredients.length > 0 ? knownIngredients.join(", ") : "(none yet)"
   )
 
+  const rawText = await requestCompletion(prompt, imageBase64)
+  const text = stripCodeFences(rawText)
+
   try {
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: "image/jpeg",
-          data: imageBase64,
-        },
-      },
-    ])
-
-    const response = await result.response
-    let text = response.text().trim()
-
-    if (!text) {
-      throw new GeminiError(
-        "EMPTY_RESPONSE",
-        "AI returned an empty response. Please try again.",
-        true
-      )
-    }
-
-    try {
-      if (text.startsWith("```")) {
-        const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-        if (match) {
-          text = match[1].trim()
-        }
-      }
-
-      const parsed = JSON.parse(text)
-      return filterEssentialIngredients(
-        Array.isArray(parsed.ingredients)
-          ? parsed.ingredients
-              .filter((i: unknown): i is string => typeof i === "string" && i.trim().length > 0)
-              .map((i: string) => i.trim())
-          : []
-      )
-    } catch {
-      return []
-    }
-  } catch (error) {
-    if (error instanceof GeminiError) {
-      throw error
-    }
-    throw parseGeminiError(error)
+    return normalizeIngredients(JSON.parse(text).ingredients)
+  } catch {
+    return []
   }
 }

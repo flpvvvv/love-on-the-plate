@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
-import { GeminiError, generateDescription } from "@/lib/gemini"
+import { AIError, generateDescription } from "@/lib/ai"
 import { bufferToBase64, getDimensions } from "@/lib/image-processing"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
       ingredients = descriptions.ingredients
     } catch (descError) {
       console.error("Description generation error:", descError)
-      if (descError instanceof GeminiError) {
+      if (descError instanceof AIError) {
         if (descError.code === "RATE_LIMIT") {
           descriptionWarning = "AI description skipped (rate limit). You can regenerate it later."
         } else {

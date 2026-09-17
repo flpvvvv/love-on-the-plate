@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateDescription, generateIngredients } from "@/lib/gemini"
+import { generateDescription, generateIngredients } from "@/lib/ai"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { isValidUUID } from "@/lib/validation"
