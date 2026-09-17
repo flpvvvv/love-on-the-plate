@@ -73,7 +73,7 @@ pnpm test:coverage
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key (`sb_publishable_...`) |
 | `SUPABASE_SECRET_KEY` | Supabase secret API key (`sb_secret_...`, server-only) |
 | `DEEPSEEK_API_KEY` | DeepSeek API key |
 | `DEEPSEEK_MODEL` | `deepseek-flash` (default) |
