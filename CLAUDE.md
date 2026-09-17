@@ -154,7 +154,7 @@ const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload);
 ```
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_SECRET_KEY
 DEEPSEEK_API_KEY
 DEEPSEEK_MODEL=deepseek-flash
 NEXT_PUBLIC_APP_URL
@@ -165,4 +165,4 @@ NEXT_PUBLIC_APP_URL
 - **Input Validation**: `isValidUUID()`, `isValidBase64Image()` in `src/lib/validation.ts`
 - **Auth Callback**: Validates redirects against allowlist to prevent open redirects
 - **RLS Policies**: Database-level access control
-- `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS - keep secret
+- `SUPABASE_SECRET_KEY` (`sb_secret_...`) maps to the `service_role` role and bypasses RLS - keep secret

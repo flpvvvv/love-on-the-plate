@@ -59,9 +59,10 @@ pnpm test:coverage
 ### Supabase Setup
 
 1. Create a new project
-2. Run migration from `supabase/migrations/`
-3. Create `photos` storage bucket (public access)
-4. Enable Email Auth with Magic Link
+2. Copy keys from **Settings > API Keys**: the publishable key and a secret key (`sb_secret_...`)
+3. Run migration from `supabase/migrations/`
+4. Create `photos` storage bucket (public access)
+5. Enable Email Auth with Magic Link
 
 ## Deploy to Vercel
 
@@ -73,7 +74,7 @@ pnpm test:coverage
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret!) |
+| `SUPABASE_SECRET_KEY` | Supabase secret API key (`sb_secret_...`, server-only) |
 | `DEEPSEEK_API_KEY` | DeepSeek API key |
 | `DEEPSEEK_MODEL` | `deepseek-flash` (default) |
 | `NEXT_PUBLIC_APP_URL` | Your Vercel URL |

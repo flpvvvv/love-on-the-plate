@@ -28,12 +28,18 @@ export async function createClient() {
   )
 }
 
+/**
+ * Server-only client backed by a Supabase secret API key (`sb_secret_...`).
+ * Secret keys map to the `service_role` Postgres role and bypass RLS, and the
+ * platform refuses them from browsers (401 on `User-Agent`), so they must only
+ * be sent from code the user never sees.
+ */
 export async function createServiceClient() {
   const cookieStore = await cookies()
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SECRET_KEY!,
     {
       cookies: {
         getAll() {
