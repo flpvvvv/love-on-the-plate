@@ -58,13 +58,9 @@ export function ImagePreview({
   }, [previewUrl])
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-canvas-elevated border border-stroke rounded-2xl overflow-hidden"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="nb">
       {/* Image */}
-      <div className="relative aspect-[4/3] bg-black">
+      <div className="art aspect-[4/3]">
         {previewUrl && (
           <Image
             src={previewUrl}
@@ -77,7 +73,7 @@ export function ImagePreview({
       </div>
 
       {/* Descriptions */}
-      <div className="p-6 space-y-4">
+      <div className="p-5 space-y-4">
         {/* Regenerate button */}
         <div className="flex justify-end">
           <Button
@@ -88,16 +84,15 @@ export function ImagePreview({
             loading={regenerating}
           >
             <svg
-              className="w-4 h-4 mr-1"
+              className="ic ic-sm"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
               />
             </svg>
@@ -106,8 +101,8 @@ export function ImagePreview({
         </div>
 
         {/* Dish Name */}
-        <div>
-          <label htmlFor="dishName" className="block text-caption font-medium text-ink mb-2">
+        <div className="field">
+          <label htmlFor="dishName" className="label">
             菜名 / Dish Name
           </label>
           <div className="flex gap-2">
@@ -119,7 +114,7 @@ export function ImagePreview({
               placeholder="AI 正在识别菜名…"
               disabled={uploading}
               autoComplete="off"
-              className="flex-1 px-4 py-3 bg-canvas border border-stroke rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary"
+              className="input"
             />
             <button
               type="button"
@@ -127,41 +122,32 @@ export function ImagePreview({
               disabled={regenerating || regeneratingDescOnly || uploading || !dishName.trim()}
               title="Regenerate descriptions based on this dish name"
               aria-label="Regenerate descriptions based on this dish name"
-              className="shrink-0 w-11 h-11 flex items-center justify-center rounded-xl border border-stroke bg-canvas text-ink-secondary hover:text-love hover:border-love-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-ink-secondary disabled:hover:border-stroke focus:outline-none focus-visible:ring-2 focus-visible:ring-love"
+              className="icon-btn disabled:opacity-45 disabled:cursor-not-allowed"
             >
               {regeneratingDescOnly ? (
                 <svg
-                  className="w-4 h-4 animate-spin"
+                  className="ic ic-sm animate-spin"
                   fill="none"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path
-                    className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
               ) : (
                 <svg
-                  className="w-4 h-4"
+                  className="ic ic-sm"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
                   aria-hidden="true"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                     d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
                   />
                 </svg>
@@ -169,15 +155,15 @@ export function ImagePreview({
             </button>
           </div>
           {dishName.trim() && !regenerating && !regeneratingDescOnly && (
-            <p className="text-xs text-ink-tertiary mt-1.5">
+            <p className="muted text-caption">
               Edit the name, then tap the refresh button to regenerate descriptions
             </p>
           )}
         </div>
 
         {/* Taken Date */}
-        <div>
-          <label htmlFor="takenDate" className="block text-caption font-medium text-ink mb-2">
+        <div className="field">
+          <label htmlFor="takenDate" className="label">
             烹饪日期 / Cooked Date
           </label>
           <input
@@ -187,15 +173,13 @@ export function ImagePreview({
             onChange={(e) => onTakenDateChange(e.target.value)}
             max={new Date().toISOString().split("T")[0]}
             disabled={uploading}
-            className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink [color-scheme:light]"
+            className="input mono"
           />
         </div>
 
         {/* Ingredients Tags */}
-        <div>
-          <span className="block text-caption font-medium text-ink mb-2">
-            主要食材 / Main Ingredients
-          </span>
+        <div className="field">
+          <span className="label">主要食材 / Main Ingredients</span>
           <IngredientTags
             ingredients={ingredients}
             onAdd={onAddIngredient}
@@ -205,8 +189,8 @@ export function ImagePreview({
         </div>
 
         {/* Chinese Description */}
-        <div>
-          <label htmlFor="descriptionCn" className="block text-caption font-medium text-ink mb-2">
+        <div className="field">
+          <label htmlFor="descriptionCn" className="label">
             中文描述
           </label>
           <textarea
@@ -217,13 +201,13 @@ export function ImagePreview({
             rows={3}
             disabled={uploading || regeneratingDescOnly}
             autoComplete="off"
-            className={`w-full px-4 py-3 bg-canvas border border-stroke rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary leading-relaxed${regeneratingDescOnly ? " animate-pulse" : ""}`}
+            className={`textarea${regeneratingDescOnly ? " animate-pulse" : ""}`}
           />
         </div>
 
         {/* English Description */}
-        <div>
-          <label htmlFor="descriptionEn" className="block text-caption font-medium text-ink mb-2">
+        <div className="field">
+          <label htmlFor="descriptionEn" className="label">
             English Description
           </label>
           <textarea
@@ -234,7 +218,7 @@ export function ImagePreview({
             rows={3}
             disabled={uploading || regeneratingDescOnly}
             autoComplete="off"
-            className={`w-full px-4 py-3 bg-canvas border border-stroke rounded-xl resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary leading-relaxed${regeneratingDescOnly ? " animate-pulse" : ""}`}
+            className={`textarea${regeneratingDescOnly ? " animate-pulse" : ""}`}
           />
         </div>
 

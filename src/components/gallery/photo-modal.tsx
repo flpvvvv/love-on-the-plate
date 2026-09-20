@@ -194,9 +194,9 @@ export function PhotoModalContent({
   }
 
   return (
-    <div ref={contentRef} className="space-y-4 md:pb-5">
+    <div ref={contentRef} className="space-y-4 md:p-[13px]">
       {/* Image — drag on desktop for rubber-band; mobile swipe handled by drawer */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-canvas-recessed -mx-4 md:mx-0 md:rounded-none">
+      <div className="nb relative aspect-[4/3] overflow-hidden bg-wash">
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
             key={photo.id}
@@ -243,7 +243,7 @@ export function PhotoModalContent({
                 dismissSwipeHint()
               }}
               disabled={!hasPrev}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
+              className="icon-btn pointer-events-auto disabled:opacity-20"
               aria-label="Previous photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -251,8 +251,8 @@ export function PhotoModalContent({
                   d="M15 19l-7-7 7-7"
                   stroke="currentColor"
                   strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
                 />
               </svg>
             </button>
@@ -264,7 +264,7 @@ export function PhotoModalContent({
                 dismissSwipeHint()
               }}
               disabled={!hasNext}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-20 transition-opacity active:scale-95 cursor-pointer focus-ring"
+              className="icon-btn pointer-events-auto disabled:opacity-20"
               aria-label="Next photo"
             >
               <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
@@ -272,8 +272,8 @@ export function PhotoModalContent({
                   d="M9 5l7 7-7 7"
                   stroke="currentColor"
                   strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
                 />
               </svg>
             </button>
@@ -289,18 +289,18 @@ export function PhotoModalContent({
               exit={{ opacity: 0 }}
               className="absolute inset-x-0 bottom-3 flex justify-center z-20 pointer-events-none"
             >
-              <div className="flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs shadow-lg">
+              <div className="nb nb-flat nb-butter mono inline-flex items-center gap-[7px] px-2 py-[3px] text-[0.68rem]">
                 <motion.div
                   animate={{ x: [0, -4, 0] }}
                   transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" className="ic ic-sm" aria-hidden="true">
                     <path
                       d="M19 12H5m0 0l7-7m-7 7l7 7"
                       stroke="currentColor"
                       strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
                     />
                   </svg>
                 </motion.div>
@@ -309,13 +309,13 @@ export function PhotoModalContent({
                   animate={{ x: [0, 4, 0] }}
                   transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" className="ic ic-sm" aria-hidden="true">
                     <path
                       d="M5 12h14m0 0l-7-7m7 7l-7 7"
                       stroke="currentColor"
                       strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
                     />
                   </svg>
                 </motion.div>
@@ -325,7 +325,7 @@ export function PhotoModalContent({
         </AnimatePresence>
       </div>
 
-      {/* Details — padded on desktop since the modal scroll container has no padding */}
+      {/* Details */}
       <AnimatePresence mode="wait">
         <motion.div
           key={photo.id}
@@ -335,7 +335,7 @@ export function PhotoModalContent({
           transition={
             prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 25 }
           }
-          className="space-y-3 md:px-5"
+          className="space-y-3"
         >
           {/* Dish name */}
           {photo.dish_name && (
@@ -350,7 +350,7 @@ export function PhotoModalContent({
           )}
 
           {/* Date */}
-          <p className="text-caption text-ink-tertiary">{formatDate(getDisplayDate(photo))}</p>
+          <p className="dt">{formatDate(getDisplayDate(photo))}</p>
 
           {/* Chinese description */}
           {photo.description_cn && (
@@ -359,11 +359,12 @@ export function PhotoModalContent({
 
           {/* English description */}
           {photo.description_en && (
-            <p
-              className={`text-body text-ink-secondary leading-relaxed ${photo.description_cn ? "pt-3 border-t border-stroke" : ""}`}
-            >
-              {photo.description_en}
-            </p>
+            <>
+              {photo.description_cn && (
+                <hr className="my-[13px] h-px border-0 bg-ink-secondary opacity-45" />
+              )}
+              <p className="text-body text-ink-secondary leading-relaxed">{photo.description_en}</p>
+            </>
           )}
 
           {!photo.description_en && !photo.description_cn && (

@@ -1,7 +1,14 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react"
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { cn } from "@/lib/utils"
 import { CalendarIcon, SearchIcon, SpinnerIcon, TagIcon } from "./icons"
 
@@ -58,8 +65,18 @@ function buildDatePresets(): DatePreset[] {
   ]
 
   const monthNames = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ]
   for (let m = thisMonth; m >= 1; m -= 1) {
     presets.push({
@@ -79,12 +96,7 @@ const DATE_PRESETS = buildDatePresets()
 
 // ---- Component ----
 
-export function SearchBar({
-  onSearch,
-  onClear,
-  isSearching,
-  collapsible = false,
-}: SearchBarProps) {
+export function SearchBar({ onSearch, onClear, isSearching, collapsible = false }: SearchBarProps) {
   const [query, setQuery] = useState("")
   const [field, setField] = useState<SearchField>("all")
   const [expanded, setExpanded] = useState(false)
@@ -218,44 +230,31 @@ export function SearchBar({
   const collapsedButton = (
     <motion.button
       key="collapsed"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ type: "spring", stiffness: 400, damping: 35 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.14, ease: [0.2, 0.9, 0.3, 1] }}
       onClick={handleExpand}
-      className={cn(
-        "inline-flex items-center justify-center w-[44px] h-[44px] rounded-xl",
-        "bg-canvas-elevated border border-stroke",
-        "text-ink-tertiary cursor-pointer",
-        "hover:border-ink-tertiary/40 hover:text-ink-secondary",
-        "transition-colors duration-200",
-        "focus-ring"
-      )}
+      className="icon-btn cursor-pointer"
       aria-label="Open search"
       style={{ touchAction: "manipulation" }}
     >
-      <SearchIcon className="w-4 h-4" />
+      <SearchIcon className="ic" />
     </motion.button>
   )
 
   const expandedContent = (
     <motion.div
       key="expanded"
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 35 }}
-      className={cn(
-        "bg-canvas-elevated border border-stroke rounded-xl overflow-hidden",
-        isSearching && "border-love/30 shadow-[0_0_0_1px_var(--love-soft)]"
-      )}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.14, ease: [0.2, 0.9, 0.3, 1] }}
+      className={cn("nb", isSearching && "sh-cobalt")}
     >
       {/* Input row */}
-      <div className="flex items-center gap-2.5 px-4 min-h-[44px]">
-        <ActiveIcon
-          className="w-4 h-4 shrink-0 text-ink-tertiary"
-          aria-hidden="true"
-        />
+      <div className="search-row">
+        <ActiveIcon className="ic ml-1 shrink-0 text-ink-secondary" aria-hidden="true" />
 
         <input
           ref={inputRef}
@@ -267,14 +266,7 @@ export function SearchBar({
           onKeyDown={handleKeyDown}
           placeholder={PLACEHOLDERS[field]}
           readOnly={showDatePresets}
-          className={cn(
-            "flex-1 bg-transparent border-none outline-none",
-            "text-sm font-body text-ink",
-            "placeholder:text-ink-tertiary",
-            "[&::-webkit-search-cancel-button]:hidden",
-            showDatePresets && "cursor-default",
-            "focus-ring"
-          )}
+          className={cn("sinput", showDatePresets && "cursor-default")}
           autoComplete="off"
           spellCheck={false}
           aria-label={`Search by ${field}`}
@@ -282,53 +274,29 @@ export function SearchBar({
         />
 
         {isSearching ? (
-          <SpinnerIcon
-            className="w-4 h-4 shrink-0 text-love"
-            aria-label="Searching"
-          />
+          <SpinnerIcon className="ic shrink-0 text-cobalt" aria-label="Searching" />
         ) : (
           <button
             onClick={handleClear}
-            className={cn(
-              "shrink-0 p-1.5 rounded-lg min-w-[36px] min-h-[36px] flex items-center justify-center",
-              "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed",
-              "transition-colors duration-200 cursor-pointer",
-              "focus-ring"
-            )}
+            className="icon-btn icon-btn-bare shrink-0 cursor-pointer"
             aria-label="Clear search"
             style={{ touchAction: "manipulation" }}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-4 h-4"
-              aria-hidden="true"
-            >
+            <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
         )}
       </div>
 
-      {/* Filter chips */}
-      <div className="flex items-center gap-2 px-4 pb-2.5 pt-0.5">
+      {/* Field presets */}
+      <div className="flex flex-wrap items-center gap-2 px-3 pt-3">
         {FILTERS.map((f) => (
           <button
             key={f.id}
             onClick={() => handleFieldChange(f.id)}
             onMouseDown={handleFilterMouseDown}
-            className={cn(
-              "inline-flex items-center px-3.5 py-2.5 rounded-lg text-sm font-medium font-body",
-              "min-h-[44px] min-w-[44px]",
-              "transition-colors duration-200 cursor-pointer focus-ring select-none",
-              field === f.id
-                ? "bg-love text-white shadow-sm"
-                : "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed"
-            )}
+            className="preset cursor-pointer select-none"
             aria-pressed={field === f.id}
             aria-label={`Filter by ${f.label.toLowerCase()}`}
             style={{ touchAction: "manipulation" }}
@@ -340,45 +308,36 @@ export function SearchBar({
 
       {/* Date presets */}
       {showDatePresets && (
-        <div className="px-4 pb-2.5">
-          <div className="flex flex-wrap gap-2">
-            {DATE_PRESETS.map((preset) => {
-              const isActive = query === preset.value
-              return (
-                <button
-                  key={preset.value}
-                  onClick={() => handleDatePreset(preset)}
-                  onMouseDown={handleFilterMouseDown}
-                  className={cn(
-                    "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium font-body",
-                    "min-h-[36px]",
-                    "transition-colors duration-200 cursor-pointer focus-ring select-none",
-                    isActive
-                      ? "bg-love text-white shadow-sm"
-                      : "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed border border-stroke"
-                  )}
-                  aria-pressed={isActive}
-                  aria-label={`Filter by ${preset.label}`}
-                  style={{ touchAction: "manipulation" }}
-                >
-                  {preset.label}
-                </button>
-              )
-            })}
-          </div>
+        <div className="flex flex-wrap gap-2 px-3 pt-3">
+          {DATE_PRESETS.map((preset) => {
+            const isActive = query === preset.value
+            return (
+              <button
+                key={preset.value}
+                onClick={() => handleDatePreset(preset)}
+                onMouseDown={handleFilterMouseDown}
+                className="preset cursor-pointer select-none"
+                aria-pressed={isActive}
+                aria-label={`Filter by ${preset.label}`}
+                style={{ touchAction: "manipulation" }}
+              >
+                {preset.label}
+              </button>
+            )
+          })}
         </div>
       )}
 
       {/* Tag suggestions */}
       {showTagSuggestions && (
-        <div className="px-4 pb-2.5">
+        <div className="px-3 pb-3 pt-3">
           {tagSuggestionsLoading ? (
             <div className="flex items-center gap-2 py-1">
-              <SpinnerIcon className="w-3.5 h-3.5 text-ink-tertiary animate-spin" />
-              <span className="text-xs text-ink-tertiary font-body">Loading tags...</span>
+              <SpinnerIcon className="ic ic-sm text-ink-secondary" />
+              <span className="text-caption font-body text-ink-secondary">Loading tags...</span>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="nb nb-flat">
               {tagSuggestions.map((tag) => {
                 const isActive = query === tag
                 return (
@@ -387,12 +346,8 @@ export function SearchBar({
                     onClick={() => handleTagSuggestion(tag)}
                     onMouseDown={handleFilterMouseDown}
                     className={cn(
-                      "inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium font-body",
-                      "min-h-[36px]",
-                      "transition-colors duration-200 cursor-pointer focus-ring select-none",
-                      isActive
-                        ? "bg-love text-white shadow-sm"
-                        : "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed border border-stroke"
+                      "flex min-h-[44px] w-full cursor-pointer items-center gap-3 border-b-[2.5px] border-line px-3 text-left font-body text-sm normal-case tracking-normal last:border-b-0",
+                      isActive ? "bg-butter text-on-fill" : "hover:bg-wash"
                     )}
                     aria-pressed={isActive}
                     aria-label={`Search for ${tag}`}
@@ -416,9 +371,7 @@ export function SearchBar({
       aria-label="Search gallery"
       style={{ touchAction: "manipulation" }}
     >
-      <AnimatePresence mode="wait">
-        {!expanded ? collapsedButton : expandedContent}
-      </AnimatePresence>
+      <AnimatePresence mode="wait">{!expanded ? collapsedButton : expandedContent}</AnimatePresence>
     </div>
   )
 }

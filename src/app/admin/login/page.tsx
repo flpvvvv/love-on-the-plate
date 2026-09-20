@@ -58,47 +58,45 @@ function LoginForm() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.2 }}
-      className="bg-canvas-elevated border border-stroke rounded-2xl p-6 shadow-md"
+      className="nb shadow-lg p-5"
     >
       {sent ? (
         <div className="text-center py-4">
-          <div className="w-16 h-16 mx-auto mb-4 text-love">
+          <span className="sent-icon nb nb-leaf w-13 h-13 mx-auto mb-4 grid place-items-center">
             <svg
-              viewBox="0 0 24 24"
+              className="ic"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
               />
             </svg>
-          </div>
-          <h2 className="text-subheading font-semibold text-ink mb-2">Check your email</h2>
-          <p className="text-ink-secondary text-caption">
-            We sent a magic link to <strong className="text-ink">{email}</strong>
+          </span>
+          <h2 className="text-heading mb-2">Check your email</h2>
+          <p className="muted text-caption">
+            We sent a magic link to <strong className="mono text-ink">{email}</strong>
           </p>
-          <p className="text-ink-tertiary text-caption mt-2">
-            Click the link in the email to sign in.
-          </p>
+          <p className="muted text-caption mt-2">Click the link in the email to sign in.</p>
           <button
             type="button"
             onClick={() => {
               setSent(false)
               setEmail("")
             }}
-            className="mt-4 text-love hover:text-love-intense text-caption focus:outline-none focus-ring rounded-md px-2 py-1"
+            className="btn btn-block mt-4"
           >
             Use a different email
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-caption font-medium text-ink mb-2">
+          <div className="field">
+            <label htmlFor="email" className="label">
               Email address
             </label>
             <input
@@ -109,16 +107,14 @@ function LoginForm() {
               placeholder="you@example.com"
               autoComplete="email"
               spellCheck={false}
-              className="w-full px-4 py-3 bg-canvas border border-stroke rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-love text-ink placeholder:text-ink-tertiary"
+              className="input"
               disabled={loading}
             />
           </div>
 
-          {errorMessage && (
-            <p className="text-red-500 dark:text-red-400 text-caption">{errorMessage}</p>
-          )}
+          {errorMessage && <p className="text-danger text-caption">{errorMessage}</p>}
 
-          <Button type="submit" loading={loading} className="w-full">
+          <Button type="submit" variant="primary" loading={loading} className="btn-block">
             Send Magic Link
           </Button>
         </form>
@@ -129,27 +125,18 @@ function LoginForm() {
 
 function LoginFormSkeleton() {
   return (
-    <div className="bg-canvas-elevated border border-stroke rounded-2xl p-6 space-y-4">
-      <Skeleton className="h-5 w-24" />
-      <Skeleton className="h-12 w-full rounded-xl" />
-      <Skeleton className="h-10 w-full rounded-lg" />
+    <div className="nb p-5 space-y-4">
+      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-12 w-full" />
+      <Skeleton className="h-12 w-full" />
     </div>
   )
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-canvas relative overflow-hidden">
-      {/* Warm atmospheric background */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {/* Soft radial glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-love/[0.04] blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-warmth/[0.05] blur-3xl" />
-        {/* Subtle noise texture overlay */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMC4wMyIvPjwvc3ZnPg==')] opacity-50 dark:opacity-30" />
-      </div>
-
-      <div className="w-full max-w-sm relative z-10">
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
         {/* Logo + branding */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -167,8 +154,8 @@ export default function LoginPage() {
               style={{ filter: "var(--logo-filter, none)" }}
             />
           </div>
-          <h1 className="font-display text-display font-semibold text-ink">Love on the Plate</h1>
-          <p className="font-accent text-lg text-ink-secondary mt-1">Admin Login</p>
+          <h1 className="text-display">Love on the Plate</h1>
+          <p className="label muted mt-1">Admin Login</p>
         </motion.div>
 
         {/* Login Form */}
@@ -180,7 +167,7 @@ export default function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center text-caption text-ink-tertiary mt-6"
+          className="text-center text-caption muted mt-6"
         >
           No password needed &mdash; we&apos;ll email you a login link.
         </motion.p>
@@ -191,12 +178,9 @@ export default function LoginPage() {
           transition={{ delay: 0.5 }}
           className="text-center mt-4"
         >
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-caption text-ink-tertiary hover:text-ink transition-colors"
-          >
+          <Link href="/" className="btn btn-ghost btn-sm">
             <svg
-              className="w-4 h-4"
+              className="ic ic-sm"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -204,8 +188,8 @@ export default function LoginPage() {
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
               />
             </svg>

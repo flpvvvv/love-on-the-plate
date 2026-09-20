@@ -40,22 +40,13 @@ export function CollapsibleHeader() {
         className="overflow-hidden bg-canvas md:hidden"
       >
         <div className="px-5 pt-4 pb-1">
-          <div className="flex items-center gap-3 mb-0.5">
-            <div className="w-9 h-9">
-              <Image
-                src="/logo.svg"
-                alt=""
-                width={36}
-                height={36}
-                className="w-full h-full"
-                style={{ filter: "var(--logo-filter, none)" }}
-              />
-            </div>
-            <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
-              Love on the Plate
-            </h1>
+          <div className="flex items-center gap-2.5 mb-0.5">
+            <span className="brand-mark">
+              <Image src="/logo.svg" alt="" width={22} height={22} />
+            </span>
+            <h1 className="text-xl">Love on the Plate</h1>
           </div>
-          <p className="font-accent text-sm text-ink-secondary pl-[48px]">Happy wife, happy life</p>
+          <p className="brand-sub whitespace-nowrap pl-[44px]">Happy wife, happy life</p>
         </div>
       </motion.div>
 
@@ -69,22 +60,13 @@ export function CollapsibleHeader() {
         transition={{ type: "spring", stiffness: 400, damping: 35 }}
         style={{ pointerEvents: collapsed ? "auto" : "none" }}
       >
-        <div className="glass border-b border-stroke">
-          <div className="px-4 h-14 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8">
-                <Image
-                  src="/logo.svg"
-                  alt="Love on the Plate"
-                  width={32}
-                  height={32}
-                  className="w-full h-full"
-                  style={{ filter: "var(--logo-filter, none)" }}
-                />
-              </div>
-              <span className="font-display text-base font-semibold text-ink tracking-tight">
-                Love on the Plate
+        <div className="bg-canvas border-b-[2.5px] border-ink">
+          <div className="px-4 h-14 flex items-center justify-between gap-3">
+            <Link href="/" className="flex items-center gap-2.5 min-w-0 min-h-11 focus-ring">
+              <span className="brand-mark">
+                <Image src="/logo.svg" alt="Love on the Plate" width={22} height={22} />
               </span>
+              <span className="brand-name truncate">Love on the Plate</span>
             </Link>
             <ThemeToggle />
           </div>

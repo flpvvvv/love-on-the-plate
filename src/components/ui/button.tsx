@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { forwardRef, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
@@ -19,16 +18,16 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-love text-white hover:bg-love-intense shadow-sm hover:shadow-md",
-  secondary: "bg-canvas-elevated text-ink hover:bg-canvas-recessed border border-stroke",
-  ghost: "hover:bg-canvas-recessed text-ink",
-  danger: "bg-danger text-white hover:bg-danger-intense shadow-sm",
+  primary: "btn btn-fill",
+  secondary: "btn",
+  ghost: "btn btn-ghost",
+  danger: "btn btn-danger",
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-caption",
-  md: "px-4 py-2 text-body",
-  lg: "px-6 py-3 text-subheading",
+  sm: "btn-sm",
+  md: "",
+  lg: "btn-lg",
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -46,45 +45,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     return (
-      <motion.button
+      <button
         ref={ref}
         type={type}
-        whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
-        whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
-        className={cn(
-          "rounded-xl font-medium transition-colors transition-shadow duration-200 focus:outline-none focus-ring disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2",
-          variantStyles[variant],
-          sizeStyles[size],
-          className
-        )}
+        className={cn(variantStyles[variant], sizeStyles[size], className)}
         disabled={disabled || loading}
         onClick={onClick}
       >
         {loading && (
-          <svg
-            className="animate-spin h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+          <span
+            className="spin-ring h-4 w-4 shrink-0 animate-spin border-2 border-current border-t-transparent"
             aria-hidden="true"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+          />
         )}
         {children}
-      </motion.button>
+      </button>
     )
   }
 )

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
+import type { CSSProperties } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { IngredientTags } from "@/components/ui"
 import { useGestureHint, useHaptics } from "@/lib/hooks"
@@ -92,13 +93,13 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
             aria-hidden="true"
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
               d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
             />
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="square"
+              strokeLinejoin="miter"
               d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
             />
           </svg>
@@ -115,7 +116,7 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
       role="feed"
       aria-label="Photo feed"
       onKeyDown={handleKeyDown}
-      className="h-[calc(100dvh-4rem)] overflow-y-auto snap-y snap-mandatory overscroll-contain outline-none"
+      className="h-[calc(100dvh-4rem)] overflow-y-auto overflow-x-hidden snap-y snap-mandatory overscroll-contain outline-none border-x-[2.5px] border-line"
       style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
     >
       {photos.map((photo, index) => (
@@ -144,22 +145,22 @@ export function ImmersiveFeed({ photos, onPhotoTap }: ImmersiveFeedProps) {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="fixed bottom-28 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
           >
-            <div className="flex flex-col items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white px-4 py-2.5 rounded-full text-sm shadow-lg">
-              <span>Swipe up to explore</span>
-              <motion.div
-                animate={{ y: [0, 4, 0] }}
+            <div className="sticker" style={{ "--r": "-2deg" } as CSSProperties}>
+              <motion.span
+                animate={{ y: [0, 3, 0] }}
                 transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
               >
-                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">
+                <svg className="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true">
                   <path
-                    d="M12 5v14m0 0l7-7m-7 7l-7-7"
+                    d="M12 19V5m0 0l-7 7m7-7l7 7"
                     stroke="currentColor"
                     strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                   />
                 </svg>
-              </motion.div>
+              </motion.span>
+              <span>Swipe up to explore</span>
             </div>
           </motion.div>
         )}
@@ -192,7 +193,7 @@ function FeedItem({
       aria-setsize={total}
       aria-posinset={index + 1}
       aria-label={photo.dish_name || "Photo"}
-      className="relative h-[calc(100dvh-4rem)] w-full snap-start snap-always"
+      className="relative h-[calc(100dvh-4rem)] w-full snap-start snap-always overflow-hidden border-[2.5px] border-line bg-canvas"
     >
       {/* Full-bleed image */}
       <div className="absolute inset-0 bg-canvas-recessed">
@@ -206,92 +207,108 @@ function FeedItem({
         />
       </div>
 
-      {/* Top gradient for status bar legibility */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/30 to-transparent pointer-events-none" />
-
-      {/* Bottom gradient + text overlay */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none">
-        <div className="bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-32 pb-6 px-5">
-          {/* Dish name */}
-          {photo.dish_name && (
-            <motion.h2
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.1 }
-              }
-              className="font-display text-2xl font-semibold text-white mb-1.5 drop-shadow-lg"
-            >
-              {photo.dish_name}
-            </motion.h2>
-          )}
-
-          {/* Chinese description */}
-          {photo.description_cn && (
-            <motion.p
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.2 }
-              }
-              className="text-white/90 text-sm leading-relaxed mb-2 line-clamp-2 drop-shadow"
-            >
-              {photo.description_cn}
-            </motion.p>
-          )}
-
-          {/* Ingredients tags */}
-          {photo.ingredients && photo.ingredients.length > 0 && (
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 300, damping: 25, delay: 0.25 }
-              }
-              className="mb-2"
-            >
-              <IngredientTags ingredients={photo.ingredients} max={3} compact overlay />
-            </motion.div>
-          )}
-
-          {/* Date + "tap for more" */}
-          <motion.div
-            initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={
-              isActive ? { opacity: 1 } : prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }
+      {/* Caption bar — solid cream, ink top rule */}
+      <div className="absolute inset-x-0 bottom-0 z-10 border-t-[2.5px] border-line bg-canvas p-[11px]">
+        {/* Dish name */}
+        {photo.dish_name && (
+          <motion.h2
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 300, damping: 25, delay: 0.1 }
             }
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.3 }}
-            className="flex items-center justify-between"
+            className="nm text-[1.12rem]"
           >
-            <span className="text-white/60 text-xs">{formatDate(getDisplayDate(photo))}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onTap()
-              }}
-              className="pointer-events-auto text-white/70 text-xs flex items-center gap-1 active:scale-95 transition-transform cursor-pointer focus-ring rounded-md px-2 py-1 -mr-2"
-              aria-label={`View details for ${photo.dish_name || "photo"}`}
-            >
-              <span>Details</span>
-              <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5" aria-hidden="true">
-                <path
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+            {photo.dish_name}
+          </motion.h2>
+        )}
+
+        {/* English name */}
+        {photo.description_en && (
+          <motion.p
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 300, damping: 25, delay: 0.15 }
+            }
+            className="en line-clamp-1"
+          >
+            {photo.description_en}
+          </motion.p>
+        )}
+
+        {/* Chinese description */}
+        {photo.description_cn && (
+          <motion.p
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 300, damping: 25, delay: 0.2 }
+            }
+            className="mt-1 text-caption leading-relaxed text-ink-secondary line-clamp-2"
+          >
+            {photo.description_cn}
+          </motion.p>
+        )}
+
+        {/* Ingredients tags */}
+        {photo.ingredients && photo.ingredients.length > 0 && (
+          <motion.div
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+            animate={isActive ? { opacity: 1, y: 0 } : (animateProps ?? { opacity: 0, y: 10 })}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 300, damping: 25, delay: 0.25 }
+            }
+            className="mt-2"
+          >
+            <IngredientTags ingredients={photo.ingredients} max={3} compact />
           </motion.div>
-        </div>
+        )}
+
+        {/* Date + "tap for more" */}
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={
+            isActive ? { opacity: 1 } : prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }
+          }
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.3 }}
+          className="mt-2 flex items-center justify-between gap-3"
+        >
+          <span className="dt">{formatDate(getDisplayDate(photo))}</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onTap()
+            }}
+            className="chip"
+            aria-label={`View details for ${photo.dish_name || "photo"}`}
+          >
+            <span>Details</span>
+            <svg className="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
+              />
+            </svg>
+          </button>
+        </motion.div>
       </div>
+
+      {/* Index chip */}
+      <span className="nb nb-sm nb-ink mono-b absolute right-[10px] top-[10px] z-20 px-2 py-[3px] text-[0.72rem]">
+        {index + 1} / {total}
+      </span>
     </article>
   )
 }

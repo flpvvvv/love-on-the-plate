@@ -595,31 +595,29 @@ export default function AdminPage() {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center py-16">
             <div className="mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-warning-soft flex items-center justify-center">
+              <span className="nb nb-butter w-16 h-16 mx-auto mb-4 grid place-items-center">
                 <svg
-                  className="w-8 h-8 text-warning"
+                  className="ic"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                     strokeWidth={2}
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-              </div>
-              <h1 className="font-display text-display font-semibold text-ink mb-2">
-                Pending Approval
-              </h1>
-              <p className="text-ink-secondary">
+              </span>
+              <h1 className="text-display mb-2">Pending Approval</h1>
+              <p className="muted">
                 Your account is awaiting admin approval before you can upload images.
               </p>
               {userEmail && (
-                <p className="text-sm text-ink-secondary mt-2">
-                  Signed in as <span className="font-medium text-ink">{userEmail}</span>
+                <p className="text-caption muted mt-2">
+                  Signed in as <span className="font-bold text-ink">{userEmail}</span>
                 </p>
               )}
             </div>
@@ -646,12 +644,16 @@ export default function AdminPage() {
 
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          {/* Top bar with navigation and user info */}
-          <div className="flex items-center mb-6">
+          {/* Panel head with navigation and title */}
+          <div className="panel-head mb-8">
+            <div>
+              <h1 className="panel-title display">Upload Photo</h1>
+              <p className="panel-sub">Share your culinary creations</p>
+            </div>
             <Link href="/">
               <Button variant="secondary" size="sm">
                 <svg
-                  className="w-4 h-4"
+                  className="ic ic-sm"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -659,20 +661,14 @@ export default function AdminPage() {
                   aria-hidden="true"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                     d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
                   />
                 </svg>
                 View Gallery
               </Button>
             </Link>
-          </div>
-
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="font-display text-display font-semibold text-ink">Upload Photo</h1>
-            <p className="text-ink-secondary mt-1">Share your culinary creations</p>
           </div>
 
           {/* Upload Area */}
@@ -704,161 +700,166 @@ export default function AdminPage() {
 
           {/* Recent Uploads */}
           {recentPhotos.length > 0 && (
-            <div className="mt-12">
-              <h2 className="font-display text-heading font-semibold text-ink mb-4">
-                Recently Uploaded
-              </h2>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="nb-block mt-8">
+              <div className="block-head">
+                <h2 className="label">Recently Uploaded</h2>
+              </div>
+              <ul className="recent">
                 {recentPhotos.map((photo) => (
-                  <div key={photo.id} className="space-y-2">
-                    <div className="aspect-square relative rounded-xl overflow-hidden bg-canvas-elevated border border-stroke group">
+                  <li key={photo.id}>
+                    <span className="nb nb-flat relative w-12 h-12 flex-none bg-wash">
                       <Image
                         src={photo.thumbnailUrl}
                         alt={photo.description_en || photo.description_cn || "Recent upload"}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 768px) 33vw, 200px"
+                        sizes="48px"
                       />
-                      {/* Delete button — always visible on mobile (top-right badge), hover overlay on desktop */}
-                      {/* Desktop: centered overlay on hover */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors hidden md:flex items-center justify-center">
-                        <button
-                          onClick={() => handleDeleteClick(photo)}
-                          disabled={deletingPhotoId === photo.id}
-                          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-danger hover:bg-danger-intense text-white min-w-[44px] min-h-[44px] p-2.5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
-                          aria-label="Delete photo"
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-bold truncate">
+                        {photo.dish_name || photo.original_filename || ""}
+                      </span>
+                      <span className="mono muted text-micro block truncate">
+                        {[
+                          photo.original_filename,
+                          photo.display_date,
+                          photo.file_size ? formatFileSize(photo.file_size) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+
+                    {/* Delete — full button on desktop */}
+                    <button
+                      onClick={() => handleDeleteClick(photo)}
+                      disabled={deletingPhotoId === photo.id}
+                      className="btn btn-sm btn-danger hide-mobile"
+                      aria-label="Delete photo"
+                    >
+                      {deletingPhotoId === photo.id ? (
+                        <svg
+                          className="ic ic-sm animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
-                          {deletingPhotoId === photo.id ? (
-                            <svg
-                              className="w-5 h-5 animate-spin"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              aria-hidden="true"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              aria-hidden="true"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      {/* Mobile: always-visible badge in top-right corner */}
-                      <button
-                        onClick={() => handleDeleteClick(photo)}
-                        disabled={deletingPhotoId === photo.id}
-                        className="absolute top-1.5 right-1.5 md:hidden bg-danger/90 backdrop-blur-sm text-white min-w-[36px] min-h-[36px] p-2 rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer active:scale-95 transition-transform"
-                        aria-label="Delete photo"
-                      >
-                        {deletingPhotoId === photo.id ? (
-                          <svg
-                            className="w-4 h-4 animate-spin"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                    {photo.dish_name && (
-                      <p className="text-sm text-ink-secondary text-center truncate px-1">
-                        {photo.dish_name}
-                      </p>
-                    )}
-                  </div>
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="ic ic-sm"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="square"
+                            strokeLinejoin="miter"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      )}
+                      Delete
+                    </button>
+
+                    {/* Delete — tomato bubble on mobile */}
+                    <button
+                      onClick={() => handleDeleteClick(photo)}
+                      disabled={deletingPhotoId === photo.id}
+                      className="icon-btn bg-tomato text-on-fill hide-desktop disabled:opacity-45 disabled:cursor-not-allowed"
+                      aria-label="Delete photo"
+                    >
+                      {deletingPhotoId === photo.id ? (
+                        <svg
+                          className="ic ic-sm animate-spin"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="ic ic-sm"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="square"
+                            strokeLinejoin="miter"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Backfill Section */}
           {backfillStatus &&
             (backfillStatus.withoutDishName > 0 || backfillStatus.withoutIngredients > 0) && (
-              <div className="mt-12 p-6 bg-warning-soft border border-warning/20 rounded-xl">
-                <h2 className="font-display text-heading font-semibold text-ink mb-2">
-                  Backfill Missing Data
-                </h2>
-                <p className="text-ink-secondary mb-4 space-y-1">
-                  {backfillStatus.withoutDishName > 0 && (
-                    <span className="block">
+              <div className="nb nb-butter mt-8 p-4">
+                <div className="block-head">
+                  <h2 className="label">Backfill Missing Data</h2>
+                </div>
+                {backfillStatus.withoutDishName > 0 && (
+                  <div className="backfill-stat">
+                    <span>
                       {backfillStatus.withoutDishName} photo
                       {backfillStatus.withoutDishName > 1 ? "s" : ""} missing dish name or
                       descriptions
                     </span>
-                  )}
-                  {backfillStatus.withoutIngredients > 0 && (
-                    <span className="block">
+                    <b>{backfillStatus.withoutDishName}</b>
+                  </div>
+                )}
+                {backfillStatus.withoutIngredients > 0 && (
+                  <div className="backfill-stat">
+                    <span>
                       {backfillStatus.withoutIngredients} photo
                       {backfillStatus.withoutIngredients > 1 ? "s" : ""} missing ingredient tags
                     </span>
-                  )}
-                  <span className="block text-ink-tertiary">
-                    out of {backfillStatus.total} total
-                  </span>
-                </p>
-                <Button
+                    <b>{backfillStatus.withoutIngredients}</b>
+                  </div>
+                )}
+                <div className="backfill-stat">
+                  <span>out of {backfillStatus.total} total</span>
+                  <b>{backfillStatus.total}</b>
+                </div>
+                <button
+                  type="button"
                   onClick={handleBackfill}
-                  loading={backfilling}
                   disabled={backfilling}
                   aria-busy={backfilling}
+                  className="btn mt-4"
                 >
+                  {backfilling && (
+                    <span
+                      className="spin-ring h-4 w-4 shrink-0 animate-spin border-2 border-current border-t-transparent"
+                      aria-hidden="true"
+                    />
+                  )}
                   {backfilling ? "Generating with AI…" : "Generate Missing Data with AI"}
-                </Button>
+                </button>
                 {backfilling && (
-                  <p className="text-sm text-ink-secondary mt-2" role="status" aria-live="polite">
+                  <p className="text-caption mt-2" role="status" aria-live="polite">
                     This may take a while. Please don&apos;t close this page.
                   </p>
                 )}
@@ -869,29 +870,29 @@ export default function AdminPage() {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteModalOpen} onClose={handleDeleteCancel} className="max-w-md w-full mx-4">
-        <div className="p-6">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-danger-soft">
+        <div className="p-5">
+          <span className="nb nb-tomato w-12 h-12 mx-auto mb-4 grid place-items-center">
             <svg
-              className="w-6 h-6 text-danger"
+              className="ic"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 strokeWidth={2}
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
               />
             </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-ink text-center mb-2">Delete Photo</h3>
-          <p className="text-ink-secondary text-center mb-6">
+          </span>
+          <h3 className="text-heading text-center mb-2">Delete Photo</h3>
+          <p className="muted text-center mb-6">
             Are you sure you want to delete this photo? This action cannot be undone.
           </p>
           {photoToDelete && (
-            <div className="mb-6 rounded-lg overflow-hidden border border-stroke">
+            <div className="nb nb-flat overflow-hidden mb-6">
               <div className="aspect-video relative">
                 <Image
                   src={photoToDelete.thumbnailUrl}
@@ -905,7 +906,7 @@ export default function AdminPage() {
                 />
               </div>
               {photoToDelete.dish_name && (
-                <p className="text-sm text-ink-secondary text-center py-2 px-3">
+                <p className="muted text-caption text-center py-2 px-3">
                   {photoToDelete.dish_name}
                 </p>
               )}

@@ -7,17 +7,15 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn("rounded-lg animate-shimmer", className)} />
+  return <div className={cn("skel", className)} />
 }
 
 export function PhotoCardSkeleton() {
   return (
-    <div className="rounded-xl overflow-hidden bg-canvas-elevated border border-stroke">
-      <Skeleton className="aspect-square w-full" />
-      <div className="p-4 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
+    <div className="skel">
+      <div className="sk-art" />
+      <div className="sk-line" />
+      <div className="sk-line short" />
     </div>
   )
 }
@@ -25,20 +23,19 @@ export function PhotoCardSkeleton() {
 /** Full-viewport skeleton mimicking the ImmersiveFeed layout */
 export function FeedItemSkeleton() {
   return (
-    <div className="relative h-[calc(100dvh-4rem)] w-full bg-canvas-recessed">
+    <div className="relative h-[calc(100dvh-4rem)] w-full">
       {/* Full-bleed image placeholder */}
-      <Skeleton className="absolute inset-0 rounded-none" />
+      <div className="skel h-full">
+        <div className="sk-art h-full" />
+      </div>
 
       {/* Bottom text overlay skeleton */}
-      <div className="absolute inset-x-0 bottom-0 p-5 space-y-3">
-        <div className="bg-gradient-to-t from-black/40 via-black/20 to-transparent absolute inset-0 pointer-events-none" />
-        <div className="relative space-y-3">
-          <Skeleton className="h-7 w-48 rounded-md" />
-          <Skeleton className="h-4 w-64 rounded-md" />
-          <div className="flex items-center justify-between pt-1">
-            <Skeleton className="h-3 w-20 rounded-md" />
-            <Skeleton className="h-3 w-16 rounded-md" />
-          </div>
+      <div className="skel border-x-0 border-b-0 absolute inset-x-0 bottom-0 p-5">
+        <div className="sk-line" />
+        <div className="sk-line short" />
+        <div className="flex items-center justify-between gap-4 pt-1">
+          <div className="sk-line w-20" />
+          <div className="sk-line w-16" />
         </div>
       </div>
     </div>

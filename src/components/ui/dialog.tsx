@@ -50,22 +50,19 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            transition={{ duration: 0.14 }}
+            className="sheet-backdrop absolute inset-0"
             onClick={onClose}
             aria-hidden="true"
           />
 
           {/* Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className={cn(
-              "relative bg-canvas rounded-2xl shadow-xl max-h-[90vh] overflow-hidden",
-              className
-            )}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.14, ease: [0.2, 0.9, 0.3, 1] }}
+            className={cn("nb shadow-xl relative max-h-[90vh] overflow-hidden", className)}
             style={{ overscrollBehavior: "contain" }}
           >
             {children}
@@ -80,19 +77,11 @@ export function DialogClose({ onClose }: { onClose: () => void }) {
   return (
     <button
       onClick={onClose}
-      className="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10 backdrop-blur-sm cursor-pointer focus-ring"
+      className="icon-btn absolute top-4 right-4 z-10 cursor-pointer"
       aria-label="Close"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="white"
-        className="w-5 h-5"
-        aria-hidden="true"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+      <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 18 18 6M6 6l12 12" />
       </svg>
     </button>
   )

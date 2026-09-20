@@ -19,9 +19,9 @@ import type { GalleryView, MobileTab } from "@/types"
 import { useGalleryContext } from "./app-shell"
 
 const galleryViews: { id: GalleryView; label: string; icon: React.ReactNode }[] = [
-  { id: "floating", label: "Plates", icon: <PlatesIcon /> },
-  { id: "masonry", label: "Grid", icon: <GridIcon /> },
-  { id: "timeline", label: "Timeline", icon: <TimelineIcon /> },
+  { id: "floating", label: "Plates", icon: <PlatesIcon className="ic" /> },
+  { id: "masonry", label: "Grid", icon: <GridIcon className="ic" /> },
+  { id: "timeline", label: "Timeline", icon: <TimelineIcon className="ic" /> },
 ]
 
 export function DesktopSidebar() {
@@ -47,57 +47,46 @@ export function DesktopSidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col h-screen sticky top-0 border-r border-stroke bg-canvas-elevated/80 backdrop-blur-xl transition-all duration-300 ease-spring z-40 shrink-0",
+        "hidden md:flex flex-col h-screen sticky top-0 border-r-[2.5px] border-ink bg-canvas transition-all z-40 shrink-0",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Logo */}
-      <div className="px-4 h-16 flex items-center gap-3 border-b border-stroke shrink-0">
-        <Link href="/" className="flex items-center gap-3 group min-w-0">
-          <div className="w-9 h-9 shrink-0 transition-transform duration-300 ease-spring group-hover:scale-110">
-            <Image
-              src="/logo.svg"
-              alt="Love on the Plate"
-              width={36}
-              height={36}
-              className="w-full h-full"
-              style={{ filter: "var(--logo-filter, none)" }}
-            />
-          </div>
+      <div className="p-4 border-b-[2.5px] border-ink shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 min-w-0 min-h-11 focus-ring">
+          <span className="brand-mark">
+            <Image src="/logo.svg" alt="Love on the Plate" width={22} height={22} />
+          </span>
           <AnimatePresence>
             {!collapsed && (
-              <motion.div
+              <motion.span
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
                 className="flex flex-col overflow-hidden"
               >
-                <span className="font-display text-base font-semibold text-ink leading-tight tracking-tight whitespace-nowrap">
-                  Love on the Plate
-                </span>
-                <span className="font-accent text-xs text-ink-secondary whitespace-nowrap">
-                  Happy wife, happy life
-                </span>
-              </motion.div>
+                <span className="brand-name whitespace-nowrap">Love on the Plate</span>
+                <span className="brand-sub whitespace-nowrap">Happy wife, happy life</span>
+              </motion.span>
             )}
           </AnimatePresence>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 flex flex-col gap-2.5 p-3 overflow-y-auto" aria-label="Sections">
         {/* Main nav items */}
         <SidebarButton
           active={isGalleryActive}
           collapsed={collapsed}
-          icon={<GalleryIcon />}
+          icon={<GalleryIcon className="ic" />}
           label="Gallery"
           onClick={() => handleSectionChange("browse")}
         />
         <SidebarButton
           active={isAnalyticsActive}
           collapsed={collapsed}
-          icon={<AnalyticsIcon />}
+          icon={<AnalyticsIcon className="ic" />}
           label="Analytics"
           onClick={() => handleSectionChange("analytics")}
         />
@@ -105,7 +94,7 @@ export function DesktopSidebar() {
           href="/admin"
           active={isAdmin}
           collapsed={collapsed}
-          icon={<UploadIcon />}
+          icon={<UploadIcon className="ic" />}
           label="Upload"
         />
 
@@ -113,39 +102,25 @@ export function DesktopSidebar() {
         {isGalleryActive && (
           <>
             <div className="pt-4 pb-2">
-              {!collapsed && (
-                <p className="px-3 text-micro text-ink-tertiary uppercase tracking-wider font-medium">
-                  View
-                </p>
-              )}
-              {collapsed && <div className="border-t border-stroke mx-2" />}
+              {!collapsed && <p className="label muted px-1">View</p>}
+              {collapsed && <div className="border-t-[2.5px] border-ink mx-2" />}
             </div>
             {galleryViews.map((view) => (
               <button
                 key={view.id}
+                type="button"
                 onClick={() => setGalleryView(view.id)}
-                className={cn(
-                  "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
-                  galleryView === view.id
-                    ? "text-love"
-                    : "text-ink-tertiary hover:text-ink hover:bg-canvas-recessed"
-                )}
+                aria-current={galleryView === view.id ? "true" : "false"}
+                className={cn("navbtn w-full justify-start", collapsed && "justify-center px-0")}
               >
-                {galleryView === view.id && (
-                  <motion.div
-                    layoutId="sidebarViewIndicator"
-                    className="absolute inset-0 bg-love-soft rounded-xl"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10 shrink-0">{view.icon}</span>
+                <span className="shrink-0">{view.icon}</span>
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: "auto" }}
                       exit={{ opacity: 0, width: 0 }}
-                      className="relative z-10 whitespace-nowrap overflow-hidden"
+                      className="whitespace-nowrap overflow-hidden"
                     >
                       {view.label}
                     </motion.span>
@@ -158,34 +133,36 @@ export function DesktopSidebar() {
       </nav>
 
       {/* Bottom section */}
-      <div className="p-3 border-t border-stroke space-y-2 shrink-0">
+      <div className="p-3 border-t-[2.5px] border-ink space-y-2 shrink-0">
         <div
-          className={cn("flex items-center", collapsed ? "justify-center" : "justify-between px-2")}
+          className={cn("flex items-center gap-2", collapsed ? "flex-col" : "justify-between px-2")}
         >
           <ThemeToggle />
           <button
+            type="button"
             onClick={() => setCollapsed(!collapsed)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-tertiary hover:text-ink hover:bg-canvas-recessed transition-colors"
+            className="icon-btn icon-btn-bare"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            <motion.div
+            <motion.span
+              className="flex"
               animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              transition={{ duration: 0.14, ease: [0.2, 0.9, 0.3, 1] }}
             >
-              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" aria-hidden="true">
+              <svg className="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M15 19l-7-7 7-7"
                   stroke="currentColor"
                   strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
                 />
               </svg>
-            </motion.div>
+            </motion.span>
           </button>
         </div>
         {!collapsed && (
-          <p className="text-center font-accent text-sm text-ink-tertiary py-1">Made with love</p>
+          <p className="text-center muted text-[0.68rem] py-1 whitespace-nowrap">Made with love</p>
         )}
       </div>
     </aside>
@@ -207,27 +184,19 @@ function SidebarButton({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={cn(
-        "relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
-        active ? "text-love" : "text-ink-secondary hover:text-ink hover:bg-canvas-recessed"
-      )}
+      aria-current={active ? "true" : "false"}
+      className={cn("navbtn w-full justify-start", collapsed && "justify-center px-0")}
     >
-      {active && (
-        <motion.div
-          layoutId="sidebarNavIndicator"
-          className="absolute inset-0 bg-love-soft rounded-xl"
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        />
-      )}
-      <span className="relative z-10 shrink-0">{icon}</span>
+      <span className="shrink-0">{icon}</span>
       <AnimatePresence>
         {!collapsed && (
           <motion.span
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
-            className="relative z-10 whitespace-nowrap overflow-hidden"
+            className="whitespace-nowrap overflow-hidden"
           >
             {label}
           </motion.span>
@@ -253,26 +222,17 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className={cn(
-        "relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm font-medium",
-        active ? "text-love" : "text-ink-secondary hover:text-ink hover:bg-canvas-recessed"
-      )}
+      aria-current={active ? "true" : "false"}
+      className={cn("navbtn w-full justify-start", collapsed && "justify-center px-0")}
     >
-      {active && (
-        <motion.div
-          layoutId="sidebarNavIndicator"
-          className="absolute inset-0 bg-love-soft rounded-xl"
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        />
-      )}
-      <span className="relative z-10 shrink-0">{icon}</span>
+      <span className="shrink-0">{icon}</span>
       <AnimatePresence>
         {!collapsed && (
           <motion.span
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
-            className="relative z-10 whitespace-nowrap overflow-hidden"
+            className="whitespace-nowrap overflow-hidden"
           >
             {label}
           </motion.span>

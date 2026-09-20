@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { createContext, type ReactNode, useCallback, useContext, useState } from "react"
+import { cn } from "@/lib/utils"
 
 type ToastType = "success" | "error" | "info"
 
@@ -77,73 +78,57 @@ function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   )
 }
 
+const TOAST_ICONS: Record<ToastType, ReactNode> = {
+  success: (
+    <svg viewBox="0 0 24 24" className="ic ic-sm ic-fill" aria-hidden="true">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  ),
+  error: (
+    <svg viewBox="0 0 24 24" className="ic ic-sm" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M15 9l-6 6M9 9l6 6" />
+    </svg>
+  ),
+  info: (
+    <svg viewBox="0 0 24 24" className="ic ic-sm" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4M12 8h.01" />
+    </svg>
+  ),
+}
+
+const TOAST_TONES: Record<ToastType, string> = {
+  success: "tst",
+  error: "tse",
+  info: "tsd",
+}
+
 interface ToastItemProps {
   toast: Toast
   onDismiss: (id: string) => void
 }
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
-  const icons = {
-    success: (
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.1, type: "spring", bounce: 0.5 }}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="w-5 h-5 text-love"
-          aria-hidden="true"
-        >
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-      </motion.div>
-    ),
-    error: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className="w-5 h-5 text-danger"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <path strokeLinecap="round" d="M15 9l-6 6M9 9l6 6" />
-      </svg>
-    ),
-    info: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className="w-5 h-5 text-warmth"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <path strokeLinecap="round" d="M12 16v-4M12 8h.01" />
-      </svg>
-    ),
-  }
-
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-      transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.14, ease: [0.2, 0.9, 0.3, 1] }}
       className="pointer-events-auto"
     >
       <button
         onClick={() => onDismiss(toast.id)}
-        className="flex items-center gap-3 px-4 py-3 bg-canvas-elevated border border-stroke rounded-xl shadow-lg backdrop-blur-sm min-w-[200px] max-w-[90vw] text-left cursor-pointer focus-ring"
+        className={cn(
+          "toast-card w-full cursor-pointer text-left min-w-[200px] max-w-[90vw]",
+          TOAST_TONES[toast.type]
+        )}
         aria-label={`Dismiss: ${toast.message}`}
       >
-        <span className="flex-shrink-0 animate-heartbeat">{icons[toast.type]}</span>
-        <span className="text-caption text-ink">{toast.message}</span>
+        <span className="shrink-0 animate-heartbeat">{TOAST_ICONS[toast.type]}</span>
+        <span>{toast.message}</span>
       </button>
     </motion.div>
   )

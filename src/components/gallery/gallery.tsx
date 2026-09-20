@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { BottomNav, CollapsibleHeader } from "@/components/layout"
 import { useGalleryContext, useSelectionContext } from "@/components/layout/app-shell"
+import type { SearchField } from "@/components/ui"
 import {
   FeedItemSkeleton,
   PhotoCardSkeleton,
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui"
 import { useKeyboardNav, usePullToRefresh } from "@/lib/hooks"
 import type { GalleryView, PaginatedPhotos, PhotoWithUrls } from "@/types"
-import type { SearchField } from "@/components/ui"
 import { PhotoModalContent } from "./photo-modal"
 import { PullToRefreshIndicator } from "./pull-to-refresh-indicator"
 import { MasonryGrid } from "./views/masonry-grid"
@@ -206,13 +206,10 @@ export function Gallery() {
   }, [fetchPhotos, setPhotos, setCursor, setHasMore])
 
   // Search handlers
-  const handleSearch = useCallback(
-    (params: { q: string; field: SearchField }) => {
-      setSearchQuery(params.q)
-      setSearchField(params.field)
-    },
-    []
-  )
+  const handleSearch = useCallback((params: { q: string; field: SearchField }) => {
+    setSearchQuery(params.q)
+    setSearchField(params.field)
+  }, [])
 
   const handleClearSearch = useCallback(() => {
     setSearchQuery("")
@@ -268,7 +265,17 @@ export function Gallery() {
     }
     isLoadingMoreRef.current = false
     setLoadingMore(false)
-  }, [cursor, hasMore, fetchPhotos, searchQuery, searchField, setPhotos, setCursor, setHasMore, setLoadingMore])
+  }, [
+    cursor,
+    hasMore,
+    fetchPhotos,
+    searchQuery,
+    searchField,
+    setPhotos,
+    setCursor,
+    setHasMore,
+    setLoadingMore,
+  ])
 
   // Keep a stable ref to the latest loadMore so the observer callback never goes stale
   const loadMoreFnRef = useRef(loadMore)
@@ -392,9 +399,9 @@ export function Gallery() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="flex flex-col items-center justify-center py-20 text-center px-4"
+            className="empty-note"
           >
-            <div className="w-16 h-16 text-ink-tertiary mb-4">
+            <div className="mx-auto mb-3 h-9 w-9 text-ink-tertiary">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -403,22 +410,17 @@ export function Gallery() {
                 aria-hidden="true"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
                   d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                 />
               </svg>
             </div>
-            <h3 className="text-heading font-display font-semibold text-ink mb-2">
+            <h3 className="text-heading font-display font-semibold text-ink">
               No dishes match &ldquo;{searchQuery}&rdquo;
             </h3>
-            <p className="text-ink-secondary mb-4">
-              Try a different search term or use the filter chips above
-            </p>
-            <button
-              onClick={handleClearSearch}
-              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium font-body bg-canvas-elevated border border-stroke text-ink hover:bg-canvas-recessed transition-colors cursor-pointer focus-ring"
-            >
+            <p>Try a different search term or use the filter chips above</p>
+            <button onClick={handleClearSearch} className="btn btn-sm mt-3">
               Clear search
             </button>
           </motion.div>
@@ -430,9 +432,9 @@ export function Gallery() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="flex flex-col items-center justify-center py-20 text-center"
+          className="empty-note"
         >
-          <div className="w-20 h-20 text-love mb-4">
+          <div className="mx-auto mb-3 h-12 w-12 text-ink-tertiary">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -441,19 +443,19 @@ export function Gallery() {
               aria-hidden="true"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
               />
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
                 d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
               />
             </svg>
           </div>
-          <h3 className="text-display font-display font-semibold text-ink mb-2">No photos yet</h3>
-          <p className="text-ink-secondary">Start documenting your culinary journey!</p>
+          <h3 className="text-display font-display font-semibold text-ink">No photos yet</h3>
+          <p>Start documenting your culinary journey!</p>
         </motion.div>
       )
     }
@@ -522,12 +524,13 @@ export function Gallery() {
         {isDesktopAnalytics ? (
           <main className="container mx-auto px-6 py-8" role="region" aria-label="Analytics">
             <div className="max-w-6xl mx-auto space-y-8">
-              <div>
-                <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
-                <p className="text-ink-secondary mt-1">
-                  A quick look at how the gallery is growing
-                </p>
+              <div className="panel-head">
+                <div>
+                  <h1 className="panel-title font-display">Analytics</h1>
+                  <p className="panel-sub">A quick look at how the gallery is growing</p>
+                </div>
               </div>
+              <hr className="rule" />
               <AnalyticsContent />
             </div>
           </main>
@@ -580,7 +583,7 @@ export function Gallery() {
           />
 
           {/* Toolbar: view switcher + search — sticky below the compact header */}
-          <div className="sticky top-14 z-30 glass border-b border-stroke">
+          <div className="sticky top-14 z-30 glass border-b-[2.5px] border-line">
             <div className="flex justify-center px-4 pt-2">
               <ViewSwitcher currentView={galleryView} onViewChange={handleViewChange} />
             </div>
@@ -613,12 +616,13 @@ export function Gallery() {
 
           <main className="container mx-auto px-4 py-6" role="region" aria-label="Analytics">
             <div className="max-w-6xl mx-auto space-y-6">
-              <div>
-                <h1 className="font-display text-display font-semibold text-ink">Analytics</h1>
-                <p className="text-ink-secondary mt-1">
-                  A quick look at how the gallery is growing
-                </p>
+              <div className="panel-head">
+                <div>
+                  <h1 className="panel-title font-display">Analytics</h1>
+                  <p className="panel-sub">A quick look at how the gallery is growing</p>
+                </div>
               </div>
+              <hr className="rule" />
               <AnalyticsContent />
             </div>
           </main>

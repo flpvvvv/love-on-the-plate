@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Image from "next/image"
 
 interface PullToRefreshIndicatorProps {
   pullDistance: number
@@ -22,31 +21,25 @@ export function PullToRefreshIndicator({
       animate={{ height: pullDistance }}
       transition={{ type: "spring", stiffness: 400, damping: 35 }}
     >
-      <motion.div
-        animate={{
-          rotate: isRefreshing ? 360 : progress * 180,
-          scale: isRefreshing ? [1, 1.2, 1] : Math.min(progress, 1),
-          opacity: Math.min(progress * 2, 1),
-        }}
-        transition={
-          isRefreshing
-            ? {
-                rotate: { repeat: Infinity, duration: 1, ease: "linear" },
-                scale: { repeat: Infinity, duration: 1 },
-              }
-            : { type: "spring", stiffness: 300, damping: 20 }
-        }
-        className="w-8 h-8"
-      >
-        <Image
-          src="/logo.svg"
-          alt=""
-          width={32}
-          height={32}
-          className="w-full h-full"
-          style={{ filter: "var(--logo-filter, none)" }}
+      <div className="nb nb-sm nb-butter mono inline-flex items-center gap-[9px] px-[11px] py-[7px] text-[0.7rem] uppercase tracking-[0.06em]">
+        <motion.span
+          className="spin-ring block h-[17px] w-[17px] flex-none border-[2.5px] border-on-fill border-t-transparent"
+          animate={{
+            rotate: isRefreshing ? 360 : progress * 180,
+            scale: isRefreshing ? [1, 1.2, 1] : Math.min(progress, 1),
+            opacity: Math.min(progress * 2, 1),
+          }}
+          transition={
+            isRefreshing
+              ? {
+                  rotate: { repeat: Infinity, duration: 1, ease: "linear" },
+                  scale: { repeat: Infinity, duration: 1 },
+                }
+              : { type: "spring", stiffness: 300, damping: 20 }
+          }
         />
-      </motion.div>
+        {isRefreshing && <span>Refreshing plates</span>}
+      </div>
     </motion.div>
   )
 }

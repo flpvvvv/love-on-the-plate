@@ -48,8 +48,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFFBF8" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F0C0A" },
+    { media: "(prefers-color-scheme: light)", color: "#FFF3E4" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
   ],
 }
 
@@ -64,10 +64,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col bg-canvas text-ink">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-love focus:text-white focus:rounded-lg focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-love"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-ink focus:text-canvas focus:font-bold focus:tracking-[0.12em]"
         >
           Skip to main content
         </a>

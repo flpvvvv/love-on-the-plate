@@ -8,14 +8,7 @@ type CardProps = HTMLAttributes<HTMLDivElement>
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={cn(
-          "rounded-xl bg-canvas-elevated border border-stroke shadow-sm overflow-hidden",
-          className
-        )}
-        {...props}
-      >
+      <div ref={ref} className={cn("nb overflow-hidden", className)} {...props}>
         {children}
       </div>
     )
