@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Love on the Plate — four redesign directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==========================================================================
+     Comparison hub. This file is a decision aid, not a direction.
+     Its own chrome is deliberately neutral — the four directions supply the
+     colour. Nothing here should bias the comparison.
+     ========================================================================== */
+  :root {
+    --bg: #16161A;
+    --bg-2: #1D1D22;
+    --bg-3: #26262C;
+    --line: #33333B;
+    --fg: #F4F4F6;
+    --fg-2: #A8A8B3;
+    --fg-3: #7C7C88;
+    --accent: #E8E8F0;
+
+    /* Direction accents (used only for identity chips + swatch borders) */
+    --a-paprika: #B23A1F;
+    --a-paper: #FAF6F0;
+    --a-ink: #14100D;
+    --b-gold: #E0A85C;
+    --b-void: #0B0908;
+    --b-ember: #E2542F;
+    --c-tomato: #FF4B23;
+    --c-cobalt: #1F3BFF;
+    --c-butter: #FFC93C;
+    --c-cream: #FFF3E4;
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 5vw, 56px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin: 0 0 24px;
+  }
+
+  h1 {
+    font-family: Fraunces, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5.5vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+    max-width: 22ch;
+  }
+
+  .lede {
+    font-size: clamp(1rem, 1.4vw, 1.1875rem);
+    color: var(--fg-2);
+    max-width: 68ch;
+    margin: 0 0 16px;
+  }
+
+  .lede strong { color: var(--fg); font-weight: 600; }
+
+  .parity-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 32px;
+    padding: 16px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    max-width: 900px;
+  }
+  .parity-note svg { flex-shrink: 0; margin-top: 3px; color: var(--b-gold); }
+  .parity-note p { margin: 0; font-size: 14px; color: var(--fg-2); line-height: 1.55; }
+  .parity-note strong { color: var(--fg); font-weight: 600; }
+
+  /* ---------- section headings ---------- */
+
+  section { padding: clamp(40px, 6vw, 72px) 0; }
+
+  h2 {
+    font-family: Fraunces, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+  }
+
+  .section-sub { color: var(--fg-2); margin: 0 0 36px; max-width: 70ch; }
+
+  /* ---------- preview theme control ---------- */
+
+  .preview-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 28px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--bg-2);
+  }
+
+  .preview-controls .meta-label { margin-right: 4px; }
+
+  .pc-btn {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 7px 13px;
+    min-height: 34px;
+    cursor: pointer;
+    transition: color 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease);
+  }
+  .pc-btn:hover { color: var(--fg); border-color: var(--fg-3); }
+  .pc-btn.is-on { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+  .pc-hint { font-size: 12.5px; color: var(--fg-3); margin-left: auto; }
+
+  /* ---------- direction cards ---------- */
+
+  .directions { display: flex; flex-direction: column; gap: clamp(32px, 5vw, 64px); }
+
+  .dir {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+
+  .dir-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px 16px;
+    padding: 20px clamp(18px, 3vw, 28px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .dir-index {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+  }
+
+  .dir-name {
+    font-family: Fraunces, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .dir-thesis {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.04em;
+    margin: 0 0 0 auto;
+  }
+
+  .dir-body { display: grid; grid-template-columns: 1.35fr 1fr; }
+
+  @media (max-width: 900px) { .dir-body { grid-template-columns: 1fr; } }
+
+  .preview {
+    position: relative;
+    background: var(--bg-3);
+    border-right: 1px solid var(--line);
+    min-height: 340px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .preview { border-right: 0; border-bottom: 1px solid var(--line); min-height: 260px; }
+  }
+
+  /* Scaled live iframe: real file, poster-sized. */
+  .preview iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1440px;
+    height: 1000px;
+    border: 0;
+    transform-origin: top left;
+    transform: scale(var(--preview-scale, 0.42));
+    background: #fff;
+    pointer-events: none;
+  }
+
+  .preview-bar {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(22, 22, 26, 0.86);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--fg-2);
+    letter-spacing: 0.04em;
+  }
+
+  .preview-bar a {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--fg-3);
+    padding-bottom: 1px;
+    transition: border-color 180ms var(--ease), color 180ms var(--ease);
+  }
+  .preview-bar a:hover { border-color: var(--fg); }
+
+  .dir-meta { padding: clamp(18px, 3vw, 28px); display: flex; flex-direction: column; gap: 22px; }
+
+  .meta-block { display: flex; flex-direction: column; gap: 8px; }
+
+  .meta-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--r-sm);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    position: relative;
+  }
+  .swatch::after {
+    content: attr(data-hex);
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    color: var(--fg-3);
+    letter-spacing: 0.02em;
+  }
+  .swatches { margin-bottom: 16px; row-gap: 22px; }
+
+  .spec-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .spec-list li { font-size: 13.5px; color: var(--fg-2); display: flex; gap: 10px; line-height: 1.5; }
+  .spec-list li b { color: var(--fg); font-weight: 600; flex-shrink: 0; }
+
+  .tradeoff { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 560px) { .tradeoff { grid-template-columns: 1fr; } }
+
+  .tradeoff h4 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    color: var(--fg-3);
+  }
+  .tradeoff ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .tradeoff li { font-size: 13.5px; color: var(--fg-2); line-height: 1.5; }
+  .tradeoff li::marker { color: var(--fg-3); }
+
+  .good li::marker { color: #4ADE80; }
+  .cost li::marker { color: #FBBF24; }
+
+  /* ---------- parity table ---------- */
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); }
+
+  table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13.5px; }
+
+  caption {
+    text-align: left;
+    padding: 14px 18px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    border-bottom: 1px solid var(--line);
+  }
+
+  th, td { text-align: left; padding: 12px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  th { color: var(--fg-3); font-weight: 500; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  td { color: var(--fg-2); }
+  td:first-child { color: var(--fg); font-weight: 500; white-space: nowrap; }
+  tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  .mono { font-family: "JetBrains Mono", monospace; font-size: 12px; }
+
+  /* ---------- recommendation ---------- */
+
+  .rec { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+
+  .rec-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 22px;
+    background: var(--bg-2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rec-card.pick { border-color: var(--b-gold); background: linear-gradient(180deg, rgba(224, 168, 92, 0.09), transparent 60%), var(--bg-2); }
+
+  .rec-tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+  .rec-card.pick .rec-tag { color: var(--b-gold); }
+  .rec-card h3 { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 1.25rem; font-weight: 700; }
+  .rec-card p { margin: 0; font-size: 14px; color: var(--fg-2); line-height: 1.55; }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 64px;
+    color: var(--fg-3);
+    font-size: 13.5px;
+  }
+  footer a { color: var(--fg-2); text-decoration: none; border-bottom: 1px solid var(--fg-3); }
+  footer a:hover { color: var(--fg); border-color: var(--fg); }
+  footer p { margin: 0 0 10px; max-width: 80ch; }
+
+  :focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; border-radius: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Love on the Plate · redesign study · 2026-09-20</p>
+    <h1>Four directions for the same app.</h1>
+    <p class="lede">
+      Every feature you already have is preserved in all four: the four gallery views, the immersive
+      feed, the photo sheet with its swipe and bilingual copy, search with its four field filters,
+      the analytics dashboard, the upload flow with AI descriptions, magic-link login, both themes,
+      and the mobile-first layout that still behaves on a desktop.
+    </p>
+    <p class="lede">
+      What changes is the <strong>visual language</strong> — and with it, what the app feels like it is
+      <em>for</em>. The files are built from one shared brief: same 12 dishes, same bilingual
+      descriptions, same analytics numbers, same interactions, same accessibility floor. Only the
+      design differs, so the comparison is honest.
+    </p>
+    <p class="lede">
+      The fourth is a colour study rather than a new structure. <strong>Bonheur</strong> is Plate Stack,
+      markup for markup, recoloured from a Matisse painting — so you can judge a palette without
+      relearning a layout. Read 03 and 04 as a pair; everything that differs between them is colour.
+    </p>
+
+    <div class="parity-note">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+      </svg>
+      <p>
+        <strong>Read the previews as posters, not screenshots.</strong> Each card below embeds the real
+        file, scaled down. Open the full mockup to scroll it, switch themes, change view, open a dish,
+        and resize the device frame yourself — that is where these directions actually differ.
+      </p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <h2>The four directions</h2>
+      <p class="section-sub">
+        Each one is a complete replacement, not a layer on top of the current design. They disagree
+        about almost everything: whether photos or typography lead, whether the app is bright or dark
+        by default, whether it whispers or shouts. 03 and 04 agree about all of that and disagree
+        only about colour — those two are meant to be read side by side.
+      </p>
+
+      <div class="preview-controls" role="group" aria-label="Preview theme">
+        <span class="meta-label">Preview theme</span>
+        <button type="button" class="pc-btn is-on" data-preview-theme="dark">Night</button>
+        <button type="button" class="pc-btn" data-preview-theme="light">Day</button>
+        <span class="pc-hint">Switches all four previews together, so you are never comparing a dark card against a light one.</span>
+      </div>
+
+      <div class="directions">
+
+        <!-- ============ A ============ -->
+        <article class="dir">
+          <div class="dir-head">
+            <span class="dir-index">01</span>
+            <h3 class="dir-name">The Kitchen Journal</h3>
+            <p class="dir-thesis">a cookbook you write by cooking</p>
+          </div>
+          <div class="dir-body">
+            <div class="preview" data-preview="01-kitchen-journal.html">
+              <div class="preview-bar">
+                <span>editorial · serif · light-first</span>
+                <a href="01-kitchen-journal.html" target="_blank" rel="noopener">Open full mockup ↗</a>
+              </div>
+            </div>
+            <div class="dir-meta">
+              <div class="meta-block">
+                <span class="meta-label">Palette — Morning Kitchen / Night Edition</span>
+                <div class="swatches">
+                  <span class="swatch" data-hex="#FAF6F0" style="background:#FAF6F0" title="paper"></span>
+                  <span class="swatch" data-hex="#14100D" style="background:#14100D" title="ink"></span>
+                  <span class="swatch" data-hex="#B23A1F" style="background:#B23A1F" title="paprika"></span>
+                  <span class="swatch" data-hex="#4F6350" style="background:#4F6350" title="sage"></span>
+                  <span class="swatch" data-hex="#D9A441" style="background:#D9A441" title="butter"></span>
+                  <span class="swatch" data-hex="#141110" style="background:#141110" title="night"></span>
+                </div>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Type</span>
+                <ul class="spec-list">
+                  <li><b>Display</b> Playfair Display 900, up to 5.5rem, tracked tight</li>
+                  <li><b>Body</b> Source Serif 4 — a serif body, deliberately</li>
+                  <li><b>Labels</b> JetBrains Mono, uppercase, letter-spaced</li>
+                  <li><b>Idea</b> 中文 is the headline; English is the subhead</li>
+                </ul>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Structure</span>
+                <ul class="spec-list">
+                  <li><b>Grid</b> 12 columns, asymmetric, hairline rules</li>
+                  <li><b>Radius</b> 2px · <b>Shadows</b> none — paper tone separates</li>
+                  <li><b>Motion</b> 200–300ms fades, no bounce, no overshoot</li>
+                  <li><b>Detail</b> mono index numbers, drop caps, pull quotes, marginalia</li>
+                </ul>
+              </div>
+              <div class="tradeoff">
+                <div>
+                  <h4 class="good">Good at</h4>
+                  <ul class="good">
+                    <li>Making words carry weight — the bilingual descriptions become the point</li>
+                    <li>Desktop reading; an archive of 200+ plates stays browsable, not endless</li>
+                    <li>Ageing well. It looks like a book, and books do not go out of fashion</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="cost">Costs</h4>
+                  <ul class="cost">
+                    <li>Serif body is a real typographic commitment — wrong font, wrong result</li>
+                    <li>Food photos on light paper lose some of the punch a dark canvas gives</li>
+                    <li>Least "surprising" of the four; it reads as tasteful rather than new</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ B ============ -->
+        <article class="dir">
+          <div class="dir-head">
+            <span class="dir-index">02</span>
+            <h3 class="dir-name">After Dark</h3>
+            <p class="dir-thesis">the meal, full frame, under one warm light</p>
+          </div>
+          <div class="dir-body">
+            <div class="preview" data-preview="02-after-dark.html">
+              <div class="preview-bar">
+                <span>cinematic · OLED dark · photo-first</span>
+                <a href="02-after-dark.html" target="_blank" rel="noopener">Open full mockup ↗</a>
+              </div>
+            </div>
+            <div class="dir-meta">
+              <div class="meta-block">
+                <span class="meta-label">Palette — After Dark / Daylight Service</span>
+                <div class="swatches">
+                  <span class="swatch" data-hex="#0B0908" style="background:#0B0908" title="void"></span>
+                  <span class="swatch" data-hex="#151110" style="background:#151110" title="surface"></span>
+                  <span class="swatch" data-hex="#F5EFE7" style="background:#F5EFE7" title="ink"></span>
+                  <span class="swatch" data-hex="#E0A85C" style="background:#E0A85C" title="gold"></span>
+                  <span class="swatch" data-hex="#E2542F" style="background:#E2542F" title="ember"></span>
+                  <span class="swatch" data-hex="#7FA98B" style="background:#7FA98B" title="sage"></span>
+                </div>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Type</span>
+                <ul class="spec-list">
+                  <li><b>Display</b> Playfair Display SC — small-caps serif at every size</li>
+                  <li><b>Body</b> Karla 300–700</li>
+                  <li><b>Labels</b> Karla caps, 0.2em tracking</li>
+                  <li><b>Numerals</b> serif, tabular, up to 6rem for stats</li>
+                </ul>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Structure</span>
+                <ul class="spec-list">
+                  <li><b>Home</b> the immersive feed *is* the home surface</li>
+                  <li><b>Chrome</b> floating glass pill nav, hairline dividers, no borders</li>
+                  <li><b>Motion</b> 300–450ms, cross-fades, ≤5% hero parallax on desktop</li>
+                  <li><b>Separation</b> luminance steps, never shadows</li>
+                </ul>
+              </div>
+              <div class="tradeoff">
+                <div>
+                  <h4 class="good">Good at</h4>
+                  <ul class="good">
+                    <li>Making the food itself the hero — dark canvas, warm key light</li>
+                    <li>One-handed phone browsing: full-bleed, scroll-snapped, nothing to aim at</li>
+                    <li>Extending the "Candlelit Dinner" theme you already ship</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="cost">Costs</h4>
+                  <ul class="cost">
+                    <li>Long bilingual descriptions sit awkwardly on top of a full-bleed photo</li>
+                    <li>Dark-by-default is a decision about when the app gets used — evenings, mostly</li>
+                    <li>Weakest at dense archiving; 214 plates in a filmstrip runs long</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ C ============ -->
+        <article class="dir">
+          <div class="dir-head">
+            <span class="dir-index">03</span>
+            <h3 class="dir-name">Plate Stack</h3>
+            <p class="dir-thesis">a fridge door covered in stickers, ordered like a grid</p>
+          </div>
+          <div class="dir-body">
+            <div class="preview" data-preview="03-plate-stack.html">
+              <div class="preview-bar">
+                <span>neo-brutalist · bento · loud</span>
+                <a href="03-plate-stack.html" target="_blank" rel="noopener">Open full mockup ↗</a>
+              </div>
+            </div>
+            <div class="dir-meta">
+              <div class="meta-block">
+                <span class="meta-label">Palette — Fridge Door / Night Market</span>
+                <div class="swatches">
+                  <span class="swatch" data-hex="#FFF3E4" style="background:#FFF3E4" title="cream"></span>
+                  <span class="swatch" data-hex="#0E0E0E" style="background:#0E0E0E" title="ink"></span>
+                  <span class="swatch" data-hex="#FF4B23" style="background:#FF4B23" title="tomato"></span>
+                  <span class="swatch" data-hex="#1F3BFF" style="background:#1F3BFF" title="cobalt"></span>
+                  <span class="swatch" data-hex="#FFC93C" style="background:#FFC93C" title="butter"></span>
+                  <span class="swatch" data-hex="#00A15C" style="background:#00A15C" title="leaf"></span>
+                </div>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Type</span>
+                <ul class="spec-list">
+                  <li><b>Everything</b> Space Grotesk 400–700, uppercase</li>
+                  <li><b>Numerals</b> Space Mono for dates, counts, scoreboard</li>
+                  <li><b>Hero</b> clamp 2.5–4.5rem, uppercase, tight</li>
+                  <li><b>Labels</b> 0.12em tracking, always caps</li>
+                </ul>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Structure</span>
+                <ul class="spec-list">
+                  <li><b>Grid</b> bento board with visible 2.5px rules</li>
+                  <li><b>Radius</b> 0 · <b>Shadow</b> 6px hard offset, no blur</li>
+                  <li><b>Motion</b> 120–180ms pops; pressing a card collapses it into its shadow</li>
+                  <li><b>Fixtures</b> rotated sticker badges, marquee ticker, scoreboard stats</li>
+                </ul>
+              </div>
+              <div class="tradeoff">
+                <div>
+                  <h4 class="good">Good at</h4>
+                  <ul class="good">
+                    <li>Personality — it feels like a household, not a portfolio</li>
+                    <li>Readable at a glance; chips, badges and counters are unambiguous</li>
+                    <li>Holds up on a wall tablet or a shared family view</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="cost">Costs</h4>
+                  <ul class="cost">
+                    <li>Loudness fights the intimacy of a private love-letter gallery</li>
+                    <li>Hard borders and 0 radius make dense photo grids feel heavy</li>
+                    <li>Most work to apply consistently — every surface needs a strong decision</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ D ============ -->
+        <article class="dir">
+          <div class="dir-head">
+            <span class="dir-index">04</span>
+            <h3 class="dir-name">Bonheur</h3>
+            <p class="dir-thesis">Plate Stack, painted from a Matisse</p>
+          </div>
+          <div class="dir-body">
+            <div class="preview" data-preview="04-bonheur.html">
+              <div class="preview-bar">
+                <span>neo-brutalist · bento · fauve</span>
+                <a href="04-bonheur.html" target="_blank" rel="noopener">Open full mockup ↗</a>
+              </div>
+            </div>
+            <div class="dir-meta">
+              <div class="meta-block">
+                <span class="meta-label">Palette — Bonheur / Nuit Bleue · sampled, not chosen</span>
+                <div class="swatches">
+                  <span class="swatch" data-hex="#F2E6CE" style="background:#F2E6CE" title="parchment"></span>
+                  <span class="swatch" data-hex="#12172F" style="background:#12172F" title="indigo ink"></span>
+                  <span class="swatch" data-hex="#DC5A31" style="background:#DC5A31" title="vermilion"></span>
+                  <span class="swatch" data-hex="#3A5A88" style="background:#3A5A88" title="slate"></span>
+                  <span class="swatch" data-hex="#E4CE7A" style="background:#E4CE7A" title="meadow gold"></span>
+                  <span class="swatch" data-hex="#3E9B8E" style="background:#3E9B8E" title="teal"></span>
+                </div>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Type</span>
+                <ul class="spec-list">
+                  <li><b>Everything</b> unchanged from 03 — Space Grotesk 400–700, uppercase</li>
+                  <li><b>Numerals</b> Space Mono for dates, counts, scoreboard</li>
+                  <li><b>Why unchanged</b> this is a colour study; the type is a control, not a variable</li>
+                  <li><b>Labels</b> 0.12em tracking, always caps</li>
+                </ul>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Structure</span>
+                <ul class="spec-list">
+                  <li><b>Identical to 03</b> same markup, same bento board, same 2.5px rules</li>
+                  <li><b>Radius</b> 0 · <b>Shadow</b> 6px hard offset, no blur</li>
+                  <li><b>Changed</b> tokens only — 28 colour values, 14 per theme</li>
+                  <li><b>Source</b> <span class="mono">joy_of_life.jpg</span>, sampled per channel</li>
+                </ul>
+              </div>
+              <div class="tradeoff">
+                <div>
+                  <h4 class="good">Good at</h4>
+                  <ul class="good">
+                    <li>Keeping Plate Stack's personality while removing its shout</li>
+                    <li>A museum-poster dignity that still reads as a household, not a portfolio</li>
+                    <li>Warm parchment and indigo ink are kinder at length than black on white</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="cost">Costs</h4>
+                  <ul class="cost">
+                    <li>Lower chroma than 03 — the stickers no longer jump off the board</li>
+                    <li>The palette is borrowed; it will never feel "chosen" the way 01–03 do</li>
+                    <li>Inherits 03's four contrast debts in the dark theme — measured below, not hidden</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>How Bonheur's palette was derived</h2>
+      <p class="section-sub">
+        Every colour in 04 is measured from
+        <span class="mono">mockups/joy_of_life.jpg</span> — Matisse, <em>Bonheur de Vivre</em>, 1906.
+        Clustering plus a hue/chroma histogram, over the canvas region only (x 272–1728, y 700–1840 of
+        the 2000×2500 scan). Nothing was eyeballed, and no hue was invented.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>Sampled from the painting → applied as a token</caption>
+          <thead>
+            <tr><th scope="col">Role</th><th scope="col">Sampled</th><th scope="col">Applied</th><th scope="col">Why it moved</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ground</td><td class="mono">#D8C7B8 · #DFCFBF · #D7C79F</td><td class="mono">#F2E6CE</td><td>Lightened so the UI has headroom above the canvas</td></tr>
+            <tr><td>Ink</td><td class="mono">#0E1537 · #1C173F</td><td class="mono">#12172F</td><td>Near-straight swap — the painting's outline navy</td></tr>
+            <tr><td>Secondary ink</td><td class="mono">#78625A · #BFB8A7</td><td class="mono">#4E4A57</td><td>Pushed to 6.96:1 to clear the body floor</td></tr>
+            <tr><td>Vermilion</td><td class="mono">#D8572F</td><td class="mono">#DC5A31</td><td>Lifted 2 points — 4.48 → 4.67:1 against ink, hue untouched</td></tr>
+            <tr><td>Teal</td><td class="mono">#278077</td><td class="mono">#3E9B8E</td><td>Lifted 6 points — 3.73 → 5.28:1 against ink, hue untouched</td></tr>
+            <tr><td>Gold</td><td class="mono">#E0CE7F</td><td class="mono">#E4CE7A</td><td>Straight swap · fill only, 11.27:1 under ink</td></tr>
+            <tr><td>Slate</td><td class="mono">#4F6887 · #1F3858</td><td class="mono">#3A5A88</td><td>Deepened to 5.67:1 so it can be typed in</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="section-sub" style="margin-top: 26px">
+        <strong>What the recolour did and did not change.</strong> 03 and 04 were audited together, in
+        both themes, by walking every rendered text element across all 20 device frames and measuring
+        its computed colour against its nearest painted background. The failing pairs come out
+        <em>identical</em>, element for element — light: none; dark: four, in the upload drop-zone
+        (<span class="mono">#E5CE7C on #BDB49F ×21</span> while dragging, and its
+        <span class="mono">#2A2E44 on #12172F ×17</span> help line, plus
+        <span class="mono">#E5CE7C on #F6ECD9 ×1</span> for <em>Cancel drop</em>) and the search
+        result chip (<span class="mono">#E4744A on #F6ECD9 ×18</span>). Those are Plate Stack's debts,
+        not the palette's, and they are reported rather than quietly patched — patching them here
+        would make 03 and 04 differ in more than colour, which is the one thing this pair is for.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What is identical in all four</h2>
+      <p class="section-sub">
+        So that the difference you see is a design difference, not a feature difference.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>Parity checklist — verified in every mockup</caption>
+          <thead>
+            <tr><th scope="col">Dimension</th><th scope="col">Held constant</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Screens</td><td>Plates · Grid · Timeline · immersive feed · photo detail (mobile sheet <em>and</em> desktop dialog) · search with filter chips · analytics · upload with AI review · login · component sheet</td></tr>
+            <tr><td>Content</td><td>The same 12 dishes, identical 中文 + English names, identical descriptions, identical ingredient tags, identical EXIF-derived dates</td></tr>
+            <tr><td>Data</td><td>214 plates · the same 8 monthly bars · same top dishes and top ingredients · same 14-day trend</td></tr>
+            <tr><td>Copy</td><td>Verbatim app strings — <span class="mono">Happy wife, happy life</span>, <span class="mono">Photo uploaded with love!</span>, <span class="mono">菜名 / Dish Name</span>, <span class="mono">With love ♡</span>, <span class="mono">You're offline. Some features may be unavailable.</span></td></tr>
+            <tr><td>Responsive model</td><td>One markup, container queries. Phone frame and desktop frame are the same DOM at different container widths — no separate mobile file</td></tr>
+            <tr><td>Interactions</td><td>View switcher, tab switching, dish → detail sheet, <span class="mono">Escape</span> to close with focus return, theme toggle, live search filtering, upload state cycling</td></tr>
+            <tr><td>Search, and one honest difference</td><td>All four filter the same 12 plates and all four surface the ingredient match <span class="mono">番茄 tomato · 31</span>. They disagree on what the number counts, because they list different things: 01, 03 and 04 show a typed result list (dish row, ingredient row, description row) and report <span class="mono">3 results</span>; 02 shows filtered plates plus its ingredient rows and reports <span class="mono">2 results</span>. Each file is internally consistent — the seeded search pane and the live typing path agree — but the counts are not directly comparable across the four.</td></tr>
+            <tr><td>Accessibility</td><td>Body text ≥ 4.5:1 in both themes · visible focus rings · 44×44px targets · labels on icon-only controls · <span class="mono">role="dialog"</span> + focus trap · reduced-motion honoured · no horizontal scroll at 375px. Measured per file by walking every rendered text element in all 20 device frames against its painted background: 01 — one 1.08:1 pair that is a measurement artifact; 02 — one 1.03:1 artifact in light, clean in dark; 03 and 04 — none in light, and the same four real pairs in dark (noted above)</td></tr>
+            <tr><td>03 and 04 specifically</td><td>Bonheur is Plate Stack markup for markup — same template, same CSS, same script. It differs in exactly 28 token values (14 per theme), all of them colour; the other 17 declarations — border width, offsets, timing, easing, both font stacks, and the <span class="mono">--bg/--fg/--line/--accent</span> aliases — are byte-identical. Verified by diffing the two files: 158 changed lines, every one a token value, a name, or a documentation string</td></tr>
+            <tr><td>Imagery</td><td>No photography. Every dish is a hand-drawn inline SVG plate, tinted by that direction's tokens — so nothing depends on the network</td></tr>
+            <tr><td>Tech</td><td>One self-contained HTML file each, no build step, no CDN JS, Google Fonts the only external request</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>How to choose</h2>
+      <p class="section-sub">
+        They are not four intensities of one idea. They optimise for different things, and picking
+        badly costs real work later. Since Plate Stack is the structure you have settled on, the live
+        question is the last card: 03's own palette, or 04's.
+      </p>
+      <div class="rec">
+        <div class="rec-card">
+          <span class="rec-tag">Pick 01 if</span>
+          <h3>The writing matters as much as the photo</h3>
+          <p>
+            You read the descriptions, you cook from the archive, and you browse on a laptop as often
+            as on a phone. This is the direction that treats 214 plates as a body of work rather than
+            a feed.
+          </p>
+        </div>
+        <div class="rec-card">
+          <span class="rec-tag">Pick 02 if</span>
+          <h3>The photos are the whole point</h3>
+          <p>
+            This is a gallery of food someone cooked with love, viewed one-handed on a phone. Dark
+            canvas plus a full-bleed, scroll-snapped feed is the strongest possible presentation of
+            that, and it grows naturally out of the dark theme you already have. It is also the
+            direction most likely to feel genuinely new to you — while staying usable, because the
+            editorial structure is still there in the grid and timeline views.
+          </p>
+        </div>
+        <div class="rec-card pick">
+          <span class="rec-tag">Pick 03 if · your pick, original palette</span>
+          <h3>You want it to feel like yours, loudly</h3>
+          <p>
+            If the gallery is really a shared family thing — read on a kitchen tablet, shown to
+            guests, added to by more than one person — the bento board and scoreboard stats carry
+            that better than either quiet direction. It is the highest-personality option and the
+            most work to keep coherent. Choose this over 04 if the tomato-and-cobalt voltage is the
+            part you like.
+          </p>
+        </div>
+        <div class="rec-card">
+          <span class="rec-tag">Pick 04 if · same structure, quieter</span>
+          <h3>You like the board, not the volume</h3>
+          <p>
+            Identical markup and behaviour to 03, with every colour sampled from Matisse's
+            <em>Bonheur de Vivre</em>. Choose it if the bento clarity is right but the shouting is
+            not: it reads calmer in daylight, gentler on a dark screen, and it already has a whole
+            technique behind it, which means future additions — a new badge, a new chart series —
+            have a rule to follow rather than a vibe to match.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>What adopting one costs</h2>
+      <p class="section-sub">
+        All four were designed against your existing structure, so none of them requires new
+        features. The work is in the token layer and the components.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <caption>Implementation surface per direction</caption>
+          <thead>
+            <tr>
+              <th scope="col">Direction</th>
+              <th scope="col">Tokens</th>
+              <th scope="col">Components touched</th>
+              <th scope="col">Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>01 Kitchen Journal</td>
+              <td>Canvas / ink / rule / paprika replace the current canvas-love-warmth set; radii drop to 2px; the shadow scale is deleted</td>
+              <td>All four gallery views, <span class="mono">photo-card</span>, <span class="mono">photo-modal</span>, <span class="mono">header</span>, <span class="mono">footer</span>; typography utilities in <span class="mono">globals.css</span></td>
+              <td><span class="mono">Low</span> — mostly token + layout work, no new interaction models</td>
+            </tr>
+            <tr>
+              <td>02 After Dark</td>
+              <td>New dark-first scale, gold as the single accent, ember for destructive/focus; the light theme becomes a full second design, not a token swap</td>
+              <td>The same set, plus <span class="mono">bottom-nav</span> becomes a floating pill, <span class="mono">immersive-feed</span> promoted to the default route, analytics re-skinned</td>
+              <td><span class="mono">Medium</span> — two themes to author properly; the feed-first home changes navigation defaults</td>
+            </tr>
+            <tr>
+              <td>03 Plate Stack</td>
+              <td>Hard-shadow and 2.5px border tokens, radius 0, four saturated fills with strict contrast rules on which may carry text</td>
+              <td>Everything — every card, chip, button, input and chart needs a bordered, offset-shadow treatment</td>
+              <td><span class="mono">Medium–high</span> — easy to get 80% right and leave a soft-cornered leftover behind</td>
+            </tr>
+            <tr>
+              <td>04 Bonheur</td>
+              <td>Exactly the same surface as 03 — the same hard-shadow and border tokens — with 28 values swapped for painting-derived ones. Because it is 03's palette layer, choosing it costs <em>nothing</em> beyond 03</td>
+              <td>None beyond 03. No component, template or rule changes: a token block in <span class="mono">globals.css</span> and nothing else</td>
+              <td><span class="mono">Lowest</span> — and reversible, since 03 and 04 differ only in those 28 values</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>
+        Files: <a href="01-kitchen-journal.html">01-kitchen-journal.html</a> ·
+        <a href="02-after-dark.html">02-after-dark.html</a> ·
+        <a href="03-plate-stack.html">03-plate-stack.html</a> ·
+        <a href="04-bonheur.html">04-bonheur.html</a>
+      </p>
+      <p>
+        Open any one directly in a browser. Each has a toolbar at the top that resizes the preview
+        between 390px, 768px and 1440px, and a light/dark switch. The screens are labelled 1–10 and
+        appear in the same order in all four files, so you can jump from one to the other on the
+        same screen number. 04 is 03 recoloured from
+        <span class="mono">joy_of_life.jpg</span> — open those two in adjacent tabs and switch
+        themes in both to see exactly what a palette does.
+      </p>
+      <p>
+        Nothing in <span class="mono">src/</span> was modified. These mockups are standalone files
+        under <span class="mono">mockups/</span>; delete the folder to discard all four.
+      </p>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // Scale the poster iframes so each preview fills its card at any viewport width.
+  const PREVIEW_WIDTH = 1440;
+
+  // Posters open on the app itself (not the file's own spec header), in a fixed theme, so the
+  // four cards can be compared like for like. Each mockup honours ?theme=light|dark.
+  let previewTheme = 'dark';
+
+  function previewSrc(file) {
+    return `${file}?theme=${previewTheme}#screen-1-plates`;
+  }
+
+  function fitPreviews() {
+    document.querySelectorAll('[data-preview]').forEach((host) => {
+      const scale = host.clientWidth / PREVIEW_WIDTH;
+      host.style.setProperty('--preview-scale', String(scale));
+    });
+  }
+
+  function mountPreviews() {
+    document.querySelectorAll('[data-preview]').forEach((host) => {
+      if (host.querySelector('iframe')) return;
+      const bar = host.querySelector('.preview-bar');
+      const iframe = document.createElement('iframe');
+      iframe.src = previewSrc(host.dataset.preview);
+      // Eager: a lazy iframe below the fold renders blank while the reader scrolls to it.
+      iframe.loading = 'eager';
+      iframe.title = `Preview of ${host.dataset.preview}`;
+      iframe.setAttribute('aria-hidden', 'true');
+      iframe.tabIndex = -1;
+      host.insertBefore(iframe, bar);
+    });
+    fitPreviews();
+  }
+
+  document.querySelectorAll('[data-preview-theme]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      previewTheme = btn.dataset.previewTheme;
+      document.querySelectorAll('[data-preview-theme]').forEach((b) => {
+        b.classList.toggle('is-on', b === btn);
+      });
+      document.querySelectorAll('[data-preview]').forEach((host) => {
+        const iframe = host.querySelector('iframe');
+        if (iframe) iframe.src = previewSrc(host.dataset.preview);
+      });
+    });
+  });
+
+  window.addEventListener('resize', fitPreviews, { passive: true });
+
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(mountPreviews);
+  } else {
+    window.addEventListener('load', mountPreviews);
+  }
+</script>
+
+</body>
+</html>

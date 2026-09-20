@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plate Stack — Love on the Plate · East C</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   PLATE STACK — direction C for Love on the Plate
+   One <style> block. Custom properties below are the single source of truth;
+   every rule in this file consumes those variables only.
+   --------------------------------------------------------------------------
+   THESIS  A fridge door covered in stickers, ordered like a grid: flat
+           saturated blocks, 2.5px ink rules, hard 6px offsets, bento board for
+           the gallery and a scoreboard for the numbers.
+   --------------------------------------------------------------------------
+   TYPE    Display/body/button: Space Grotesk 400/500/600/700
+           Numbers, dates, counters, ticker: Space Mono 400/700
+           All display / nav / button / label text is UPPERCASE.
+           Display tracking -0.02em · Label tracking 0.12em · Body 17px / 1.5
+           Hero clamp(2.5rem, 9vw, 4.5rem) / 700 / uppercase
+           CJK fallback: "PingFang SC", "Noto Sans SC"
+   --------------------------------------------------------------------------
+   CONTRAST DISCIPLINE (WCAG 2.1, measured with the relative-luminance
+   formula against the light canvas #FFF3E4)
+     --ink        #0E0E0E  17.64:1  text OK
+     --ink-2      #4A423C   8.99:1  text OK (>= 4.5:1)
+     --cobalt     #1F3BFF   6.14:1  text OK
+     --tomato-ink #C42A05   5.21:1  text OK — this is the tomato you may type in
+     --tomato     #FF4B23   3.05:1  FAILS body text -> fill only, --ink on top (5.78:1)
+     --butter     #FFC93C   1.40:1  FAILS body text -> fill only, --ink on top (12.57:1)
+     --leaf       #00A15C   3.07:1  FAILS body text -> fill only, --ink on top (5.75:1)
+     --cobalt as a FILL must carry cream, not ink: #FFF3E4 on #1F3BFF = 6.14:1
+                                                 #0E0E0E on #1F3BFF =  2.88:1 FAILS
+   NIGHT MARKET (dark canvas #121212) — the discipline flips:
+     --ink #FFF6E9 17.49:1 · --ink-2 #C9BEB2 10.25:1 · --tomato #FF6A45 6.60:1 ·
+     --cobalt #7C8CFF 6.29:1 · --butter #FFD75E 13.50:1 · --leaf #2ED47F 9.67:1
+     Fills keep #121212 text: on tomato 6.60:1, cobalt 6.29:1, butter 13.50:1,
+     leaf 9.67:1. Cream #FFF6E9 never sits on a fill (2.65:1 on tomato — fails).
+   --------------------------------------------------------------------------
+   TOKENS  radius 0 · border 2.5px solid --line (--ink in both themes)
+           shadow 6px 6px 0 --sh (light: ink; dark: cobalt block, tomato accents)
+           press: translate(6px,6px) + shadow 0 — the card travels into its own
+           shadow. Chips use a 2px/2px pairing of the same move.
+           motion 140ms cubic-bezier(.2,.9,.3,1); tap scale .97 on grid tiles
+           no long eases, no soft shadows, no gradient glow
+   ========================================================================== */
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+
+:root{
+  /* raw palette — light "Fridge Door" */
+  --cream:#FFF3E4;
+  --ink:#0E0E0E;
+  --ink-2:#4A423C;
+  --tomato:#FF4B23;
+  --tomato-ink:#C42A05;
+  --cobalt:#1F3BFF;
+  --butter:#FFC93C;
+  --leaf:#00A15C;
+  --on-fill:#0E0E0E;       /* text on tomato/butter/leaf fills */
+  --on-cobalt:#FFF3E4;     /* text on cobalt fills only */
+  /* semantic */
+  --bg:var(--cream);
+  --fg:var(--ink);
+  --fg-2:var(--ink-2);
+  --line:var(--ink);
+  --sh:var(--ink);
+  --accent:var(--tomato);
+  --accent-text:var(--tomato-ink);
+  --wash:#EEE3D5;          /* ink 7% over cream — 15.2:1 with ink, 7.82:1 with ink-2 */
+  --wash-2:#DDD3C6;        /* ink 14% over cream — 13.0:1 with ink, 6.71:1 with ink-2 */
+  --paper:rgba(14,14,14,.30);
+  --backdrop:rgba(14,14,14,.58);
+  /* structural metrics — border, offset, timing */
+  --bw:2.5px;
+  --off:6px;
+  --off-sm:2px;
+  --t:140ms;
+  --ease:cubic-bezier(.2,.9,.3,1);
+  --font-grotesk:"Space Grotesk","PingFang SC","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --font-mono:"Space Mono","PingFang SC","Noto Sans SC",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+[data-theme="dark"]{
+  /* raw palette — "Night Market" */
+  --cream:#121212;
+  --ink:#FFF6E9;
+  --ink-2:#C9BEB2;
+  --tomato:#FF6A45;
+  --tomato-ink:#FF6A45;
+  --cobalt:#7C8CFF;
+  --butter:#FFD75E;
+  --leaf:#2ED47F;
+  --on-fill:#121212;
+  --on-cobalt:#121212;
+  --sh:var(--cobalt);      /* hard offset becomes a solid cobalt block */
+  --accent:var(--tomato);
+  --accent-text:var(--tomato-ink);
+  --wash:#2A2928;          /* ink 10% over #121212 — 13.6:1 with ink, 8.04:1 with ink-2 */
+  --wash-2:#41403D;        /* ink 20% over #121212 — 9.69:1 with ink, 5.73:1 with ink-2 */
+  --paper:rgba(255,246,233,.34);
+  --backdrop:rgba(0,0,0,.62);
+}
+
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-grotesk);
+  font-size:17px;
+  line-height:1.5;
+  font-weight:400;
+}
+
+/* ---------- type specimen utilities ---------- */
+.display{font-family:var(--font-grotesk);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:1.02;margin:0}
+.label{font-family:var(--font-grotesk);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;line-height:1.35;margin:0}
+.mono{font-family:var(--font-mono);font-weight:400;font-variant-numeric:tabular-nums}
+.mono-b{font-family:var(--font-mono);font-weight:700;font-variant-numeric:tabular-nums}
+.muted{color:var(--fg-2)}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---------- focus ---------- */
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+a{color:var(--accent-text);text-decoration-thickness:2px}
+
+/* ---------- neo-brutalist primitives ---------- */
+.nb{border:var(--bw) solid var(--line);border-radius:0;box-shadow:var(--off) var(--off) 0 var(--sh);background:var(--bg);color:var(--fg)}
+.press{transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)}
+.press:active{transform:translate(var(--off),var(--off));box-shadow:0 0 0 var(--sh)}
+.press-sm:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.sh-tomato{--sh:var(--tomato)}
+.sh-cobalt{--sh:var(--cobalt)}
+.sh-butter{--sh:var(--butter)}
+.sh-off{box-shadow:none}
+.clickable{cursor:pointer}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 16px;
+  border:var(--bw) solid var(--line);border-radius:0;background:var(--bg);color:var(--fg);
+  box-shadow:var(--off) var(--off) 0 var(--sh);
+  font-family:var(--font-grotesk);font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;
+  cursor:pointer;text-align:center;line-height:1;
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)
+}
+.btn:active{transform:translate(var(--off),var(--off));box-shadow:0 0 0 var(--sh)}
+.btn:hover{background:var(--wash)}
+.btn .ic{width:18px;height:18px}
+.btn-fill{background:var(--tomato);color:var(--on-fill)}
+.btn-fill:hover{background:color-mix(in srgb,var(--tomato) 86%,var(--bg))}
+.btn-cobalt{background:var(--cobalt);color:var(--on-cobalt)}
+.btn-cobalt:hover{background:color-mix(in srgb,var(--cobalt) 86%,var(--bg))}
+.btn-butter{background:var(--butter);color:var(--on-fill)}
+.btn-ghost{background:transparent;box-shadow:none}
+.btn-ghost:hover{background:var(--wash)}
+.btn-danger{color:var(--accent-text);border-color:var(--accent-text);box-shadow:var(--off) var(--off) 0 var(--accent)}
+.btn-danger:hover{background:color-mix(in srgb,var(--tomato) 16%,var(--bg))}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-sm{min-height:44px;padding:0 12px;font-size:.72rem}
+.btn-lg{min-height:56px;font-size:.95rem}
+.btn-block{width:100%}
+
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;flex:none;
+  border:var(--bw) solid var(--line);border-radius:0;background:var(--bg);color:var(--fg);
+  box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  cursor:pointer;
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)
+}
+.icon-btn:hover{background:var(--wash)}
+.icon-btn:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.icon-btn-bare{box-shadow:none;border-color:transparent}
+.icon-btn-bare:hover{border-color:var(--line)}
+.ic{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:square;stroke-linejoin:miter}
+.ic-sm{width:16px;height:16px}
+.ic-fill{fill:currentColor;stroke:none}
+
+/* sticker badges */
+.sticker{
+  position:absolute;z-index:3;display:inline-flex;align-items:center;gap:4px;
+  padding:2px 7px;background:var(--butter);color:var(--on-fill);
+  border:var(--bw) solid var(--line);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
+  transform:rotate(var(--r,-3deg));white-space:nowrap
+}
+.sticker-cobalt{background:var(--cobalt);color:var(--on-cobalt)}
+.sticker-tomato{background:var(--tomato);color:var(--on-fill)}
+.sticker-leaf{background:var(--leaf);color:var(--on-fill)}
+.sticker-ink{background:var(--ink);color:var(--bg)}
+.st-ne{top:8px;right:8px;left:auto}
+.st-nw{top:8px;left:8px}
+
+/* chips */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:3px 10px;
+  border:var(--bw) solid var(--line);border-radius:0;background:var(--bg);color:var(--fg);
+  box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-family:var(--font-grotesk);font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;
+  cursor:pointer;
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)
+}
+.chip:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.chip:hover{background:var(--wash)}
+.chip[aria-pressed="true"]{background:var(--cobalt);color:var(--on-cobalt);--sh:var(--cobalt)}
+.chip-ing{font-family:var(--font-grotesk);font-weight:500;text-transform:none;letter-spacing:0;font-size:.8rem;min-height:44px}
+.chip-rm{position:relative;width:44px;height:44px;flex:none;margin:-6px -12px -6px 0;display:inline-flex;align-items:center;justify-content:center;border:0;padding:0;background:transparent;color:inherit;cursor:pointer}
+.chip-rm::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;border:2px solid currentColor}
+.chip-rm .ic{position:relative;z-index:1}
+
+/* form controls */
+.field{display:flex;flex-direction:column;gap:6px}
+.field .label{color:var(--fg-2)}
+.input,.textarea{
+  width:100%;min-height:44px;padding:10px 12px;
+  border:var(--bw) solid var(--line);border-radius:0;background:var(--bg);color:var(--fg);
+  box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-family:var(--font-grotesk);font-size:1rem;line-height:1.4
+}
+.textarea{min-height:96px;resize:vertical}
+.input::placeholder,.textarea::placeholder{color:var(--fg-2);opacity:1}
+.input:focus-visible,.textarea:focus-visible{background:var(--wash)}
+input[type=search]::-webkit-search-cancel-button{display:none}
+
+/* ==========================================================================
+   STAGE — the mockup chrome. The app itself lives in .frame and answers only
+   to container queries; the stage answers to the viewport.
+   ========================================================================== */
+.stage{padding:0 16px 56px;max-width:1900px;margin:0 auto}
+.style-header{border-bottom:var(--bw) solid var(--line);padding:28px 0 24px;margin-bottom:0}
+.style-kicker{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.style-kicker .k{font-family:var(--font-mono);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.7rem;padding:3px 8px;border:var(--bw) solid var(--line);background:var(--butter);color:var(--on-fill);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)}
+.style-header h1{font-size:clamp(2.5rem,9vw,4.5rem);max-width:22ch}
+.thesis{max-width:66ch;margin:14px 0 0;font-size:1.06rem;color:var(--fg-2)}
+.header-grid{display:grid;gap:18px;margin-top:26px;grid-template-columns:1fr}
+@media (min-width:820px){.header-grid{grid-template-columns:1.15fr 1fr}}
+@media (min-width:1240px){.header-grid{grid-template-columns:1.1fr 1fr 1fr}}
+.hblock{padding:14px}
+.hblock h3{margin:0 0 12px;font-size:.72rem;letter-spacing:.14em}
+.swatches{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:520px){.swatches{grid-template-columns:1fr 1fr}}
+.sw{display:flex;gap:10px;align-items:flex-start}
+.sw i{width:34px;height:34px;flex:none;border:var(--bw) solid var(--line);background:var(--c);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)}
+.sw b{display:block;font-family:var(--font-mono);font-size:.78rem;font-weight:700}
+.sw span{display:block;font-size:.74rem;color:var(--fg-2);line-height:1.35}
+.tokens{display:grid;gap:8px;margin:0;padding:0;list-style:none;font-size:.85rem}
+.tokens li{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;border-bottom:1.5px dashed var(--paper);padding-bottom:6px}
+.tokens li>*{min-width:0}
+.tokens code{font-family:var(--font-mono);font-size:.78rem;white-space:nowrap}
+.specimen p{margin:0 0 12px}
+.sp-display{font-size:clamp(1.6rem,5vw,2.4rem)}
+.sp-body{font-size:1.05rem}
+.sp-label{color:var(--fg-2)}
+.sp-mono{font-size:1.5rem}
+.list-good,.list-cost{margin:0;padding-left:1.1rem;font-size:.9rem;line-height:1.5}
+.list-good li,.list-cost li{margin-bottom:8px}
+.list-good li::marker{color:var(--leaf)}
+.list-cost li::marker{color:var(--tomato-ink)}
+.note-line{margin:16px 0 0;font-size:.85rem;color:var(--fg-2)}
+
+.toolbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding:12px;margin:0 -16px 22px;
+  border-bottom:var(--bw) solid var(--line);background:var(--bg)
+}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar .sep{width:var(--bw);align-self:stretch;background:var(--line);margin:0 2px}
+.toolbar .tag{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-2)}
+.tb{
+  min-height:44px;padding:0 13px;border:var(--bw) solid var(--line);background:var(--bg);color:var(--fg);
+  box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-family:var(--font-grotesk);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;
+  cursor:pointer;transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)
+}
+.tb:hover{background:var(--wash)}
+.tb:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.tb[aria-pressed="true"]{background:var(--ink);color:var(--bg);--sh:var(--tomato)}
+
+/* screens */
+.screen{margin:0 0 46px;scroll-margin-top:76px}
+.screen-title{
+  display:inline-block;margin:0 0 6px;padding:5px 10px;
+  background:var(--ink);color:var(--bg);
+  font-family:var(--font-grotesk);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:1.05rem
+}
+.screen-note{margin:0 0 16px;font-size:.92rem;color:var(--fg-2);max-width:78ch}
+
+/* frames — the container-query root. Every app layout decision keys off this. */
+.frames{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.frame{
+  container-type:inline-size;container-name:frame;
+  position:relative;width:min(390px,100%);height:clamp(620px,76vh,820px);
+  background:var(--bg);border:var(--bw) solid var(--line);box-shadow:8px 8px 0 var(--sh);overflow:hidden
+}
+.stage[data-mode="compare"] .frames[data-width="both"] .frame[data-frame="b"]{flex:1 1 520px;min-width:0;width:auto}
+.stage[data-mode="mobile"] .frame{width:390px;flex:none}
+.stage[data-mode="tablet"] .frame{width:768px;flex:none}
+.stage[data-mode="desktop"] .frame{width:1440px;flex:none}
+.stage[data-mode="mobile"] .frame[data-frame="b"],
+.stage[data-mode="tablet"] .frame[data-frame="b"],
+.stage[data-mode="desktop"] .frame[data-frame="b"]{display:none}
+.stage:not([data-mode="compare"]) .frames{overflow-x:auto;padding-bottom:10px}
+/* theme glyph swap — attribute driven, no DOM writes */
+[data-theme="light"] .t-sun{display:none}
+[data-theme="dark"] .t-moon{display:none}
+[data-theme="dark"] .t-sun{display:block}
+/* backfill states */
+.bf-busy,.bf-status{display:none}
+.frame[data-backfill="running"] .bf-idle{display:none}
+.frame[data-backfill="running"] .bf-busy{display:inline-flex;align-items:center;gap:7px}
+.frame[data-backfill="running"] .bf-status{display:block}
+/* ==========================================================================
+   THE APP — cloned into every frame. Every layout decision below is a
+   CONTAINER query against .frame, never a media query.
+   ========================================================================== */
+.app{position:relative;display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);--pad:12px}
+.app-header{
+  flex:none;display:flex;align-items:center;gap:10px;padding:9px var(--pad);
+  border-bottom:var(--bw) solid var(--line);background:var(--bg);position:relative;z-index:6
+}
+.brand{display:flex;align-items:center;gap:9px;min-width:0;min-height:44px;text-decoration:none;color:inherit;cursor:pointer;background:none;border:0;padding:0;font:inherit;text-align:left}
+.brand-mark{
+  width:34px;height:34px;flex:none;display:grid;place-items:center;
+  background:var(--tomato);color:var(--on-fill);border:var(--bw) solid var(--line);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)
+}
+.brand-text{min-width:0;overflow:hidden}
+.brand-name{display:block;font-weight:700;text-transform:uppercase;letter-spacing:-.01em;font-size:.92rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-sub{display:block;font-family:var(--font-mono);font-size:.6rem;color:var(--fg-2);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+/* the header sheds the collapse + search buttons on small containers: the
+   browse panel's own 44x44 Open search button is the mobile entry point, and
+   the Upload CTA keeps its word in the bottom tab bar */
+.header-collapse,.header-search{display:none}
+.header-cta{width:44px;padding:0;gap:0}
+.cta-label{display:none}
+@container frame (min-width:900px){
+  .header-collapse,.header-search{display:inline-flex}
+  .header-cta{width:auto;padding:0 16px;gap:8px}
+  .cta-label{display:inline}
+}
+.app-sidebar{display:none}
+.app-main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:var(--pad) var(--pad) 92px}
+.app-tabbar{
+  position:absolute;left:0;right:0;bottom:0;z-index:8;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  border-top:var(--bw) solid var(--line);background:var(--bg)
+}
+.tabbtn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-height:58px;padding:5px 2px;background:transparent;color:var(--fg);border:0;border-right:var(--bw) solid var(--line);
+  font-family:var(--font-grotesk);font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer
+}
+.tabbtn:last-child{border-right:0}
+.tabbtn .tab-cn{font-family:var(--font-mono);font-size:.58rem;font-weight:400;color:var(--fg-2);letter-spacing:0}
+.tabbtn[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tabbtn[aria-selected="true"] .tab-cn{color:var(--bg)}
+.tabbtn[aria-selected="true"] .ic{stroke-width:2.2}
+
+@container frame (min-width:900px){
+  .app{--pad:22px;display:grid;grid-template-columns:252px 1fr;grid-template-rows:auto 1fr;grid-template-areas:"side head" "side main"}
+  .app-header{grid-area:head}
+  .app-sidebar{
+    grid-area:side;display:flex;flex-direction:column;gap:18px;
+    padding:16px 14px;border-right:var(--bw) solid var(--line);background:var(--bg);overflow:hidden
+  }
+  .app-main{grid-area:main;padding:var(--pad) var(--pad) 34px}
+  .app-tabbar{display:none}
+  .side-nav{display:flex;flex-direction:column;gap:10px}
+  .side-nav .navbtn{justify-content:flex-start;width:100%;min-height:44px}
+  .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+  .frame[data-sidebar="collapsed"] .app{grid-template-columns:80px 1fr}
+  .frame[data-sidebar="collapsed"] .side-hide{display:none}
+  .frame[data-sidebar="collapsed"] .navbtn{justify-content:center;padding:0}
+  .frame[data-sidebar="collapsed"] .switcher{grid-template-columns:1fr}
+  .frame[data-sidebar="collapsed"] .sw-ind{display:none}
+}
+.side-brand{display:flex;align-items:center;gap:9px}
+.navbtn{
+  display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 11px;
+  border:var(--bw) solid var(--line);background:var(--bg);color:var(--fg);
+  box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-family:var(--font-grotesk);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease),background-color var(--t) var(--ease)
+}
+.navbtn:hover{background:var(--wash)}
+.navbtn:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.navbtn[aria-current="true"]{background:var(--cobalt);color:var(--on-cobalt);--sh:var(--cobalt)}
+
+/* ---------- panels: attribute-driven visibility ---------- */
+.panel{display:none}
+.frame[data-tab="browse"] .panel[data-panel="browse"]{display:block}
+.frame[data-tab="feed"] .panel[data-panel="feed"]{display:block}
+.frame[data-tab="stats"] .panel[data-panel="stats"]{display:block}
+.frame[data-tab="upload"] .panel[data-panel="upload"]{display:block}
+
+/* ---------- shared panel bits ---------- */
+.panel-head{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.panel-title{font-size:clamp(1.5rem,6cqw,2.2rem)}
+.panel-sub{margin:2px 0 0;font-size:.88rem;color:var(--fg-2)}
+.rule{height:var(--bw);background:var(--line);border:0;margin:18px 0}
+.block{border:var(--bw) solid var(--line);background:var(--bg);box-shadow:var(--off) var(--off) 0 var(--sh);padding:13px;margin-bottom:16px}
+.block-tight{padding:0}
+.block-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.block-head h3{margin:0;font-size:.74rem}
+.empty-note{padding:26px 14px;text-align:center;border:var(--bw) dashed var(--line);background:var(--wash)}
+.empty-note p{margin:6px 0 0;font-size:.86rem;color:var(--fg-2)}
+
+/* ---------- view switcher ---------- */
+.switcher{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:var(--bw) solid var(--line);background:var(--bg);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)}
+.switcher button{
+  position:relative;z-index:2;min-height:44px;padding:0 8px;border:0;background:transparent;color:var(--fg);
+  font-family:var(--font-grotesk);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;cursor:pointer
+}
+.sw-ind{position:absolute;z-index:1;top:2px;left:2px;bottom:2px;width:calc((100% - 4px)/3);background:var(--cobalt);transition:transform var(--t) var(--ease)}
+.frame[data-view="grid"] .sw-ind{transform:translateX(100%)}
+.frame[data-view="timeline"] .sw-ind{transform:translateX(200%)}
+.frame[data-view="plates"] .switcher button:nth-child(2),
+.frame[data-view="grid"] .switcher button:nth-child(3),
+.frame[data-view="timeline"] .switcher button:nth-child(4){color:var(--on-cobalt)}
+.frame[data-view="grid"] .switcher button:nth-child(2),
+.frame[data-view="plates"] .switcher button:nth-child(3),
+.frame[data-view="plates"] .switcher button:nth-child(4),
+.frame[data-view="grid"] .switcher button:nth-child(4),
+.frame[data-view="timeline"] .switcher button:nth-child(2),
+.frame[data-view="timeline"] .switcher button:nth-child(3){color:var(--fg)}
+
+/* ---------- search ---------- */
+.searchwrap{margin-bottom:12px}
+.search-open{display:inline-flex;align-items:center;gap:8px}
+.search-panel{display:none}
+.frame[data-search="open"] .search-open{display:none}
+.frame[data-search="open"] .search-panel{display:block}
+@container frame (min-width:900px){
+  .search-open{display:none}
+  .search-panel{display:block}
+}
+.search-row{display:flex;gap:8px;align-items:center;border:var(--bw) solid var(--line);background:var(--bg);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);padding:4px 6px}
+.search-row .ic{margin-left:4px;flex:none;color:var(--fg-2)}
+.sinput{
+  flex:1;min-width:0;min-height:44px;border:0;background:transparent;color:var(--fg);
+  font-family:var(--font-grotesk);font-size:1rem;display:none
+}
+.sinput::placeholder{color:var(--fg-2);opacity:1}
+.sinput:focus-visible{outline:0}
+.search-row:focus-within{outline:3px solid var(--ink);outline-offset:2px}
+.frame[data-field="all"] .sinput[data-field-input="all"],
+.frame[data-field="title"] .sinput[data-field-input="title"],
+.frame[data-field="date"] .sinput[data-field-input="date"],
+.frame[data-field="tags"] .sinput[data-field-input="tags"]{display:block}
+.search-fields{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.preset{min-height:44px;padding:2px 9px;border:2px solid var(--line);background:var(--bg);color:var(--fg);font-family:var(--font-mono);font-size:.7rem;cursor:pointer;box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);transition:transform var(--t) var(--ease),background-color var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+.preset:hover{background:var(--wash)}
+.preset[aria-pressed="true"]{background:var(--butter);color:var(--on-fill);--sh:var(--butter)}
+.preset:active{transform:translate(var(--off-sm),var(--off-sm));box-shadow:0 0 0 var(--sh)}
+.results{display:none}
+.frame[data-results="list"] .results{display:block}
+.frame[data-results="list"] .views{display:none}
+.frame[data-hits="0"] .views{display:none}
+.frame[data-hits="0"] .noresults{display:block}
+.noresults{display:none}
+.results-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:11px}
+.rh{font-size:1.02rem;font-weight:700;text-transform:uppercase;letter-spacing:-.01em}
+.rh b{font-family:var(--font-mono)}
+.rh-typed{display:none}
+.frame[data-typed="1"] .rh-seeded{display:none}
+.frame[data-typed="1"] .rh-typed{display:inline}
+.rrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:9px;margin-bottom:11px;background:var(--bg);border:var(--bw) solid var(--line);box-shadow:var(--off) var(--off) 0 var(--sh);cursor:pointer;color:inherit;font:inherit;transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease)}
+.rrow:active{transform:translate(var(--off),var(--off));box-shadow:0 0 0 var(--sh)}
+.rrow[data-hit="0"]{display:none}
+.rrow-art{width:66px;height:66px;flex:none;border:var(--bw) solid var(--line);display:grid;place-items:center;background:var(--wash)}
+.rrow-body{min-width:0;flex:1}
+.rrow-name{display:block;font-weight:700;font-size:1rem}
+.rrow-en{display:block;font-family:var(--font-grotesk);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.62rem;color:var(--fg-2)}
+.rrow-why{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.78rem;color:var(--fg-2);margin-top:3px}
+.rrow-kind{font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;padding:2px 6px;border:2px solid var(--line);background:var(--butter);color:var(--on-fill)}
+
+/* ---------- cards (shared by all three views) ---------- */
+.card{
+  position:relative;display:block;width:100%;text-align:left;padding:0;background:var(--bg);color:var(--fg);
+  border:var(--bw) solid var(--line);border-radius:0;box-shadow:var(--off) var(--off) 0 var(--sh);cursor:pointer;overflow:hidden;
+  transition:transform var(--t) var(--ease),box-shadow var(--t) var(--ease)
+}
+.card:hover .nm{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.card:active{transform:translate(var(--off),var(--off));box-shadow:0 0 0 var(--sh)}
+.card[data-hit="0"]{display:none}
+.art{position:relative;display:block;aspect-ratio:5/4;border-bottom:var(--bw) solid var(--line);overflow:hidden}
+.art .dish{position:absolute;inset:0;width:100%;height:100%}
+.dish{display:block;width:100%;height:100%}
+.f-tomato{background:var(--tomato)}
+.f-butter{background:var(--butter)}
+.f-cobalt{background:var(--cobalt)}
+.f-leaf{background:var(--leaf)}
+.f-wash{background:var(--wash-2)}
+.meta{display:block;padding:8px 9px 9px}
+.nm{display:block;font-weight:700;font-size:1rem;line-height:1.2;letter-spacing:-.01em}
+.en{display:block;margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.6rem;color:var(--fg-2)}
+.dt{display:block;margin-top:6px;font-family:var(--font-mono);font-size:.68rem;color:var(--fg-2)}
+.badge-no{position:absolute;bottom:8px;left:8px;z-index:3;font-family:var(--font-mono);font-weight:700;font-size:.66rem;padding:1px 6px;border:2px solid var(--line);background:var(--ink);color:var(--bg)}
+
+/* ---------- which gallery view is on the wall ---------- */
+.browse-switch{margin:0 0 14px}
+@container frame (min-width:900px){.browse-switch{display:none}}
+.frame[data-view="plates"] .masonry,.frame[data-view="plates"] .timeline,
+.frame[data-view="grid"] .bento,.frame[data-view="grid"] .timeline,
+.frame[data-view="timeline"] .bento,.frame[data-view="timeline"] .masonry{display:none}
+
+/* ---------- view 1: BENTO BOARD ---------- */
+.bento{
+  display:grid;gap:13px;grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:13px;border:var(--bw) solid var(--line);
+  background-image:linear-gradient(var(--paper) var(--bw),transparent var(--bw)),linear-gradient(90deg,var(--paper) var(--bw),transparent var(--bw));
+  background-size:100% 64px,64px 100%
+}
+.w2{grid-column:span 2}
+@container frame (min-width:900px){
+  .bento{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;padding:15px;background-size:100% 76px,76px 100%}
+  .t-hero{grid-row:span 2}
+  .t-hero .art{aspect-ratio:1/1}
+  .t-hero .nm{font-size:1.5rem}
+  .w2 .art{aspect-ratio:16/7}
+  .w2.t-hero .art{aspect-ratio:1/1}
+}
+.t-hero .art{aspect-ratio:4/3}
+
+/* ---------- view 2: MASONRY ---------- */
+.masonry{columns:2;column-gap:13px}
+.masonry .card{break-inside:avoid;margin-bottom:13px}
+@container frame (min-width:620px){.masonry{columns:3}}
+@container frame (min-width:1080px){.masonry{columns:4;column-gap:16px}}
+.masonry .card[data-orient="portrait"] .art{aspect-ratio:3/4}
+.masonry .card[data-orient="landscape"] .art{aspect-ratio:4/3}
+.masonry .card[data-orient="square"] .art{aspect-ratio:1/1}
+
+/* ---------- view 3: TIMELINE ---------- */
+.month{margin-bottom:20px}
+.month-head{
+  display:flex;align-items:center;gap:10px;margin:0 0 11px;padding:5px 9px;
+  background:var(--butter);color:var(--on-fill);border:var(--bw) solid var(--line);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);
+  font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:.74rem
+}
+.month-head .mn{font-family:var(--font-mono);font-size:1rem;letter-spacing:0}
+.tl-rows{display:flex;flex-direction:column;gap:13px}
+.trow{display:flex;gap:11px;align-items:stretch}
+.trow .art{width:96px;flex:none;aspect-ratio:1/1;border-bottom:0;border-right:var(--bw) solid var(--line)}
+.trow .meta{flex:1;padding:9px}
+.trow .desc{display:block;margin-top:5px;font-size:.78rem;color:var(--fg-2);line-height:1.4}
+@container frame (min-width:900px){
+  .tl-rows{position:relative;gap:0}
+  .tl-rows::before{content:"";position:absolute;top:6px;bottom:6px;left:50%;width:var(--bw);background:var(--line);transform:translateX(-50%)}
+  .trow{width:calc(50% - 30px);margin-bottom:14px}
+  .trow:nth-child(even){margin-left:calc(50% + 30px)}
+  .trow:nth-child(odd){flex-direction:row-reverse;text-align:right}
+  .trow:nth-child(odd) .en,.trow:nth-child(odd) .dt{text-align:right}
+  .trow::after{content:"";position:absolute;top:26px;width:15px;height:15px;background:var(--bg);border:var(--bw) solid var(--line)}
+  .trow:nth-child(odd)::after{right:-38px}
+  .trow:nth-child(even)::after{left:-38px}
+}
+
+/* ---------- immersive feed ---------- */
+.feed-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:11px}
+.feed-stack{
+  display:flex;flex-direction:column;gap:13px;height:520px;overflow-y:auto;overflow-x:hidden;
+  scroll-snap-type:y mandatory;border:var(--bw) solid var(--line);background:var(--wash);padding:13px
+}
+.feed-item{
+  position:relative;flex:none;scroll-snap-align:center;width:100%;min-height:430px;
+  border:var(--bw) solid var(--line);box-shadow:var(--off) var(--off) 0 var(--sh);overflow:hidden;background:var(--bg)
+}
+.feed-art{position:absolute;inset:0;display:grid;place-items:center}
+.feed-art .dish{width:82%;height:82%}
+.feed-idx{position:absolute;top:10px;right:10px;z-index:3;font-family:var(--font-mono);font-weight:700;font-size:.72rem;padding:3px 8px;background:var(--ink);color:var(--bg);border:var(--bw) solid var(--line)}
+.feed-cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:11px;background:var(--bg);border-top:var(--bw) solid var(--line)}
+.feed-cap .nm{font-size:1.12rem}
+.feed-key{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-2)}
+kbd{border:2px solid var(--line);padding:0 5px;font-family:var(--font-mono);font-size:.7rem;background:var(--wash)}
+@container frame (min-width:900px){
+  .feed-stack{flex-direction:row;height:470px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;align-items:stretch}
+  .feed-item{width:56%;min-width:340px;min-height:0}
+  .feed-art .dish{width:64%;height:64%}
+}
+
+/* ---------- stats scoreboard ---------- */
+.score{display:grid;gap:13px;grid-template-columns:1fr}
+@container frame (min-width:700px){.score{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container frame (min-width:1080px){.score{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.sblock{border:var(--bw) solid var(--line);box-shadow:var(--off) var(--off) 0 var(--sh);padding:13px;display:flex;flex-direction:column;gap:5px;min-height:132px}
+.sb-tomato{background:var(--tomato);color:var(--on-fill)}
+.sb-cobalt{background:var(--cobalt);color:var(--on-cobalt)}
+.sb-butter{background:var(--butter);color:var(--on-fill)}
+.sb-leaf{background:var(--leaf);color:var(--on-fill)}
+.sb-ink{background:var(--ink);color:var(--bg)}
+.sk{font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem}
+.sv{font-family:var(--font-mono);font-weight:700;font-size:clamp(2.6rem,13cqw,4.6rem);line-height:.94;letter-spacing:-.03em;margin-top:auto}
+.sv-sm{font-size:clamp(1.4rem,7cqw,2.2rem)}
+.sd{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;opacity:.92}
+.bars{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px;align-items:end;height:168px;padding:11px;border:var(--bw) solid var(--line);background:var(--wash)}
+.bar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
+.bar i{display:block;width:100%;height:var(--h);background:var(--cobalt);border:var(--bw) solid var(--line);box-shadow:3px 3px 0 var(--sh);min-height:8px}
+.bar:nth-child(3n) i{background:var(--tomato)}
+.bar:nth-child(3n+2) i{background:var(--butter)}
+.bar b{font-family:var(--font-mono);font-size:.66rem}
+.bar span{font-family:var(--font-mono);font-size:.58rem;text-transform:uppercase;color:var(--fg-2);white-space:nowrap}
+.ranks{display:flex;flex-direction:column;gap:9px;margin:0;padding:0;list-style:none}
+.rank{display:flex;align-items:center;gap:10px;border:var(--bw) solid var(--line);padding:7px 9px;background:var(--bg);box-shadow:4px 4px 0 var(--sh)}
+.rank .rno{font-family:var(--font-mono);font-weight:700;font-size:.8rem;width:24px;flex:none;color:var(--accent-text)}
+.rank .rname{flex:1;min-width:0;font-weight:600;font-size:.92rem}
+.rank .rbar{flex:none;width:74px;height:13px;border:var(--bw) solid var(--line);background:var(--wash)}
+.rank .rbar i{display:block;height:100%;width:var(--h);background:var(--tomato)}
+.rank .rval{font-family:var(--font-mono);font-weight:700;font-size:.8rem;flex:none}
+.trend{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:5px;align-items:end;height:130px;padding:10px;border:var(--bw) solid var(--line);background:var(--wash)}
+.trend .td{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px}
+.trend .td i{width:100%;height:var(--h);background:var(--leaf);border:2px solid var(--line);min-height:5px}
+.trend .td b{font-family:var(--font-mono);font-size:.58rem}
+.stats-toggle{display:none;gap:0;border:var(--bw) solid var(--line)}
+.stats-toggle button{min-height:44px;padding:0 11px;border:0;border-right:var(--bw) solid var(--line);background:var(--bg);color:var(--fg);font-family:var(--font-grotesk);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer}
+.stats-toggle button:last-child{border-right:0}
+.stats-toggle button[aria-pressed="true"]{background:var(--cobalt);color:var(--on-cobalt)}
+.rank-col{display:none}
+.frame[data-stat="dishes"] .col-dishes{display:block}
+.frame[data-stat="ingredients"] .col-ing{display:block}
+@container frame (min-width:900px){
+  .stats-toggle{display:inline-flex}
+  .rank-col{display:block}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+}
+
+/* ---------- upload / admin ---------- */
+.upzone{
+  display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;
+  padding:24px 15px;border:var(--bw) dashed var(--line);background:var(--wash);cursor:pointer;width:100%;color:inherit;font:inherit
+}
+.upzone:hover{background:var(--wash-2)}
+.uz-icon{width:56px;height:56px;display:grid;place-items:center;background:var(--bg);border:var(--bw) solid var(--line);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)}
+.uz-title{font-size:1.35rem}
+.uz-help{margin:0;font-size:.82rem;color:var(--fg-2);max-width:44ch}
+.uz-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.uz-drag-hint{display:none}
+.uz-idle{display:flex;flex-direction:column;align-items:center;gap:11px}
+@container frame (min-width:900px){.uz-drag-hint{display:block;font-family:var(--font-mono);font-size:.72rem;color:var(--fg-2)}}
+.uz-drag{display:none}
+.frame[data-drag="dragging"] .uz-idle{display:none}
+.frame[data-drag="dragging"] .uz-drag{display:flex;flex-direction:column;align-items:center;gap:11px}
+.frame[data-drag="dragging"] .upzone{background:var(--butter);color:var(--on-fill);border-style:solid;border-width:var(--bw)}
+.up-progress{display:none}
+.frame[data-drag="uploading"] .up-progress,.frame[data-drag="ai-done"] .up-progress{display:block}
+.ai-panel{display:none}
+.frame[data-drag="ai-done"] .ai-panel{display:block}
+.frame[data-drag="ai-done"] .upzone-wrap,.frame[data-drag="uploading"] .upzone-wrap{display:none}
+.prog{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1.5px dashed var(--paper)}
+.prog:last-child{border-bottom:0}
+.prog-name{font-family:var(--font-mono);font-size:.72rem;flex:none;width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-bar{flex:1;height:15px;border:var(--bw) solid var(--line);background:var(--wash)}
+.prog-bar i{display:block;height:100%;width:var(--w);background:var(--tomato);transition:width 160ms var(--ease)}
+.prog-pct{font-family:var(--font-mono);font-size:.72rem;width:44px;text-align:right;flex:none}
+.tagrow{display:flex;flex-wrap:wrap;gap:8px}
+.chip[data-removed="1"]{display:none}
+.ing-edit{display:none}
+.frame[data-ing="edit"] .ing-edit{display:block}
+.form-grid{display:grid;gap:13px}
+@container frame (min-width:820px){.form-grid{grid-template-columns:1fr 1fr}.form-grid .span2{grid-column:span 2}}
+.exif{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.7rem;padding:3px 8px;border:2px solid var(--line);background:var(--leaf);color:var(--on-fill)}
+.recent{display:flex;flex-direction:column;gap:11px;margin:0;padding:0;list-style:none}
+.recent li{display:flex;gap:11px;align-items:center;padding:8px;border:var(--bw) solid var(--line);background:var(--bg);box-shadow:4px 4px 0 var(--sh)}
+.recent .rt{width:48px;height:48px;flex:none;border:var(--bw) solid var(--line);display:grid;place-items:center;background:var(--wash)}
+.recent .rn{font-weight:700;font-size:.9rem;display:block}
+.recent .rd{font-family:var(--font-mono);font-size:.66rem;color:var(--fg-2)}
+.backfill-stat{display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1.5px dashed var(--paper);font-size:.86rem}
+.backfill-stat b{font-family:var(--font-mono)}
+
+/* ---------- sheet + confirm ---------- */
+.sheet{display:block;position:absolute;inset:0;z-index:20}
+.frame[data-sheet="0"] .sheet,.frame:not([data-sheet]) .sheet{display:none}
+.sheet-backdrop{position:absolute;inset:0;background:var(--backdrop)}
+.sheet-body{
+  position:absolute;left:0;right:0;bottom:0;max-height:90%;overflow-y:auto;
+  background:var(--bg);border-top:var(--bw) solid var(--line);padding:13px;box-shadow:0 -8px 0 var(--sh)
+}
+.sheet-grab{width:56px;height:7px;background:var(--ink);margin:0 auto 12px}
+.sheet-item{display:none}
+.frame[data-sheet="1"] .sheet-item[data-dish="1"],.frame[data-sheet="2"] .sheet-item[data-dish="2"],
+.frame[data-sheet="3"] .sheet-item[data-dish="3"],.frame[data-sheet="4"] .sheet-item[data-dish="4"],
+.frame[data-sheet="5"] .sheet-item[data-dish="5"],.frame[data-sheet="6"] .sheet-item[data-dish="6"],
+.frame[data-sheet="7"] .sheet-item[data-dish="7"],.frame[data-sheet="8"] .sheet-item[data-dish="8"],
+.frame[data-sheet="9"] .sheet-item[data-dish="9"],.frame[data-sheet="10"] .sheet-item[data-dish="10"],
+.frame[data-sheet="11"] .sheet-item[data-dish="11"],.frame[data-sheet="12"] .sheet-item[data-dish="12"]{display:block}
+.si-nav{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:12px}
+.si-count{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em}
+.si-art{position:relative;aspect-ratio:4/3;border:var(--bw) solid var(--line);box-shadow:var(--off) var(--off) 0 var(--sh);overflow:hidden;margin-bottom:13px}
+.si-art .dish{position:absolute;inset:0;width:100%;height:100%}
+.si-name{margin:0;font-size:clamp(1.5rem,7cqw,2rem)}
+.si-en{margin:5px 0 11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;color:var(--fg-2)}
+.si-date{margin:0 0 11px;font-family:var(--font-mono);font-size:.76rem;color:var(--fg-2)}
+.si-cn{font-size:1.05rem;margin:11px 0 0;line-height:1.65}
+.si-rule{height:1px;background:var(--fg-2);opacity:.45;border:0;margin:13px 0}
+.si-en-body{font-size:.98rem;color:var(--fg-2);margin:0}
+.si-love{display:flex;align-items:center;gap:8px;margin:15px 0 0;font-family:var(--font-mono);font-weight:700;font-size:.82rem}
+.si-love .ic{width:17px;height:17px;color:var(--accent-text)}
+.si-swipe{display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-family:var(--font-mono);font-size:.68rem;padding:3px 8px;border:2px solid var(--line);background:var(--butter);color:var(--on-fill)}
+@container frame (min-width:760px){
+  .sheet-body{
+    left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);
+    width:min(660px,88%);border:var(--bw) solid var(--line);box-shadow:11px 11px 0 var(--sh);max-height:84%
+  }
+  .sheet-grab{display:none}
+  .si-swipe{display:none}
+}
+.confirm{display:none;position:absolute;inset:0;z-index:28}
+.frame[data-confirm="open"] .confirm{display:block}
+.confirm-card{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,88%);
+  background:var(--bg);border:var(--bw) solid var(--line);box-shadow:11px 11px 0 var(--sh);padding:15px
+}
+.confirm-card h3{margin:0 0 8px;font-size:1.15rem}
+.confirm-card p{margin:0 0 15px;font-size:.92rem;color:var(--fg-2)}
+.confirm-actions{display:flex;gap:10px;flex-wrap:wrap}
+.del-busy{display:none}
+.frame[data-deleting="1"] .del-busy{display:inline-flex}
+.frame[data-deleting="1"] .del-idle{display:none}
+
+/* ---------- login + spec panes ---------- */
+.pane-login,.pane-spec{display:none;position:absolute;inset:0;overflow-y:auto;padding:16px;background:var(--bg)}
+.frame[data-pane="login"] .app-header,.frame[data-pane="login"] .app-sidebar,
+.frame[data-pane="login"] .app-tabbar,.frame[data-pane="login"] .app-main{display:none}
+.frame[data-pane="login"] .pane-login{display:flex;align-items:center;justify-content:center}
+.frame[data-pane="spec"] .app-header,.frame[data-pane="spec"] .app-sidebar,
+.frame[data-pane="spec"] .app-tabbar,.frame[data-pane="spec"] .app-main{display:none}
+.frame[data-pane="spec"] .pane-spec{display:block}
+.pane-inner{width:100%;max-width:392px}
+.login-card{border:var(--bw) solid var(--line);background:var(--bg);box-shadow:9px 9px 0 var(--sh);padding:18px}
+.login-brand{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.login-card h2{margin:0;font-size:1.5rem}
+.login-sub{margin:4px 0 16px;font-family:var(--font-mono);font-size:.76rem;color:var(--fg-2)}
+.login-foot{margin:14px 0 0;font-size:.78rem;color:var(--fg-2)}
+.login-sent{display:none}
+.frame[data-form="sent"] .login-form{display:none}
+.frame[data-form="sent"] .login-sent{display:block}
+.sent-icon{width:52px;height:52px;display:grid;place-items:center;background:var(--leaf);color:var(--on-fill);border:var(--bw) solid var(--line);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh);margin-bottom:13px}
+.spec-sec{margin-bottom:22px}
+.spec-sec h3{margin:0 0 11px;font-size:.72rem;color:var(--fg-2)}
+.spec-row{display:flex;flex-wrap:wrap;gap:11px;align-items:center;padding:13px;border:var(--bw) solid var(--line);background:var(--wash)}
+.spec-stack{display:flex;flex-direction:column;gap:11px}
+.skel{border:var(--bw) solid var(--line);background:var(--bg);box-shadow:var(--off) var(--off) 0 var(--sh);overflow:hidden;width:100%;max-width:230px}
+.skel .sk-art{aspect-ratio:5/4;background:var(--wash-2);border-bottom:var(--bw) solid var(--line);position:relative;overflow:hidden}
+.skel .sk-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--paper),transparent);transform:translateX(-100%);animation:shimmer 1.4s linear infinite}
+.skel .sk-line{height:11px;background:var(--wash-2);border:2px solid var(--line);margin:9px}
+.skel .sk-line.short{width:52%}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.pull{display:inline-flex;align-items:center;gap:9px;font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;padding:7px 11px;border:var(--bw) solid var(--line);background:var(--butter);color:var(--on-fill);box-shadow:var(--off-sm) var(--off-sm) 0 var(--sh)}
+.spin{width:17px;height:17px;border:2.5px solid var(--on-fill);border-top-color:transparent;border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.theme-demo{display:inline-flex;align-items:center;gap:8px}
+
+/* ---------- app foot: ticker + footer ---------- */
+.app-foot{margin-top:22px;margin-inline:calc(-1 * var(--pad))}
+.ticker{overflow:hidden;border-top:var(--bw) solid var(--line);border-bottom:var(--bw) solid var(--line);background:var(--ink);color:var(--bg);padding:7px 0}
+.ticker-track{display:flex;width:max-content;animation:marquee 26s linear infinite}
+.ticker-set{display:block;padding-right:26px;font-family:var(--font-mono);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.ticker-set i{font-style:normal;color:var(--butter)}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.app-foot-inner{padding:14px var(--pad) 9px;display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:space-between}
+.foot-brand{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem}
+.foot-love{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.72rem}
+.foot-love .ic{width:15px;height:15px;color:var(--accent-text)}
+
+/* ---------- overlays ---------- */
+.banner{display:none;align-items:center;gap:10px;padding:8px 12px;background:var(--butter);color:var(--on-fill);border-bottom:var(--bw) solid var(--line);font-size:.8rem;font-weight:600}
+.frame[data-offline="1"] .banner{display:flex}
+.banner .btn{margin-left:auto;--sh:var(--sh)}
+.toast{position:absolute;left:12px;right:12px;bottom:88px;z-index:30}
+.toast-card{display:none;align-items:center;gap:10px;padding:11px 13px;border:var(--bw) solid var(--line);box-shadow:var(--off) var(--off) 0 var(--sh);font-size:.88rem;background:var(--bg)}
+.tst{background:var(--leaf);color:var(--on-fill)}
+.tse{background:var(--butter);color:var(--on-fill)}
+.tsd{background:var(--ink);color:var(--bg)}
+.frame[data-toast="success"] .toast-card[data-kind="success"],
+.frame[data-toast="regen"] .toast-card[data-kind="regen"],
+.frame[data-toast="error"] .toast-card[data-kind="error"],
+.frame[data-toast="deleted"] .toast-card[data-kind="deleted"]{display:flex}
+.toast-card .btn{margin-left:auto;--sh:var(--ink)}
+.scrolltop{display:none;position:absolute;right:12px;bottom:88px;z-index:26}
+.frame[data-scrolled="1"] .scrolltop{display:inline-flex}
+@container frame (min-width:900px){
+  .toast{left:auto;right:22px;bottom:22px;width:346px}
+  .scrolltop{right:22px;bottom:92px}
+  .frame[data-scrolled="1"] .scrolltop{bottom:92px}
+}
+
+/* ---------- stage: mobile / tablet / desktop mode widths ---------- */
+@media (max-width:520px){
+  .stage{padding:0 10px 40px}
+  .toolbar{margin-inline:-10px;padding:10px}
+  .toolbar .tag{display:none}
+}
+
+/* ---------- reduced motion: no marquee, no shimmer, final states ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .ticker-track{animation:none!important;transform:none!important;width:auto}
+  .ticker-set[aria-hidden="true"]{display:none}
+  .skel .sk-art::after{animation:none!important;display:none}
+  .spin{animation:none!important;border-top-color:var(--on-fill)}
+}
+</style>
+</head>
+<body>
+<header class="style-header">
+  <div class="style-kicker">
+    <span class="k">Direction C</span>
+    <span class="k">Neo-brutalism</span>
+    <span class="k">Bento + scoreboard</span>
+    <span class="k">Space Grotesk / Space Mono</span>
+  </div>
+  <h1 class="display">Plate Stack</h1>
+  <p class="thesis">A fridge door covered in stickers, ordered like a grid: flat saturated blocks, 2.5&nbsp;px ink rules, hard 6&nbsp;px offsets, the gallery as a bento board and the numbers as a scoreboard — nothing soft, nothing rounded, everything stuck on with intent.</p>
+
+  <div class="header-grid">
+    <div class="hblock nb">
+      <h3 class="label">Palette — light “Fridge Door” · measured contrast</h3>
+      <div class="swatches">
+        <div class="sw"><i style="--c:#FFF3E4"></i><div><b>--cream #FFF3E4</b><span>canvas · base for every ratio below</span></div></div>
+        <div class="sw"><i style="--c:#0E0E0E"></i><div><b>--ink #0E0E0E</b><span>17.64:1 on cream — body text, borders, shadow</span></div></div>
+        <div class="sw"><i style="--c:#4A423C"></i><div><b>--ink-2 #4A423C</b><span>8.99:1 — passes the 4.5:1 body floor</span></div></div>
+        <div class="sw"><i style="--c:#FF4B23"></i><div><b>--tomato #FF4B23</b><span>3.05:1 — FAILS text. Fill only; --ink on it = 5.78:1</span></div></div>
+        <div class="sw"><i style="--c:#C42A05"></i><div><b>--tomato-ink #C42A05</b><span>5.21:1 — the tomato you may type in</span></div></div>
+        <div class="sw"><i style="--c:#1F3BFF"></i><div><b>--cobalt #1F3BFF</b><span>6.14:1 as text. As a fill it takes cream (6.14:1), never ink (2.88:1)</span></div></div>
+        <div class="sw"><i style="--c:#FFC93C"></i><div><b>--butter #FFC93C</b><span>1.40:1 — FAILS text. Fill only; --ink on it = 12.57:1</span></div></div>
+        <div class="sw"><i style="--c:#00A15C"></i><div><b>--leaf #00A15C</b><span>3.07:1 — FAILS text. Fill only; --ink on it = 5.75:1</span></div></div>
+      </div>
+      <p class="note-line"><strong>Night Market</strong> (canvas #121212) flips the discipline: --ink #FFF6E9 17.49:1 · --ink-2 #C9BEB2 10.25:1 · --tomato #FF6A45 6.60:1 · --cobalt #7C8CFF 6.29:1 · --butter #FFD75E 13.50:1 · --leaf #2ED47F 9.67:1. Fills carry #121212 text (6.60 / 6.29 / 13.50 / 9.67). Cream never sits on a fill — 2.65:1 on tomato.</p>
+    </div>
+
+    <div class="hblock nb specimen">
+      <h3 class="label">Type specimen</h3>
+      <p class="sp-display display">番茄牛腩面 · Plate 042</p>
+      <p class="sp-body">Body: Space Grotesk 400 at 17&nbsp;px / 1.5. 炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</p>
+      <p class="sp-label label">Label · uppercase · tracking .12em</p>
+      <p class="sp-mono mono-b">214 · 2026-08-14 · +30 · ♡ 4</p>
+      <p class="note-line">Display 700 uppercase, tracking −0.02em, hero <span class="mono">clamp(2.5rem, 9vw, 4.5rem)</span>. CJK falls to PingFang SC / Noto Sans SC.</p>
+    </div>
+
+    <div class="hblock nb">
+      <h3 class="label">Tokens</h3>
+      <ul class="tokens">
+        <li><code>--bw: 2.5px</code><span>every border, both themes</span></li>
+        <li><code>--off: 6px</code><span>hard shadow offset, <code>0 0 0</code> blur</span></li>
+        <li><code>--sh</code><span>light: --ink · dark: --cobalt block</span></li>
+        <li><code>radius: 0</code><span>no rounded corner anywhere</span></li>
+        <li><code>press</code><span>translate(6px,6px) + shadow 0; chips use 2px/2px</span></li>
+        <li><code>tap</code><span>grid tiles scale .97 (they cannot leave the grid)</span></li>
+        <li><code>motion</code><span>140ms cubic-bezier(.2,.9,.3,1) — snappy, no long eases</span></li>
+        <li><code>containers</code><span>620 / 700 / 760 / 900 / 1080 px on <code>.frame</code></span></li>
+      </ul>
+      <div style="display:flex;gap:11px;flex-wrap:wrap;margin-top:13px">
+        <button class="btn btn-fill" type="button">Primary</button>
+        <button class="btn btn-cobalt" type="button">Cobalt</button>
+        <button class="btn" type="button">Ghost</button>
+      </div>
+    </div>
+
+    <div class="hblock nb">
+      <h3 class="label">Good at</h3>
+      <ul class="list-good">
+        <li>A gallery that reads as a physical object — every plate is a sticker you can press, and the bento board gives the hero dish real weight without a carousel.</li>
+        <li>Numbers land instantly: mono numerals on cobalt, butter and tomato blocks turn analytics into a scoreboard instead of a dashboard.</li>
+        <li>Hierarchy with no gradients, no blur and no shadows to maintain — flat fills plus a 2.5&nbsp;px rule survive any display, any brightness, and stay readable at 3&nbsp;G.</li>
+      </ul>
+      <h3 class="label" style="margin-top:14px">Costs</h3>
+      <ul class="list-cost">
+        <li>Loud by construction. Cream is the only quiet surface, so long reading (both descriptions in the detail) needs generous spacing to stay calm.</li>
+        <li>Tomato and butter are unusable as text — three tokens exist purely as fills and every new component has to remember which is which.</li>
+        <li>Hard edges and uppercase everywhere cost warmth; the bilingual copy and the handwritten-feeling <em>With love&nbsp;♡</em> are what keep it a love letter rather than a poster.</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<div class="stage" data-mode="compare">
+  <div class="toolbar" role="toolbar" aria-label="Preview harness">
+    <div class="grp">
+      <button class="tb" type="button" data-stage-act="mode" data-mode="mobile" aria-pressed="false">Mobile 390</button>
+      <button class="tb" type="button" data-stage-act="mode" data-mode="tablet" aria-pressed="false">Tablet 768</button>
+      <button class="tb" type="button" data-stage-act="mode" data-mode="desktop" aria-pressed="false">Desktop 1440</button>
+      <button class="tb" type="button" data-stage-act="mode" data-mode="compare" aria-pressed="true">Compare</button>
+    </div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="grp">
+      <button class="tb" type="button" data-stage-act="theme">Light / Dark</button>
+      <button class="tb" type="button" data-stage-act="reset">Reset</button>
+    </div>
+    <span class="sep" aria-hidden="true"></span>
+    <span class="tag">Frame A 390 · Frame B wide · width buttons override every frame</span>
+  </div>
+
+  <section class="screen" id="screen-1-plates" data-screen="1-plates">
+    <h2 class="screen-title">1 · Gallery — Plates</h2>
+    <p class="screen-note">The hero surface is a bento board laid on graph paper: one 2×2 hero sticker, then 1×1 and 2×1 tiles, every seam a 2.5 px ink rule. Below 900 px of container it is a two-column board with the bottom tab bar; above it the sidebar takes over and the board goes four wide.</p>
+    <div class="frames" data-tab="browse" data-view="plates" data-width="both"></div>
+  </section>
+
+  <section class="screen" id="screen-2-grid" data-screen="2-grid">
+    <h2 class="screen-title">2 · Gallery — Grid</h2>
+    <p class="screen-note">Masonry as a sticker sheet: mixed portrait / landscape / square thumbs, two columns at phone width, four at desktop, each card pressed into its own 6 px block. The tail badge is the plate number, in Space Mono.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="both"></div>
+  </section>
+
+  <section class="screen" id="screen-3-timeline" data-screen="3-timeline">
+    <h2 class="screen-title">3 · Gallery — Timeline</h2>
+    <p class="screen-note">Months are butter-yellow labels with a mono month number; rows stack under them at phone width and split either side of an ink centre rail at desktop, dots punched onto the rail.</p>
+    <div class="frames" data-tab="browse" data-view="timeline" data-width="both"></div>
+  </section>
+
+  <section class="screen" id="screen-4-feed" data-screen="4-feed">
+    <h2 class="screen-title">4 · Immersive feed</h2>
+    <p class="screen-note">Mobile only, full-bleed, scroll-snap, caption block welded to the bottom edge and the index stamped top-right as <span class="mono">3 / 12</span>. Desktop has no Feed tab at all — press <em>Desktop 1440</em> in the toolbar to watch this same panel turn into a horizontal filmstrip with a rail.</p>
+    <div class="frames" data-tab="feed" data-width="mobile"></div>
+  </section>
+
+  <section class="screen" id="screen-5-detail" data-screen="5-detail">
+    <h2 class="screen-title">5 · Photo detail</h2>
+    <p class="screen-note">Frame A is the phone bottom sheet: 4:3 plate, names, ingredient chips, long date, 中文 then a hairline then English, signed <em>With love ♡</em>, with prev/next and a swipe hint. Frame B is the desktop dialog with the delete confirmation open on top — its real copy, no edit or share actions anywhere.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="both" data-sheet="1" data-b-confirm="open"></div>
+  </section>
+
+  <section class="screen" id="screen-6-search" data-screen="6-search">
+    <h2 class="screen-title">6 · Search — expanded</h2>
+    <p class="screen-note">Expanded search with the four field filters and the date presets, showing the 番茄 result set: the noodle soup, the mapo tofu and the tomato ingredient tag, counted in mono. Type in any other screen's search box to watch the cards themselves filter.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="mobile" data-search="open" data-query="番茄" data-results="list"></div>
+  </section>
+
+  <section class="screen" id="screen-7-stats" data-screen="7-stats">
+    <h2 class="screen-title">7 · Insights / Analytics</h2>
+    <p class="screen-note">The scoreboard: total count and 30-day uploads as huge Space Mono numerals on tomato and cobalt blocks, then the eight-month bar chart, the ranked top dishes / top ingredients (toggle at phone width, both columns at desktop) and the 14-day trend.</p>
+    <div class="frames" data-tab="stats" data-width="both"></div>
+  </section>
+
+  <section class="screen" id="screen-8-upload" data-screen="8-upload">
+    <h2 class="screen-title">8 · Upload (admin)</h2>
+    <p class="screen-note">Frame A holds the drag state — the zone turns butter with ink on top and reads <em>Drop your photo here</em>. Frame B holds the finished AI review: editable dish name, EXIF date chip, editable ingredient chips, both descriptions and the real button set.</p>
+    <div class="frames" data-tab="upload" data-width="both" data-drag="dragging" data-b-drag="ai-done"></div>
+  </section>
+
+  <section class="screen" id="screen-9-login" data-screen="9-login">
+    <h2 class="screen-title">9 · Login</h2>
+    <p class="screen-note">No app chrome, just the sticker card: magic-link form on the left, the sent state on the right with the address it was posted to.</p>
+    <div class="frames" data-pane="login" data-width="both" data-form="form" data-b-form="sent"></div>
+  </section>
+
+  <section class="screen" id="screen-10-components" data-screen="10-components">
+    <h2 class="screen-title">10 · Component sheet</h2>
+    <p class="screen-note">Every part laid out flat: buttons and their pressed, focused and disabled states, the dish text input, ingredient chips default and removable, the three-state view switcher, all three real toasts, skeleton and loaded and empty cards, the scroll-to-top button, the offline banner, the pull-to-refresh spinner and the theme toggle.</p>
+    <div class="frames" data-pane="spec" data-width="both"></div>
+  </section>
+</div>
+
+<footer class="style-header" style="border-top:var(--bw) solid var(--line);border-bottom:0;padding-bottom:40px">
+  <h3 class="label">What this direction replaces</h3>
+  <ul class="tokens" style="margin-top:12px">
+    <li><code>--canvas #FFFBF8 / --ink #1C1512</code><span>→ <code>--cream #FFF3E4 / --ink #0E0E0E</code> (and the Candlelit Dinner pair → Night Market <code>#121212 / #FFF6E9</code>)</span></li>
+    <li><code>--love #D94B38 / --warmth / --freshness</code><span>→ <code>--tomato #FF4B23</code> (fill only) with <code>--tomato-ink #C42A05</code> for text, <code>--cobalt</code>, <code>--butter</code>, <code>--leaf</code></span></li>
+    <li><code>Fraunces / Plus Jakarta Sans / Caveat</code><span>→ Space Grotesk for display, body and buttons, Space Mono for every number, date and counter; the handwritten warmth of Caveat survives only in <em>With love ♡</em></span></li>
+    <li><code>1rem radius + soft shadow scale</code><span>→ radius 0, <code>2.5px</code> borders, <code>6px 6px 0</code> hard offsets, press travels into the shadow</span></li>
+    <li><code>glassmorphism header</code><span>→ solid bar with an ink rule; the sticky translucent blur is gone</span></li>
+    <li><code>features kept</code><span>all four tabs (Feed · Browse · Stats · Upload with 时光 / 浏览 / 统计 / 上传), all three gallery views plus the immersive feed, all five analytics blocks, search fields and date presets, upload → AI review, backfill, magic-link login, and every verified string</span></li>
+  </ul>
+</footer>
+<svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+<defs>
+<symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></g></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M6 6l12 12M18 6 6 18"/></g></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M12 15.5V4"/><path d="m7 8.5 5-4.5 5 4.5"/><path d="M4 15v3.5a1.5 1.5 0 0 0 1.5 1.5h13a1.5 1.5 0 0 0 1.5-1.5V15"/></g></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"/></g></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></g></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="miter"><path d="M12 20s-7.2-4.7-7.2-9.6A4.2 4.2 0 0 1 12 7.4a4.2 4.2 0 0 1 7.2 3C19.2 15.3 12 20 12 20Z"/></g></symbol>
+<symbol id="i-heart-f" viewBox="0 0 24 24"><path d="M12 20.4s-7.6-5-7.6-10A4.4 4.4 0 0 1 12 7.3a4.4 4.4 0 0 1 7.6 3.1c0 5-7.6 10-7.6 10Z" fill="currentColor" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-chev-l" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="m14 5-7 7 7 7"/></g></symbol>
+<symbol id="i-chev-r" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="m10 5 7 7-7 7"/></g></symbol>
+<symbol id="i-arrow-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M12 20V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/></g></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M3 8h3.6L8.4 5.5h7.2L17.4 8H21v11H3z"/><circle cx="12" cy="13.3" r="3.4"/></g></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><rect x="3" y="4.5" width="18" height="15"/><circle cx="8.6" cy="9.6" r="1.5"/><path d="m3 16 5-4.6 4.6 4.2 3-2.8L21 16.6"/></g></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5V9h-5.5"/></g></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M12 5.5v13M5.5 12h13"/></g></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M4 7h16"/><path d="M9.5 7V4h5v3"/><path d="M6.5 7 7.6 20h8.8L17.5 7"/></g></symbol>
+<symbol id="i-wifi-off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M2 8.5c2-1.7 4.4-2.8 7-3.3M13.5 5.3c3 .5 5.7 1.6 7.8 3.2"/><path d="M5.5 12.4c1.5-1.2 3.2-2 5-2.3M14.8 10.2c1.4.5 2.7 1.2 3.7 2.2"/><path d="M9 16c1.7-1.2 3.7-1.6 5.6-1.1"/><path d="M12 20h.01"/><path d="M3 3l18 18"/></g></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="miter"><path d="m12 3 1.9 5.4L19.5 10l-5.6 1.6L12 17l-1.9-5.4L4.5 10l5.6-1.6Z"/></g></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></g></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="miter"><path d="M12 3.5 3.5 8 12 12.5 20.5 8 12 3.5Z"/><path d="m3.5 13 8.5 4.5 8.5-4.5"/></g></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.3l3.4 2.2"/></g></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="square"><path d="m5 12.8 4.4 4.2L19 6.5"/></g></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+<symbol id="i-panel" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><rect x="3" y="4.5" width="18" height="15"/><path d="M9.5 4.5v15"/></g></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M4 20V11M9.3 20V4M14.7 20v-6M20 20V8"/></g></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><rect x="3" y="5.5" width="18" height="13"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.4h.01"/></g></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="miter"><path d="M4 5.5h16l-6.2 7v6.2L10.2 17v-4.5Z"/></g></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M9 11V5.2a1.6 1.6 0 0 1 3.2 0V11"/><path d="M12.2 10.6V4.6a1.6 1.6 0 0 1 3.2 0v6"/><path d="M15.4 11V6.6a1.6 1.6 0 0 1 3.2 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-4.6-2.2L4 15.6a1.7 1.7 0 0 1 2.6-2.1L9 16"/></g></symbol>
+
+<symbol id="dish-1" viewBox="0 0 120 120">
+  <circle cx="60" cy="63" r="43" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="60" cy="63" r="34" fill="var(--tomato)"/>
+  <g fill="none" stroke="var(--cream)" stroke-width="4.5" stroke-linecap="round"><path d="M34 58q13-13 26 0t26 0"/><path d="M36 72q12-12 24 0t24 0"/><path d="M42 45q9-9 18 0t18 0"/></g>
+  <rect x="42" y="57" width="14" height="12" fill="var(--ink-2)" stroke="var(--ink)" stroke-width="2"/>
+  <rect x="66" y="70" width="14" height="12" fill="var(--ink-2)" stroke="var(--ink)" stroke-width="2"/>
+  <circle cx="74" cy="50" r="6" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+  <g stroke="var(--ink)" stroke-width="4" stroke-linecap="round"><path d="M87 28 106 6"/><path d="M94 33 113 11"/></g>
+</symbol>
+<symbol id="dish-2" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <g fill="var(--cream)" stroke="var(--ink)" stroke-width="2.6">
+    <path d="M22 45c6-15 26-15 32 0-6 9-26 9-32 0Z"/>
+    <path d="M66 45c6-15 26-15 32 0-6 9-26 9-32 0Z"/>
+    <path d="M22 82c6-15 26-15 32 0-6 9-26 9-32 0Z"/>
+    <path d="M66 82c6-15 26-15 32 0-6 9-26 9-32 0Z"/>
+  </g>
+  <g stroke="var(--ink-2)" stroke-width="2" fill="none">
+    <path d="M28 40v8M34 38v10M40 38v10M46 40v8"/>
+    <path d="M72 40v8M78 38v10M84 38v10M90 40v8"/>
+    <path d="M28 77v8M34 75v10M40 75v10M46 77v8"/>
+    <path d="M72 77v8M78 75v10M84 75v10M90 77v8"/>
+  </g>
+  <circle cx="60" cy="63" r="4" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+</symbol>
+<symbol id="dish-3" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--ink)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="60" cy="60" r="35" fill="var(--butter)"/>
+  <g fill="var(--tomato)" stroke="var(--ink)" stroke-width="2.4">
+    <path d="M34 52c0-9 7-14 15-13 3 6-1 10-6 11 7 1 9 8 3 12-8 1-12-4-12-10Z"/>
+    <path d="M70 70c0-9 7-14 15-13 3 6-1 10-6 11 7 1 9 8 3 12-8 1-12-4-12-10Z"/>
+  </g>
+  <g fill="var(--cream)" stroke="var(--ink)" stroke-width="2"><circle cx="70" cy="44" r="4"/><circle cx="52" cy="76" r="4"/><circle cx="82" cy="58" r="3.4"/></g>
+  <path d="M40 74c6-3 10-1 13 3-6 3-10 1-13-3Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+  <path d="M96 22 108 10" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+</symbol>
+<symbol id="dish-4" viewBox="0 0 120 120">
+  <circle cx="60" cy="62" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <g stroke="var(--ink)" stroke-width="2.6">
+    <rect x="30" y="52" width="28" height="26" fill="var(--tomato)"/>
+    <rect x="58" y="52" width="28" height="26" fill="var(--tomato)"/>
+    <rect x="44" y="34" width="28" height="26" fill="var(--tomato)"/>
+  </g>
+  <g fill="var(--butter)" stroke="var(--ink)" stroke-width="2">
+    <path d="M30 52h28l-6-6H36Z"/><path d="M58 52h28l-6-6H64Z"/><path d="M44 34h28l-6-6H50Z"/>
+  </g>
+  <g stroke="var(--cream)" stroke-width="2.4" fill="none" opacity=".85"><path d="M36 60h16M64 60h16M50 42h16"/></g>
+  <circle cx="40" cy="90" r="5" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+  <circle cx="80" cy="90" r="5" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+</symbol>
+<symbol id="dish-5" viewBox="0 0 120 120">
+  <circle cx="60" cy="62" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="60" cy="62" r="34" fill="var(--butter)"/>
+  <path d="M40 56c8-10 24-10 32 0 4 5-2 9-8 6-5-3-9 1-6 5-4 4-12 3-15-2-2-4-5-6-3-9Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="2.4"/>
+  <g fill="var(--ink-2)" stroke="var(--ink)" stroke-width="2">
+    <path d="M74 74a11 7 0 1 0 0 .1Z"/>
+    <rect x="70" y="80" width="8" height="8"/>
+  </g>
+  <path d="M44 70c4-2 7-1 9 2-4 2-7 1-9-2Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2"/>
+  <g stroke="var(--cream)" stroke-width="2" fill="none"><path d="M50 44c6 3 14 3 20 0"/></g>
+</symbol>
+<symbol id="dish-6" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M34 84 60 26l26 58Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="2.8"/>
+  <path d="M34 84 60 26l26 58Z" fill="none"/>
+  <path d="M60 26c-8 6-18 14-26 26l6 12c7-16 14-27 20-38Z" fill="var(--ink)"/>
+  <path d="M60 26c7 3 15 11 22 22l-4 12C71 44 65 34 60 26Z" fill="var(--ink)"/>
+  <path d="M40 70h40l-6 14H46Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.4"/>
+  <path d="M60 26v58" stroke="var(--cream)" stroke-width="2" opacity=".7"/>
+</symbol>
+<symbol id="dish-7" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <g stroke="var(--ink)" stroke-width="1.6" fill="var(--butter)">
+    <rect x="28" y="46" width="58" height="5"/><rect x="34" y="55" width="58" height="5"/>
+    <rect x="26" y="64" width="58" height="5"/><rect x="36" y="73" width="58" height="5"/>
+    <rect x="30" y="37" width="58" height="5"/>
+  </g>
+  <g fill="var(--tomato)" stroke="var(--ink)" stroke-width="2.2">
+    <path d="M74 44c10-4 18-2 22 4-7 5-16 6-22 2Z"/>
+    <path d="M30 82c10-4 18-2 22 4-7 5-16 6-22 2Z"/>
+  </g>
+  <g fill="var(--ink)"><circle cx="44" cy="88" r="2.6"/><circle cx="56" cy="80" r="2.6"/><circle cx="66" cy="90" r="2.6"/></g>
+</symbol>
+<symbol id="dish-8" viewBox="0 0 120 120">
+  <circle cx="60" cy="62" r="44" fill="var(--ink)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="60" cy="62" r="34" fill="var(--tomato-ink)"/>
+  <g fill="var(--tomato)" stroke="var(--ink)" stroke-width="2.4">
+    <path d="M38 56a13 11 0 0 1 26 0c0 6-6 10-13 10s-13-4-13-10Z"/>
+    <path d="M58 76a13 11 0 0 1 26 0c0 6-6 10-13 10s-13-4-13-10Z"/>
+  </g>
+  <g fill="var(--cream)" stroke="var(--ink)" stroke-width="2"><circle cx="38" cy="58" r="5"/><circle cx="58" cy="78" r="5"/></g>
+  <g fill="var(--leaf)" stroke="var(--ink)" stroke-width="2">
+    <path d="M74 44c5-5 12-5 16-1-4 5-11 6-16 1Z"/><path d="M78 52c6-3 12-1 15 4-6 3-12 1-15-4Z"/>
+  </g>
+</symbol>
+<symbol id="dish-9" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M32 88 62 30l26 58Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="2.6"/>
+  <path d="M40 76h50l-6 12H46Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.4"/>
+  <path d="M62 30c-4 8-8 16-12 24 6 2 12 2 18 0-2-8-4-16-6-24Z" fill="var(--tomato)" stroke="var(--ink)" stroke-width="2.4"/>
+  <g fill="var(--tomato)" stroke="var(--ink)" stroke-width="2.2">
+    <path d="M44 58c0-6 4-9 9-9s9 3 9 9c0 5-4 8-9 8s-9-3-9-8Z"/>
+    <path d="M68 62c0-6 4-9 9-9s9 3 9 9c0 5-4 8-9 8s-9-3-9-8Z"/>
+  </g>
+  <g stroke="var(--ink)" stroke-width="2" fill="none"><path d="M49 51c2-3 6-4 9-2M73 55c2-3 6-4 9-2"/></g>
+</symbol>
+<symbol id="dish-10" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M18 60c14-16 34-22 56-20 10 1 18 5 24 12-6 12-16 20-30 22-20 3-38-2-50-14Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.8"/>
+  <path d="M92 46c6-4 12-6 18-6-3 7-8 12-14 15Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.4"/>
+  <g fill="none" stroke="var(--leaf)" stroke-width="4.5" stroke-linecap="round"><path d="M34 54h44M38 62h48M46 70h34"/></g>
+  <circle cx="34" cy="56" r="4.6" fill="var(--ink)"/>
+  <circle cx="60" cy="52" r="3.4" fill="var(--tomato)" stroke="var(--ink)" stroke-width="1.8"/>
+  <path d="M56 46c2-4 6-6 10-4" stroke="var(--cream)" stroke-width="2.4" fill="none"/>
+</symbol>
+<symbol id="dish-11" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="60" cy="60" r="35" fill="var(--tomato)"/>
+  <g fill="var(--cream)" stroke="var(--ink)" stroke-width="2.4">
+    <rect x="34" y="42" width="19" height="19"/><rect x="58" y="40" width="19" height="19"/>
+    <rect x="44" y="64" width="19" height="19"/><rect x="68" y="62" width="19" height="19"/>
+  </g>
+  <g fill="var(--ink)"><circle cx="42" cy="82" r="3"/><circle cx="76" cy="34" r="3"/><circle cx="30" cy="62" r="3"/><circle cx="82" cy="84" r="3"/><circle cx="60" cy="98" r="3"/></g>
+  <path d="M22 40c8-6 16-6 22 0-7 4-15 4-22 0Z" fill="var(--tomato-ink)" stroke="var(--ink)" stroke-width="2.2"/>
+</symbol>
+<symbol id="dish-12" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="44" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M38 28h44l-5 74H43Z" fill="var(--cream)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M42 48h36l-3.6 50H45.6Z" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.4"/>
+  <g fill="var(--cream)" stroke="var(--ink)" stroke-width="2">
+    <rect x="46" y="54" width="17" height="14"/><rect x="62" y="68" width="14" height="13"/>
+  </g>
+  <circle cx="56" cy="42" r="11" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.6"/>
+  <g stroke="var(--ink)" stroke-width="1.6" fill="none"><path d="M56 31v22M45 42h22M48 34l16 16M64 34 48 50"/></g>
+  <g fill="var(--leaf)" stroke="var(--ink)" stroke-width="1.8"><path d="M70 30c5-4 10-4 13 0-4 4-9 5-13 0Z"/><path d="M66 24c2-5 7-7 11-4-2 5-7 7-11 4Z"/></g>
+  <path d="M78 96h14" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+</symbol>
+</defs>
+</svg>
+<template id="app-template">
+<div class="app">
+
+  <div class="banner" data-when="offline">
+    <svg class="ic ic-sm" aria-hidden="true"><use href="#i-wifi-off"/></svg>
+    <span>You're offline. Some features may be unavailable.</span>
+    <button class="btn btn-sm" type="button" data-act="online">Back online</button>
+  </div>
+
+  <header class="app-header">
+    <button class="icon-btn icon-btn-bare header-collapse" type="button" data-act="sidebar" aria-label="Collapse navigation">
+      <svg class="ic" aria-hidden="true"><use href="#i-panel"/></svg>
+    </button>
+    <a class="brand" href="#" data-act="tab" data-tab="browse">
+      <span class="brand-mark"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-heart-f"/></svg></span>
+      <span class="brand-text">
+        <span class="brand-name">Love on the Plate</span>
+        <span class="brand-sub">Happy wife, happy life</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <button class="icon-btn icon-btn-bare header-search" type="button" data-act="search-toggle" aria-label="Open search">
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      </button>
+      <button class="icon-btn" type="button" data-act="theme" aria-label="Toggle theme">
+        <svg class="ic t-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <svg class="ic t-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      </button>
+      <button class="btn btn-fill header-cta" type="button" data-act="tab" data-tab="upload" aria-label="Upload">
+        <svg class="ic ic-sm" aria-hidden="true"><use href="#i-upload"/></svg><span class="cta-label">Upload</span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="app-sidebar">
+    <div class="side-brand">
+      <span class="brand-mark"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-heart-f"/></svg></span>
+      <span class="brand-text side-hide">
+        <span class="brand-name">Love on the Plate</span>
+        <span class="brand-sub">Happy wife, happy life</span>
+      </span>
+    </div>
+    <nav class="side-nav" aria-label="Sections">
+      <button class="navbtn" type="button" data-act="tab" data-tab="browse"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-layers"/></svg><span class="side-hide">Gallery</span></button>
+      <button class="navbtn" type="button" data-act="tab" data-tab="stats"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-chart"/></svg><span class="side-hide">Insights</span></button>
+      <button class="navbtn" type="button" data-act="tab" data-tab="upload"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-upload"/></svg><span class="side-hide">Upload</span></button>
+    </nav>
+    <div class="side-views side-hide">
+      <p class="label muted" style="margin-bottom:8px">View</p>
+      <div class="switcher" role="group" aria-label="Gallery view">
+        <span class="sw-ind" aria-hidden="true"></span>
+        <button type="button" data-act="view" data-view="plates">Plates</button>
+        <button type="button" data-act="view" data-view="grid">Grid</button>
+        <button type="button" data-act="view" data-view="timeline">Timeline</button>
+      </div>
+    </div>
+    <div class="side-foot">
+      <button class="btn btn-ghost btn-sm" type="button" data-act="sidebar"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-panel"/></svg><span class="side-hide">Collapse</span></button>
+      <button class="btn btn-ghost btn-sm" type="button" data-act="theme"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-moon"/></svg><span class="side-hide">Toggle theme</span></button>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+    <div class="panel" data-panel="browse">
+      <div class="searchwrap">
+        <button class="icon-btn" type="button" data-act="search-toggle" aria-label="Open search">
+          <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        </button>
+        <div class="search-panel" role="search">
+          <div class="search-row">
+            <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="sinput" type="search" data-field-input="all" aria-label="Search dishes, tags, dates" placeholder="Search dishes, tags, dates...">
+            <input class="sinput" type="search" data-field-input="title" aria-label="Search by dish name" placeholder="Search by dish name...">
+            <input class="sinput" type="search" data-field-input="date" aria-label="Select a date preset" placeholder="Select a date preset...">
+            <input class="sinput" type="search" data-field-input="tags" aria-label="Search or pick an ingredient" placeholder="Search or pick an ingredient...">
+            <button class="icon-btn icon-btn-bare" type="button" data-act="search-toggle" aria-label="Close search">
+              <svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>
+            </button>
+          </div>
+          <div class="search-fields" role="group" aria-label="Search field">
+            <span class="label muted" style="align-self:center">Field</span>
+            <button class="chip" type="button" data-act="field" data-field="all" aria-pressed="true">All</button>
+            <button class="chip" type="button" data-act="field" data-field="title" aria-pressed="false">Title</button>
+            <button class="chip" type="button" data-act="field" data-field="date" aria-pressed="false">Date</button>
+            <button class="chip" type="button" data-act="field" data-field="tags" aria-pressed="false">Tags</button>
+          </div>
+          <div class="presets" role="group" aria-label="Date presets">
+            <button class="preset" type="button" data-act="preset" aria-pressed="false">This Year</button>
+            <button class="preset" type="button" data-act="preset" aria-pressed="false">Last Year</button>
+            <button class="preset" type="button" data-act="preset" aria-pressed="false">六月</button>
+            <button class="preset" type="button" data-act="preset" aria-pressed="false">七月</button>
+            <button class="preset" type="button" data-act="preset" aria-pressed="false">八月</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="browse-switch">
+        <div class="switcher" role="group" aria-label="Gallery view">
+          <span class="sw-ind" aria-hidden="true"></span>
+          <button type="button" data-act="view" data-view="plates">Plates</button>
+          <button type="button" data-act="view" data-view="grid">Grid</button>
+          <button type="button" data-act="view" data-view="timeline">Timeline</button>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="results-head">
+          <p class="rh" style="margin:0"><span class="rh-seeded"><b>3</b> results for 番茄</span><span class="rh-typed">Results in the gallery</span></p>
+          <button class="chip" type="button" data-act="clear-search">
+            <svg class="ic ic-sm" aria-hidden="true"><use href="#i-x"/></svg> Clear
+          </button>
+        </div>
+        <button class="rrow" type="button" data-act="open" data-dish="1" data-match-key="1">
+          <span class="rrow-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg></span>
+          <span class="rrow-body">
+            <span class="rrow-name">番茄牛腩面</span>
+            <span class="rrow-en">Braised Beef Noodle Soup</span>
+            <span class="rrow-why">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</span>
+          </span>
+          <span class="rrow-kind">Dish</span>
+        </button>
+        <button class="rrow" type="button" data-act="open" data-dish="11" data-match-key="11">
+          <span class="rrow-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg></span>
+          <span class="rrow-body">
+            <span class="rrow-name">麻婆豆腐</span>
+            <span class="rrow-en">Mapo Tofu</span>
+            <span class="rrow-why">麻、红、完全不上相。第三次做，终于对了。</span>
+          </span>
+          <span class="rrow-kind">Dish</span>
+        </button>
+        <button class="rrow" type="button" data-act="tag-filter" data-tag="番茄 tomato" data-match-tag="番茄 tomato">
+          <span class="rrow-art f-tomato"><span class="mono-b" style="font-size:.82rem">番茄</span></span>
+          <span class="rrow-body">
+            <span class="rrow-name">番茄 tomato</span>
+            <span class="rrow-en">Ingredient tag</span>
+            <span class="rrow-why">31 plates tagged — the second most used ingredient in the gallery.</span>
+          </span>
+          <span class="rrow-kind">Tag</span>
+        </button>
+      </div>
+
+      <div class="noresults">
+        <div class="empty-note">
+          <svg class="ic" aria-hidden="true" style="margin:0 auto;width:34px;height:34px"><use href="#i-search"/></svg>
+          <p class="rh" style="margin:9px 0 0">No plate matches that</p>
+          <p>Try an ingredient, a dish name, or a month — the search reads 中文, English and every tag.</p>
+          <button class="btn btn-sm" type="button" data-act="clear-search" style="margin-top:13px">Clear search</button>
+        </div>
+      </div>
+
+      <div class="views">
+        <div class="bento">
+          <button class="card t-hero w2" type="button" data-key="1" data-act="open" data-dish="1"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg><span class="sticker st-nw" style="--r:-3deg">Simmered</span><span class="sticker sticker-leaf" style="--r:2deg;top:auto;bottom:8px;right:8px">New</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 4</span><span class="badge-no">042</span></span><span class="meta"><span class="nm">番茄牛腩面</span><span class="en">Braised Beef Noodle Soup</span><span class="dt">2026-08-14 · 1600×1200 · 3.1 MB</span></span></button>
+          <button class="card" type="button" data-key="2" data-act="open" data-dish="2"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg><span class="sticker st-nw" style="--r:-2deg">Folded 60</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 7</span><span class="badge-no">002</span></span><span class="meta"><span class="nm">韭菜猪肉饺子</span><span class="en">Pork &amp; Chive Dumplings</span><span class="dt">2026-08-09</span></span></button>
+          <button class="card" type="button" data-key="3" data-act="open" data-dish="3"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg><span class="sticker st-nw" style="--r:2deg">11 min</span><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 5</span><span class="badge-no">003</span></span><span class="meta"><span class="nm">蒜香黄油虾</span><span class="en">Garlic Butter Prawns</span><span class="dt">2026-07-28</span></span></button>
+          <button class="card w2" type="button" data-key="4" data-act="open" data-dish="4"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"/></svg><span class="sticker st-nw" style="--r:-3deg">Caramel</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 9</span><span class="badge-no">004</span></span><span class="meta"><span class="nm">红烧肉</span><span class="en">Red-Braised Pork Belly</span><span class="dt">2026-07-21 · 1600×1200</span></span></button>
+          <button class="card" type="button" data-key="5" data-act="open" data-dish="5"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"/></svg><span class="sticker st-nw" style="--r:2deg">Strained</span><span class="sticker sticker-cobalt st-ne" style="--r:-2deg">♡ 3</span><span class="badge-no">005</span></span><span class="meta"><span class="nm">奶油蘑菇汤</span><span class="en">Cream of Mushroom Soup</span><span class="dt">2026-07-15</span></span></button>
+          <button class="card" type="button" data-key="6" data-act="open" data-dish="6"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"/></svg><span class="sticker st-nw" style="--r:-3deg">Burnt</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 12</span><span class="badge-no">006</span></span><span class="meta"><span class="nm">抹茶巴斯克</span><span class="en">Matcha Basque Cheesecake</span><span class="dt">2026-07-06</span></span></button>
+          <button class="card w2" type="button" data-key="7" data-act="open" data-dish="7"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"/></svg><span class="sticker st-nw" style="--r:-2deg">90 sec</span><span class="sticker sticker-cobalt st-ne" style="--r:2deg">♡ 6</span><span class="badge-no">007</span></span><span class="meta"><span class="nm">酸辣土豆丝</span><span class="en">Hot &amp; Sour Potato Slivers</span><span class="dt">2026-06-30 · 1400×1400</span></span></button>
+          <button class="card w2" type="button" data-key="8" data-act="open" data-dish="8"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"/></svg><span class="sticker st-nw" style="--r:3deg">Three cup</span><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 8</span><span class="badge-no">008</span></span><span class="meta"><span class="nm">三杯鸡</span><span class="en">Three-Cup Chicken</span><span class="dt">2026-06-22 · 1600×1200</span></span></button>
+          <button class="card" type="button" data-key="9" data-act="open" data-dish="9"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"/></svg><span class="sticker st-nw" style="--r:-3deg">Birthday</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 21</span><span class="badge-no">009</span></span><span class="meta"><span class="nm">草莓奶油蛋糕</span><span class="en">Strawberry Cream Cake</span><span class="dt">2026-06-14</span></span></button>
+          <button class="card" type="button" data-key="10" data-act="open" data-dish="10"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"/></svg><span class="sticker st-nw" style="--r:2deg">8 min</span><span class="sticker sticker-cobalt st-ne" style="--r:-2deg">♡ 4</span><span class="badge-no">010</span></span><span class="meta"><span class="nm">清蒸鲈鱼</span><span class="en">Steamed Sea Bass</span><span class="dt">2026-06-05</span></span></button>
+          <button class="card w2" type="button" data-key="11" data-act="open" data-dish="11"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg><span class="sticker st-nw" style="--r:-3deg">Attempt 3</span><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 6</span><span class="badge-no">011</span></span><span class="meta"><span class="nm">麻婆豆腐</span><span class="en">Mapo Tofu</span><span class="dt">2026-05-28 · 1400×1400</span></span></button>
+          <button class="card w2" type="button" data-key="12" data-act="open" data-dish="12"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"/></svg><span class="sticker st-nw" style="--r:2deg">Shaken 20</span><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 5</span><span class="badge-no">012</span></span><span class="meta"><span class="nm">手打柠檬茶</span><span class="en">Hand-Shaken Lemon Tea</span><span class="dt">2026-05-20 · 1200×1600</span></span></button>
+        </div>
+        <div class="masonry">
+          <button class="card" type="button" data-key="1" data-act="open" data-dish="1" data-orient="landscape"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 4</span><span class="badge-no">042</span></span><span class="meta"><span class="nm">番茄牛腩面</span><span class="en">Braised Beef Noodle Soup</span><span class="dt">2026-08-14</span></span></button>
+          <button class="card" type="button" data-key="2" data-act="open" data-dish="2" data-orient="portrait"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 7</span><span class="badge-no">002</span></span><span class="meta"><span class="nm">韭菜猪肉饺子</span><span class="en">Pork &amp; Chive Dumplings</span><span class="dt">2026-08-09</span></span></button>
+          <button class="card" type="button" data-key="3" data-act="open" data-dish="3" data-orient="square"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:2deg">♡ 5</span><span class="badge-no">003</span></span><span class="meta"><span class="nm">蒜香黄油虾</span><span class="en">Garlic Butter Prawns</span><span class="dt">2026-07-28</span></span></button>
+          <button class="card" type="button" data-key="4" data-act="open" data-dish="4" data-orient="landscape"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-2deg">♡ 9</span><span class="badge-no">004</span></span><span class="meta"><span class="nm">红烧肉</span><span class="en">Red-Braised Pork Belly</span><span class="dt">2026-07-21</span></span></button>
+          <button class="card" type="button" data-key="5" data-act="open" data-dish="5" data-orient="square"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 3</span><span class="badge-no">005</span></span><span class="meta"><span class="nm">奶油蘑菇汤</span><span class="en">Cream of Mushroom Soup</span><span class="dt">2026-07-15</span></span></button>
+          <button class="card" type="button" data-key="6" data-act="open" data-dish="6" data-orient="portrait"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 12</span><span class="badge-no">006</span></span><span class="meta"><span class="nm">抹茶巴斯克</span><span class="en">Matcha Basque Cheesecake</span><span class="dt">2026-07-06</span></span></button>
+          <button class="card" type="button" data-key="7" data-act="open" data-dish="7" data-orient="square"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:2deg">♡ 6</span><span class="badge-no">007</span></span><span class="meta"><span class="nm">酸辣土豆丝</span><span class="en">Hot &amp; Sour Potato Slivers</span><span class="dt">2026-06-30</span></span></button>
+          <button class="card" type="button" data-key="8" data-act="open" data-dish="8" data-orient="landscape"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-2deg">♡ 8</span><span class="badge-no">008</span></span><span class="meta"><span class="nm">三杯鸡</span><span class="en">Three-Cup Chicken</span><span class="dt">2026-06-22</span></span></button>
+          <button class="card" type="button" data-key="9" data-act="open" data-dish="9" data-orient="portrait"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 21</span><span class="badge-no">009</span></span><span class="meta"><span class="nm">草莓奶油蛋糕</span><span class="en">Strawberry Cream Cake</span><span class="dt">2026-06-14</span></span></button>
+          <button class="card" type="button" data-key="10" data-act="open" data-dish="10" data-orient="landscape"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-3deg">♡ 4</span><span class="badge-no">010</span></span><span class="meta"><span class="nm">清蒸鲈鱼</span><span class="en">Steamed Sea Bass</span><span class="dt">2026-06-05</span></span></button>
+          <button class="card" type="button" data-key="11" data-act="open" data-dish="11" data-orient="square"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:2deg">♡ 6</span><span class="badge-no">011</span></span><span class="meta"><span class="nm">麻婆豆腐</span><span class="en">Mapo Tofu</span><span class="dt">2026-05-28</span></span></button>
+          <button class="card" type="button" data-key="12" data-act="open" data-dish="12" data-orient="portrait"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:-2deg">♡ 5</span><span class="badge-no">012</span></span><span class="meta"><span class="nm">手打柠檬茶</span><span class="en">Hand-Shaken Lemon Tea</span><span class="dt">2026-05-20</span></span></button>
+        </div>
+        <div class="timeline">
+          <div class="month">
+            <h3 class="month-head"><span class="mn">08</span> 八月 · August <span class="mono" style="margin-left:auto;font-size:.68rem">2 plates</span></h3>
+            <div class="tl-rows">
+              <button class="card trow" type="button" data-key="1" data-act="open" data-dish="1"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg></span><span class="meta"><span class="nm">番茄牛腩面</span><span class="en">Braised Beef Noodle Soup</span><span class="dt">2026-08-14</span><span class="desc">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</span></span></button>
+              <button class="card trow" type="button" data-key="2" data-act="open" data-dish="2"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg></span><span class="meta"><span class="nm">韭菜猪肉饺子</span><span class="en">Pork &amp; Chive Dumplings</span><span class="dt">2026-08-09</span><span class="desc">Folded 60 of them, ate 40. The pleats got better around number thirty.</span></span></button>
+            </div>
+          </div>
+          <div class="month">
+            <h3 class="month-head"><span class="mn">07</span> 七月 · July <span class="mono" style="margin-left:auto;font-size:.68rem">3 plates</span></h3>
+            <div class="tl-rows">
+              <button class="card trow" type="button" data-key="3" data-act="open" data-dish="3"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg></span><span class="meta"><span class="nm">蒜香黄油虾</span><span class="en">Garlic Butter Prawns</span><span class="dt">2026-07-28</span><span class="desc">Ready in eleven minutes, which is exactly the kind of dinner a Tuesday deserves.</span></span></button>
+              <button class="card trow" type="button" data-key="4" data-act="open" data-dish="4"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"/></svg></span><span class="meta"><span class="nm">红烧肉</span><span class="en">Red-Braised Pork Belly</span><span class="dt">2026-07-21</span><span class="desc">Caramelised to the colour of old violin. Sweet, sticky, unapologetic.</span></span></button>
+              <button class="card trow" type="button" data-key="5" data-act="open" data-dish="5"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"/></svg></span><span class="meta"><span class="nm">奶油蘑菇汤</span><span class="en">Cream of Mushroom Soup</span><span class="dt">2026-07-15</span><span class="desc">Blended twice, strained once, and worth every dish in the sink.</span></span></button>
+            </div>
+          </div>
+          <div class="month">
+            <h3 class="month-head"><span class="mn">06</span> 六月 · June <span class="mono" style="margin-left:auto;font-size:.68rem">5 plates</span></h3>
+            <div class="tl-rows">
+              <button class="card trow" type="button" data-key="6" data-act="open" data-dish="6"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"/></svg></span><span class="meta"><span class="nm">抹茶巴斯克</span><span class="en">Matcha Basque Cheesecake</span><span class="dt">2026-07-06</span><span class="desc">Burnt on purpose. The middle still trembles when you cut it.</span></span></button>
+              <button class="card trow" type="button" data-key="7" data-act="open" data-dish="7"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"/></svg></span><span class="meta"><span class="nm">酸辣土豆丝</span><span class="en">Hot &amp; Sour Potato Slivers</span><span class="dt">2026-06-30</span><span class="desc">Crunch is the whole point. Ninety seconds in the wok, no more.</span></span></button>
+              <button class="card trow" type="button" data-key="8" data-act="open" data-dish="8"><span class="art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"/></svg></span><span class="meta"><span class="nm">三杯鸡</span><span class="en">Three-Cup Chicken</span><span class="dt">2026-06-22</span><span class="desc">Equal parts soy, wine and sesame. Nine-layer basil from the balcony pot.</span></span></button>
+              <button class="card trow" type="button" data-key="9" data-act="open" data-dish="9"><span class="art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"/></svg></span><span class="meta"><span class="nm">草莓奶油蛋糕</span><span class="en">Strawberry Cream Cake</span><span class="dt">2026-06-14</span><span class="desc">Her birthday cake. Lopsided, over-filled, exactly right.</span></span></button>
+              <button class="card trow" type="button" data-key="10" data-act="open" data-dish="10"><span class="art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"/></svg></span><span class="meta"><span class="nm">清蒸鲈鱼</span><span class="en">Steamed Sea Bass</span><span class="dt">2026-06-05</span><span class="desc">Eight minutes of steam, one ladle of hot oil over the scallions.</span></span></button>
+            </div>
+          </div>
+          <div class="month">
+            <h3 class="month-head"><span class="mn">05</span> 五月 · May <span class="mono" style="margin-left:auto;font-size:.68rem">2 plates</span></h3>
+            <div class="tl-rows">
+              <button class="card trow" type="button" data-key="11" data-act="open" data-dish="11"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg></span><span class="meta"><span class="nm">麻婆豆腐</span><span class="en">Mapo Tofu</span><span class="dt">2026-05-28</span><span class="desc">Numbing, red, and completely unphotogenic. Third attempt, finally right.</span></span></button>
+              <button class="card trow" type="button" data-key="12" data-act="open" data-dish="12"><span class="art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"/></svg></span><span class="meta"><span class="nm">手打柠檬茶</span><span class="en">Hand-Shaken Lemon Tea</span><span class="dt">2026-05-20</span><span class="desc">Pounded the lemons properly this time. Twenty seconds of shaking, ice shock.</span></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="feed">
+      <div class="feed-bar">
+        <div>
+          <h2 class="panel-title display">Feed</h2>
+          <p class="panel-sub">Edge to edge, one plate at a time.</p>
+        </div>
+        <span class="feed-key"><kbd>←</kbd><kbd>→</kbd> to move between plates</span>
+      </div>
+      <div class="feed-stack">
+        <button class="card feed-item" type="button" data-act="open" data-dish="1"><span class="feed-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg></span><span class="feed-idx">1 / 12</span><span class="feed-cap"><span class="nm">番茄牛腩面</span><span class="en">Braised Beef Noodle Soup</span><span class="dt">August 14, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="2"><span class="feed-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg></span><span class="feed-idx">2 / 12</span><span class="feed-cap"><span class="nm">韭菜猪肉饺子</span><span class="en">Pork &amp; Chive Dumplings</span><span class="dt">August 9, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="3"><span class="feed-art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg></span><span class="feed-idx">3 / 12</span><span class="feed-cap"><span class="nm">蒜香黄油虾</span><span class="en">Garlic Butter Prawns</span><span class="dt">July 28, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="4"><span class="feed-art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"/></svg></span><span class="feed-idx">4 / 12</span><span class="feed-cap"><span class="nm">红烧肉</span><span class="en">Red-Braised Pork Belly</span><span class="dt">July 21, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="5"><span class="feed-art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"/></svg></span><span class="feed-idx">5 / 12</span><span class="feed-cap"><span class="nm">奶油蘑菇汤</span><span class="en">Cream of Mushroom Soup</span><span class="dt">July 15, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="6"><span class="feed-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"/></svg></span><span class="feed-idx">6 / 12</span><span class="feed-cap"><span class="nm">抹茶巴斯克</span><span class="en">Matcha Basque Cheesecake</span><span class="dt">July 6, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="7"><span class="feed-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"/></svg></span><span class="feed-idx">7 / 12</span><span class="feed-cap"><span class="nm">酸辣土豆丝</span><span class="en">Hot &amp; Sour Potato Slivers</span><span class="dt">June 30, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="8"><span class="feed-art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"/></svg></span><span class="feed-idx">8 / 12</span><span class="feed-cap"><span class="nm">三杯鸡</span><span class="en">Three-Cup Chicken</span><span class="dt">June 22, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="9"><span class="feed-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"/></svg></span><span class="feed-idx">9 / 12</span><span class="feed-cap"><span class="nm">草莓奶油蛋糕</span><span class="en">Strawberry Cream Cake</span><span class="dt">June 14, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="10"><span class="feed-art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"/></svg></span><span class="feed-idx">10 / 12</span><span class="feed-cap"><span class="nm">清蒸鲈鱼</span><span class="en">Steamed Sea Bass</span><span class="dt">June 5, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="11"><span class="feed-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg></span><span class="feed-idx">11 / 12</span><span class="feed-cap"><span class="nm">麻婆豆腐</span><span class="en">Mapo Tofu</span><span class="dt">May 28, 2026</span></span></button>
+        <button class="card feed-item" type="button" data-act="open" data-dish="12"><span class="feed-art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"/></svg></span><span class="feed-idx">12 / 12</span><span class="feed-cap"><span class="nm">手打柠檬茶</span><span class="en">Hand-Shaken Lemon Tea</span><span class="dt">May 20, 2026</span></span></button>
+      </div>
+    </div>
+    <div class="panel" data-panel="stats">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title display">Analytics</h2>
+          <p class="panel-sub">A quick look at how the gallery is growing</p>
+        </div>
+        <button class="btn btn-sm" type="button" data-act="tab" data-tab="browse">
+          <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chev-l"/></svg> Back to Gallery
+        </button>
+      </div>
+
+      <div class="score" style="margin-bottom:16px">
+        <div class="sblock sb-tomato"><span class="sk">Total photos</span><span class="sv">214</span><span class="sd">+30 this month</span><span class="sd">Updated 4m ago</span></div>
+        <div class="sblock sb-cobalt"><span class="sk">Last 30 days</span><span class="sv">49</span><span class="sd">uploads</span><span class="sd">14-day trend below</span></div>
+        <div class="sblock sb-butter"><span class="sk">Photos per month</span><span class="sv">38</span><span class="sd">Busiest · 七月 July</span><span class="sd">Last 8 months</span></div>
+        <div class="sblock sb-ink"><span class="sk">Top ingredients</span><span class="sv">5</span><span class="sd">Tags in the lead</span><span class="sd">garlic 38 · tomato 31</span></div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3 class="label">Photos per month</h3><span class="mono muted" style="font-size:.7rem">Last 8 months</span></div>
+        <div class="bars">
+          <div class="bar"><b>14</b><i style="--h:37%"></i><span>01 一月</span></div>
+          <div class="bar"><b>19</b><i style="--h:50%"></i><span>02 二月</span></div>
+          <div class="bar"><b>23</b><i style="--h:61%"></i><span>03 三月</span></div>
+          <div class="bar"><b>18</b><i style="--h:47%"></i><span>04 四月</span></div>
+          <div class="bar"><b>27</b><i style="--h:71%"></i><span>05 五月</span></div>
+          <div class="bar"><b>31</b><i style="--h:82%"></i><span>06 六月</span></div>
+          <div class="bar"><b>38</b><i style="--h:100%"></i><span>07 七月</span></div>
+          <div class="bar"><b>30</b><i style="--h:79%"></i><span>08 八月</span></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h3 class="label">Top ingredients / Top dishes</h3>
+          <div class="stats-toggle" role="group" aria-label="Ranking">
+            <button type="button" data-act="stat" data-stat="ingredients" aria-pressed="true">Ingredients</button>
+            <button type="button" data-act="stat" data-stat="dishes" aria-pressed="false">Dishes</button>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="rank-col col-ing">
+            <ul class="ranks">
+              <li class="rank"><span class="rno">01</span><span class="rname">蒜 garlic</span><span class="rbar"><i style="--h:100%"></i></span><span class="rval">38</span></li>
+              <li class="rank"><span class="rno">02</span><span class="rname">番茄 tomato</span><span class="rbar"><i style="--h:82%"></i></span><span class="rval">31</span></li>
+              <li class="rank"><span class="rno">03</span><span class="rname">酱油 soy sauce</span><span class="rbar"><i style="--h:76%"></i></span><span class="rval">29</span></li>
+              <li class="rank"><span class="rno">04</span><span class="rname">姜 ginger</span><span class="rbar"><i style="--h:71%"></i></span><span class="rval">27</span></li>
+              <li class="rank"><span class="rno">05</span><span class="rname">葱 scallion</span><span class="rbar"><i style="--h:63%"></i></span><span class="rval">24</span></li>
+            </ul>
+          </div>
+          <div class="rank-col col-dishes">
+            <ul class="ranks">
+              <li class="rank"><span class="rno">01</span><span class="rname">番茄牛腩面</span><span class="rbar"><i style="--h:100%"></i></span><span class="rval">9</span></li>
+              <li class="rank"><span class="rno">02</span><span class="rname">麻婆豆腐</span><span class="rbar"><i style="--h:78%"></i></span><span class="rval">7</span></li>
+              <li class="rank"><span class="rno">03</span><span class="rname">红烧肉</span><span class="rbar"><i style="--h:67%"></i></span><span class="rval">6</span></li>
+              <li class="rank"><span class="rno">04</span><span class="rname">韭菜猪肉饺子</span><span class="rbar"><i style="--h:56%"></i></span><span class="rval">5</span></li>
+              <li class="rank"><span class="rno">05</span><span class="rname">三杯鸡</span><span class="rbar"><i style="--h:44%"></i></span><span class="rval">4</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3 class="label">Last 14 days</h3><span class="mono muted" style="font-size:.7rem">49 uploads</span></div>
+        <div class="trend">
+          <div class="td"><b>3</b><i style="--h:43%"></i></div>
+          <div class="td"><b>5</b><i style="--h:71%"></i></div>
+          <div class="td"><b>2</b><i style="--h:29%"></i></div>
+          <div class="td"><b>4</b><i style="--h:57%"></i></div>
+          <div class="td"><b>6</b><i style="--h:86%"></i></div>
+          <div class="td"><b>1</b><i style="--h:14%"></i></div>
+          <div class="td"><b>0</b><i style="--h:0%"></i></div>
+          <div class="td"><b>3</b><i style="--h:43%"></i></div>
+          <div class="td"><b>5</b><i style="--h:71%"></i></div>
+          <div class="td"><b>4</b><i style="--h:57%"></i></div>
+          <div class="td"><b>7</b><i style="--h:100%"></i></div>
+          <div class="td"><b>3</b><i style="--h:43%"></i></div>
+          <div class="td"><b>2</b><i style="--h:29%"></i></div>
+          <div class="td"><b>4</b><i style="--h:57%"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="upload">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title display">Upload Photo</h2>
+          <p class="panel-sub">Share your culinary creations</p>
+        </div>
+        <button class="btn btn-sm" type="button" data-act="tab" data-tab="browse">
+          <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chev-l"/></svg> View Gallery
+        </button>
+      </div>
+
+      <div class="upzone-wrap">
+        <div class="upzone" data-act="upload-zone">
+          <div class="uz-idle">
+            <span class="uz-icon"><svg class="ic" aria-hidden="true" style="width:28px;height:28px"><use href="#i-camera"/></svg></span>
+            <h3 class="uz-title display">Upload a photo</h3>
+            <p class="uz-help">Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically</p>
+            <div class="uz-actions">
+              <button class="btn btn-fill" type="button" data-act="simulate-upload"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-camera"/></svg> Take Photo</button>
+              <button class="btn" type="button" data-act="simulate-upload"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-image"/></svg> Choose from Gallery</button>
+            </div>
+            <p class="uz-drag-hint">or drag and drop an image here</p>
+          </div>
+          <div class="uz-drag">
+            <span class="uz-icon" style="background:var(--ink);color:var(--bg)"><svg class="ic" aria-hidden="true" style="width:28px;height:28px"><use href="#i-upload"/></svg></span>
+            <h3 class="uz-title display">Drop your photo here</h3>
+            <p class="uz-help" style="color:var(--on-fill)">Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically</p>
+            <div class="uz-actions">
+              <button class="btn" type="button" data-act="simulate-upload" style="--sh:var(--ink)"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-upload"/></svg> Release to upload</button>
+              <button class="btn btn-ghost" type="button" data-act="upload-zone" style="--sh:var(--ink)">Cancel drop</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="up-progress block" style="margin-top:16px">
+        <div class="block-head"><h3 class="label">Uploading 3 files</h3><span class="mono muted" style="font-size:.7rem">Compressing to 1920 px</span></div>
+        <div class="prog"><span class="prog-name">IMG_4821.HEIC</span><span class="prog-bar"><i style="--w:100%"></i></span><span class="prog-pct">100%</span></div>
+        <div class="prog"><span class="prog-name">IMG_4822.HEIC</span><span class="prog-bar"><i style="--w:72%"></i></span><span class="prog-pct">72%</span></div>
+        <div class="prog"><span class="prog-name">IMG_4823.HEIC</span><span class="prog-bar"><i style="--w:34%"></i></span><span class="prog-pct">34%</span></div>
+      </div>
+
+      <div class="ai-panel block">
+        <div class="block-head">
+          <h3 class="label">AI review</h3>
+          <span class="exif"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-clock"/></svg> 2026-08-14 · from EXIF</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label class="label">菜名 / Dish Name</label>
+            <input class="input" type="text" value="番茄牛腩面" placeholder="AI 正在识别菜名…">
+          </div>
+          <div class="field">
+            <label class="label">烹饪日期 / Cooked Date</label>
+            <input class="input" type="text" value="2026-08-14">
+          </div>
+          <div class="field span2">
+            <span class="label">主要食材 / Main Ingredients</span>
+            <div class="tagrow">
+              <span class="chip chip-ing">牛腩 beef brisket <button class="chip-rm" type="button" data-act="ingredient-remove" aria-label="Remove 牛腩 beef brisket"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button></span>
+              <span class="chip chip-ing">番茄 tomato <button class="chip-rm" type="button" data-act="ingredient-remove" aria-label="Remove 番茄 tomato"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button></span>
+              <span class="chip chip-ing">手擀面 hand-pulled noodles <button class="chip-rm" type="button" data-act="ingredient-remove" aria-label="Remove 手擀面 hand-pulled noodles"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button></span>
+              <span class="chip chip-ing">八角 star anise <button class="chip-rm" type="button" data-act="ingredient-remove" aria-label="Remove 八角 star anise"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button></span>
+              <button class="chip" type="button" data-act="ingredient-add"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-plus"/></svg> 添加食材</button>
+            </div>
+            <div class="ing-edit" style="margin-top:9px"><input class="input" type="text" placeholder="输入食材…" aria-label="输入食材"></div>
+          </div>
+          <div class="field span2">
+            <label class="label">中文描述</label>
+            <textarea class="textarea" placeholder="AI 正在生成中文描述…">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</textarea>
+          </div>
+          <div class="field span2">
+            <label class="label">English Description</label>
+            <textarea class="textarea" placeholder="AI is generating an English description…">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</textarea>
+          </div>
+        </div>
+        <p class="panel-sub" style="margin:13px 0">Edit the name, then tap the refresh button to regenerate descriptions</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button class="btn" type="button" data-act="regen"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-refresh"/></svg> Regenerate All</button>
+          <button class="btn btn-ghost" type="button" data-act="upload-cancel">Cancel</button>
+          <button class="btn btn-fill" type="button" data-act="upload-save"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-check"/></svg> Upload</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3 class="label">Recently Uploaded</h3><span class="mono muted" style="font-size:.7rem">3 of 214</span></div>
+        <ul class="recent">
+          <li><span class="rt f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg></span><span style="min-width:0"><span class="rn">番茄牛腩面</span><span class="rd">IMG_4821.HEIC · 2026-08-14 · 3.1 MB</span></span></li>
+          <li><span class="rt f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg></span><span style="min-width:0"><span class="rn">韭菜猪肉饺子</span><span class="rd">IMG_4804.HEIC · 2026-08-09 · 2.6 MB</span></span></li>
+          <li><span class="rt f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg></span><span style="min-width:0"><span class="rn">蒜香黄油虾</span><span class="rd">IMG_4798.HEIC · 2026-07-28 · 1.9 MB</span></span></li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3 class="label">Backfill Missing Data</h3></div>
+        <div class="backfill-stat"><span>7 photos missing dish name or descriptions</span><b>7</b></div>
+        <div class="backfill-stat"><span>12 photos missing ingredient tags</span><b>12</b></div>
+        <div class="backfill-stat"><span>out of 214 total</span><b>214</b></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:13px">
+          <button class="btn btn-butter" type="button" data-act="backfill"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-spark"/></svg><span class="bf-idle">Generate Missing Data with AI</span><span class="bf-busy"><span class="spin" aria-hidden="true"></span>Generating with AI…</span></button>
+        </div>
+        <p class="panel-sub bf-status" style="margin:11px 0 0">This may take a while. Please don't close this page.</p>
+      </div>
+    </div>
+
+    <div class="app-foot">
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          <span class="ticker-set">214 PLATES <i>·</i> 番茄牛腩面 <i>·</i> GARLIC, TOMATO, STAR ANISE <i>·</i> 八月 +30 <i>·</i> 麻婆豆腐 <i>·</i> JUNE 31 <i>·</i> 手打柠檬茶 <i>·</i> 五月 27 <i>·</i> 红烧肉 <i>·</i></span>
+          <span class="ticker-set" aria-hidden="true">214 PLATES <i>·</i> 番茄牛腩面 <i>·</i> GARLIC, TOMATO, STAR ANISE <i>·</i> 八月 +30 <i>·</i> 麻婆豆腐 <i>·</i> JUNE 31 <i>·</i> 手打柠檬茶 <i>·</i> 五月 27 <i>·</i> 红烧肉 <i>·</i></span>
+        </div>
+      </div>
+      <div class="app-foot-inner">
+        <span class="foot-brand">Love on the Plate</span>
+        <span class="foot-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> Made with love</span>
+        <span class="mono muted" style="font-size:.68rem">© 2026 Love on the Plate</span>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="app-tabbar" aria-label="Primary">
+    <button class="tabbtn" type="button" data-act="tab" data-tab="feed" aria-selected="false"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg>Feed<span class="tab-cn">时光</span></button>
+    <button class="tabbtn" type="button" data-act="tab" data-tab="browse" aria-selected="true"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>Browse<span class="tab-cn">浏览</span></button>
+    <button class="tabbtn" type="button" data-act="tab" data-tab="stats" aria-selected="false"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg>Stats<span class="tab-cn">统计</span></button>
+    <button class="tabbtn" type="button" data-act="tab" data-tab="upload" aria-selected="false"><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg>Upload<span class="tab-cn">上传</span></button>
+  </nav>
+  <div class="sheet" data-sheet-panel>
+    <div class="sheet-backdrop" data-act="close" aria-hidden="true"></div>
+    <div class="sheet-body" role="dialog" aria-modal="true" aria-label="Photo detail">
+      <div class="sheet-grab" aria-hidden="true"></div>
+
+      <article class="sheet-item" data-dish="1">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">1 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg></div>
+        <h3 class="si-name display">番茄牛腩面</h3>
+        <p class="si-en">Braised Beef Noodle Soup</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">牛腩 beef brisket</span><span class="chip chip-ing">番茄 tomato</span><span class="chip chip-ing">手擀面 hand-pulled noodles</span><span class="chip chip-ing">八角 star anise</span></div>
+        <p class="si-date">August 14, 2026</p>
+        <p class="si-cn">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="2">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">2 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"/></svg></div>
+        <h3 class="si-name display">韭菜猪肉饺子</h3>
+        <p class="si-en">Pork &amp; Chive Dumplings</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">韭菜 chive</span><span class="chip chip-ing">猪肉 pork</span><span class="chip chip-ing">饺子皮 wrappers</span><span class="chip chip-ing">姜 ginger</span></div>
+        <p class="si-date">August 9, 2026</p>
+        <p class="si-cn">包了六十个，吃掉了四十个。到第三十个的时候，褶子终于好看了。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Folded 60 of them, ate 40. The pleats got better around number thirty.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="3">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">3 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"/></svg></div>
+        <h3 class="si-name display">蒜香黄油虾</h3>
+        <p class="si-en">Garlic Butter Prawns</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">虾 prawns</span><span class="chip chip-ing">蒜 garlic</span><span class="chip chip-ing">黄油 butter</span><span class="chip chip-ing">欧芹 parsley</span></div>
+        <p class="si-date">July 28, 2026</p>
+        <p class="si-cn">十一点就上桌，星期二就该吃这样的晚饭。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Ready in eleven minutes, which is exactly the kind of dinner a Tuesday deserves.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="4">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">4 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"/></svg></div>
+        <h3 class="si-name display">红烧肉</h3>
+        <p class="si-en">Red-Braised Pork Belly</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">五花肉 pork belly</span><span class="chip chip-ing">冰糖 rock sugar</span><span class="chip chip-ing">老抽 dark soy</span><span class="chip chip-ing">桂皮 cinnamon</span></div>
+        <p class="si-date">July 21, 2026</p>
+        <p class="si-cn">炒到小提琴那样的深色。甜、黏、毫不收敛。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Caramelised to the colour of old violin. Sweet, sticky, unapologetic.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="5">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">5 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"/></svg></div>
+        <h3 class="si-name display">奶油蘑菇汤</h3>
+        <p class="si-en">Cream of Mushroom Soup</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">口蘑 button mushroom</span><span class="chip chip-ing">淡奶油 cream</span><span class="chip chip-ing">百里香 thyme</span><span class="chip chip-ing">洋葱 onion</span></div>
+        <p class="si-date">July 15, 2026</p>
+        <p class="si-cn">打了两遍，过了一次筛，洗那些碗也值了。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Blended twice, strained once, and worth every dish in the sink.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="6">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">6 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"/></svg></div>
+        <h3 class="si-name display">抹茶巴斯克</h3>
+        <p class="si-en">Matcha Basque Cheesecake</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">抹茶粉 matcha</span><span class="chip chip-ing">奶油奶酪 cream cheese</span><span class="chip chip-ing">鸡蛋 egg</span><span class="chip chip-ing">淡奶油 cream</span></div>
+        <p class="si-date">July 6, 2026</p>
+        <p class="si-cn">故意烤焦的表面。切下去的时候，中间还会抖。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Burnt on purpose. The middle still trembles when you cut it.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="7">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">7 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"/></svg></div>
+        <h3 class="si-name display">酸辣土豆丝</h3>
+        <p class="si-en">Hot &amp; Sour Potato Slivers</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">土豆 potato</span><span class="chip chip-ing">干辣椒 dried chilli</span><span class="chip chip-ing">陈醋 aged vinegar</span></div>
+        <p class="si-date">June 30, 2026</p>
+        <p class="si-cn">脆才是重点。锅里九十秒，多一秒都不行。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Crunch is the whole point. Ninety seconds in the wok, no more.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="8">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">8 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-cobalt"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"/></svg></div>
+        <h3 class="si-name display">三杯鸡</h3>
+        <p class="si-en">Three-Cup Chicken</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">鸡腿 chicken thigh</span><span class="chip chip-ing">米酒 rice wine</span><span class="chip chip-ing">九层塔 basil</span></div>
+        <p class="si-date">June 22, 2026</p>
+        <p class="si-cn">酱油、米酒、麻油各一杯。九层塔是阳台上那盆摘的。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Equal parts soy, wine and sesame. Nine-layer basil from the balcony pot.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="9">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">9 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-butter"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"/></svg></div>
+        <h3 class="si-name display">草莓奶油蛋糕</h3>
+        <p class="si-en">Strawberry Cream Cake</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">草莓 strawberry</span><span class="chip chip-ing">淡奶油 cream</span><span class="chip chip-ing">低筋面粉 cake flour</span></div>
+        <p class="si-date">June 14, 2026</p>
+        <p class="si-cn">她的生日蛋糕。歪的，奶油多了，刚刚好。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Her birthday cake. Lopsided, over-filled, exactly right.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="10">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">10 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-leaf"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"/></svg></div>
+        <h3 class="si-name display">清蒸鲈鱼</h3>
+        <p class="si-en">Steamed Sea Bass</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">鲈鱼 sea bass</span><span class="chip chip-ing">姜 ginger</span><span class="chip chip-ing">蒸鱼豉油 seasoned soy</span></div>
+        <p class="si-date">June 5, 2026</p>
+        <p class="si-cn">蒸八分钟，热油往葱丝上一泼，完事。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Eight minutes of steam, one ladle of hot oil over the scallions.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="11">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">11 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"/></svg></div>
+        <h3 class="si-name display">麻婆豆腐</h3>
+        <p class="si-en">Mapo Tofu</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">嫩豆腐 silken tofu</span><span class="chip chip-ing">豆瓣酱 chilli bean paste</span><span class="chip chip-ing">花椒 Sichuan peppercorn</span></div>
+        <p class="si-date">May 28, 2026</p>
+        <p class="si-cn">麻、红、完全不上相。第三次做，终于对了。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Numbing, red, and completely unphotogenic. Third attempt, finally right.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+
+      <article class="sheet-item" data-dish="12">
+        <div class="si-nav"><button class="icon-btn" type="button" data-act="prev" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button><span class="si-count mono">12 / 12</span><button class="icon-btn" type="button" data-act="next" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button><button class="btn btn-sm" type="button" data-act="close" style="margin-left:auto">Close</button></div>
+        <div class="si-art f-wash"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"/></svg></div>
+        <h3 class="si-name display">手打柠檬茶</h3>
+        <p class="si-en">Hand-Shaken Lemon Tea</p>
+        <div class="tagrow si-ing"><span class="chip chip-ing">柠檬 lemon</span><span class="chip chip-ing">红茶 black tea</span><span class="chip chip-ing">薄荷 mint</span></div>
+        <p class="si-date">May 20, 2026</p>
+        <p class="si-cn">柠檬这次捶对了。摇二十秒，冰镇一下。</p>
+        <hr class="si-rule">
+        <p class="si-en-body">Pounded the lemons properly this time. Twenty seconds of shaking, ice shock.</p>
+        <p class="si-love"><svg class="ic" aria-hidden="true"><use href="#i-heart-f"/></svg> With love ♡</p>
+        <span class="si-swipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-hand"/></svg> Swipe to navigate</span>
+      </article>
+    </div>
+  </div>
+
+  <div class="confirm" data-confirm-panel>
+    <div class="sheet-backdrop" data-act="confirm-close" aria-hidden="true"></div>
+    <div class="confirm-card" role="dialog" aria-modal="true" aria-label="Delete Photo">
+      <h3 class="display">Delete Photo</h3>
+      <p>Are you sure you want to delete this photo? This action cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" type="button" data-act="confirm-close">Cancel</button>
+        <button class="btn btn-danger" type="button" data-act="delete-sim"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-trash"/></svg><span class="del-idle">Delete</span><span class="del-busy">Deleting...</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-login">
+    <div class="pane-inner">
+      <div class="login-card">
+        <div class="login-brand">
+          <span class="brand-mark"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-heart-f"/></svg></span>
+          <span class="brand-text"><span class="brand-name">Love on the Plate</span><span class="brand-sub">Admin Login</span></span>
+        </div>
+        <div class="login-form">
+          <h2 class="display">Admin Login</h2>
+          <p class="login-sub">Magic link · one tap, no password</p>
+          <label class="field" style="margin-bottom:13px">
+            <span class="label">Email address</span>
+            <input class="input" type="email" placeholder="you@example.com" autocomplete="email">
+          </label>
+          <button class="btn btn-fill btn-block btn-lg" type="button" data-act="send-link"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-mail"/></svg> Send Magic Link</button>
+          <p class="login-foot">No password needed — we'll email you a login link.</p>
+          <button class="btn btn-ghost btn-sm" type="button" data-act="pane" data-pane="app" style="margin-top:9px"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-chev-l"/></svg> Back to Gallery</button>
+        </div>
+        <div class="login-sent">
+          <span class="sent-icon"><svg class="ic" aria-hidden="true" style="width:26px;height:26px"><use href="#i-mail"/></svg></span>
+          <h2 class="display">Check your email</h2>
+          <p style="margin:9px 0 0;font-size:.95rem">We sent a magic link to <b class="mono">flp@example.com</b></p>
+          <p class="muted" style="margin:6px 0 15px;font-size:.88rem">Click the link in the email to sign in.</p>
+          <button class="btn btn-block" type="button" data-act="use-other">Use a different email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane-spec">
+    <h2 class="display" style="font-size:1.6rem;margin:0 0 4px">Component sheet</h2>
+    <p class="panel-sub" style="margin:0 0 18px">Every part, flat on the table. Press anything — the press travels the full 6 px.</p>
+
+    <section class="spec-sec">
+      <h3 class="label">Buttons — default</h3>
+      <div class="spec-row">
+        <button class="btn btn-fill" type="button">Primary</button>
+        <button class="btn btn-cobalt" type="button">Cobalt</button>
+        <button class="btn btn-butter" type="button">Butter</button>
+        <button class="btn" type="button">Ghost</button>
+        <button class="btn btn-danger" type="button"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-trash"/></svg> Danger</button>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Buttons — sizes, busy and disabled</h3>
+      <div class="spec-row">
+        <button class="btn btn-lg btn-fill" type="button">Large</button>
+        <button class="btn btn-sm" type="button">Small</button>
+        <button class="btn btn-fill" type="button">Uploading…</button>
+        <button class="btn" type="button" disabled>Disabled</button>
+        <button class="btn btn-fill" type="button" aria-disabled="true">Aria disabled</button>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Icon buttons · 44 × 44 · labelled</h3>
+      <div class="spec-row">
+        <button class="icon-btn" type="button" aria-label="Open search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
+        <button class="icon-btn" type="button" data-act="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg></button>
+        <button class="icon-btn" type="button" aria-label="Scroll to top" data-act="scrolltop"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg></button>
+        <button class="icon-btn" type="button" aria-label="Previous photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></button>
+        <button class="icon-btn" type="button" aria-label="Next photo"><svg class="ic" aria-hidden="true"><use href="#i-chev-r"/></svg></button>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Dish text input · ingredient chips</h3>
+      <div class="spec-stack">
+        <label class="field"><span class="label">菜名 / Dish Name</span><input class="input" type="text" value="番茄牛腩面" placeholder="AI 正在识别菜名…"></label>
+        <div class="tagrow">
+          <span class="chip chip-ing">番茄 tomato</span>
+          <span class="chip chip-ing">八角 star anise <button class="chip-rm" type="button" data-act="ingredient-remove" aria-label="Remove 八角 star anise"><svg class="ic" style="width:12px;height:12px" aria-hidden="true"><use href="#i-x"/></svg></button></span>
+          <button class="chip" type="button" data-act="ingredient-add"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-plus"/></svg> 添加食材</button>
+        </div>
+        <label class="field"><span class="label">中文描述</span><textarea class="textarea" placeholder="AI 正在生成中文描述…"></textarea></label>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">View switcher — Plates · Grid · Timeline</h3>
+      <div class="spec-stack">
+        <div class="switcher" role="group" aria-label="Gallery view — Plates active"><span class="sw-ind" style="transform:translateX(0)"></span><button type="button">Plates</button><button type="button">Grid</button><button type="button">Timeline</button></div>
+        <div class="switcher" role="group" aria-label="Gallery view — Grid active"><span class="sw-ind" style="transform:translateX(100%)"></span><button type="button" style="color:var(--on-cobalt)">Plates</button><button type="button">Grid</button><button type="button" style="color:var(--on-cobalt)">Timeline</button></div>
+        <div class="switcher" role="group" aria-label="Gallery view — Timeline active"><span class="sw-ind" style="transform:translateX(200%)"></span><button type="button" style="color:var(--on-cobalt)">Plates</button><button type="button" style="color:var(--on-cobalt)">Grid</button><button type="button">Timeline</button></div>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Toasts — the three real ones</h3>
+      <div class="spec-stack">
+        <div class="toast-card tst" style="display:flex"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-check"/></svg><span>Photo uploaded with love!</span><button class="btn btn-sm" type="button">Close</button></div>
+        <div class="toast-card tst" style="display:flex"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-spark"/></svg><span>Descriptions regenerated!</span><button class="btn btn-sm" type="button">Close</button></div>
+        <div class="toast-card tse" style="display:flex"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-info"/></svg><span>Unable to load analytics right now.</span><button class="btn btn-sm" type="button">Retry</button></div>
+        <div class="toast-card tsd" style="display:flex"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-trash"/></svg><span>Photo deleted</span><button class="btn btn-sm" type="button">Close</button></div>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Cards — skeleton · loaded · empty · no description</h3>
+      <div class="spec-row">
+        <div class="skel"><div class="sk-art"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+        <div class="card" style="max-width:230px"><span class="art f-tomato"><svg class="dish" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"/></svg><span class="sticker sticker-cobalt st-ne" style="--r:3deg">♡ 4</span><span class="badge-no">042</span></span><span class="meta"><span class="nm">番茄牛腩面</span><span class="en">Braised Beef Noodle Soup</span><span class="dt">2026-08-14</span></span></div>
+        <div class="empty-note" style="max-width:230px">
+          <svg class="ic" aria-hidden="true" style="margin:0 auto;width:30px;height:30px"><use href="#i-image"/></svg>
+          <p class="rh" style="margin:8px 0 0;font-size:.92rem">Nothing here yet</p>
+          <p>Upload a plate to start the collection.</p>
+        </div>
+        <div class="block" style="max-width:230px;margin:0">
+          <span class="label">Photo detail fallback</span>
+          <p class="muted" style="margin:8px 0 0;font-size:.92rem">No description yet</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Upload zone — idle · dragging</h3>
+      <div class="spec-stack">
+        <div class="upzone" style="padding:18px 12px;gap:10px">
+          <span class="uz-icon"><svg class="ic" aria-hidden="true" style="width:26px;height:26px"><use href="#i-camera"/></svg></span>
+          <h3 class="uz-title display" style="font-size:1.15rem">Upload a photo</h3>
+          <p class="uz-help">Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically</p>
+          <div class="uz-actions">
+            <button class="btn btn-fill" type="button" data-act="simulate-upload"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-camera"/></svg> Take Photo</button>
+            <button class="btn" type="button" data-act="simulate-upload"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-image"/></svg> Choose from Gallery</button>
+          </div>
+          <p class="uz-drag-hint">or drag and drop an image here</p>
+        </div>
+        <div class="upzone" style="padding:18px 12px;gap:10px;background:var(--butter);color:var(--on-fill);border-style:solid">
+          <span class="uz-icon" style="background:var(--ink);color:var(--bg)"><svg class="ic" aria-hidden="true" style="width:26px;height:26px"><use href="#i-upload"/></svg></span>
+          <h3 class="uz-title display" style="font-size:1.15rem">Drop your photo here</h3>
+          <p class="uz-help" style="color:var(--on-fill)">Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Analytics — empty and error states</h3>
+      <div class="spec-stack">
+        <div class="empty-note" style="text-align:left"><p class="rh" style="font-size:.95rem;margin:0">No ingredient tags yet — start uploading!</p></div>
+        <div class="empty-note" style="text-align:left"><p class="rh" style="font-size:.95rem;margin:0">No dish names yet — start uploading!</p></div>
+        <div class="empty-note" style="text-align:left"><p class="rh" style="font-size:.95rem;margin:0">Unable to load analytics right now.</p><button class="btn btn-sm" type="button" style="margin-top:11px"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-refresh"/></svg> Retry</button></div>
+      </div>
+    </section>
+
+    <section class="spec-sec">
+      <h3 class="label">Network banner · pull to refresh · scroll to top</h3>
+      <div class="spec-stack">
+        <div class="banner" style="display:flex"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-wifi-off"/></svg><span>You're offline. Some features may be unavailable.</span><button class="btn btn-sm" type="button">Back online</button></div>
+        <div class="spec-row">
+          <span class="pull"><span class="spin" aria-hidden="true"></span> Refreshing plates</span>
+          <button class="icon-btn" type="button" aria-label="Scroll to top" data-act="scrolltop"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg></button>
+          <span class="theme-demo"><button class="icon-btn" type="button" data-act="theme" aria-label="Toggle theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button><span class="label muted">Toggle theme</span></span>
+          <button class="chip" type="button" data-act="offline" aria-pressed="false">Toggle the offline banner</button>
+          <button class="chip" type="button" data-act="toast" data-toast="deleted">Preview a toast</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button class="icon-btn scrolltop" type="button" data-act="scrolltop" aria-label="Scroll to top"><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg></button>
+
+  <div class="toast">
+    <div class="toast-card tst" data-kind="success" role="status" aria-live="polite"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-check"/></svg><span>Photo uploaded with love!</span><button class="btn btn-sm" type="button" data-act="toast-close">Close</button></div>
+    <div class="toast-card tst" data-kind="regen" role="status" aria-live="polite"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-spark"/></svg><span>Descriptions regenerated!</span><button class="btn btn-sm" type="button" data-act="toast-close">Close</button></div>
+    <div class="toast-card tse" data-kind="error" role="status" aria-live="polite"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-info"/></svg><span>Unable to load analytics right now.</span><button class="btn btn-sm" type="button" data-act="toast-close">Retry</button></div>
+    <div class="toast-card tsd" data-kind="deleted" role="status" aria-live="polite"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-trash"/></svg><span>Photo deleted</span><button class="btn btn-sm" type="button" data-act="toast-close">Close</button></div>
+  </div>
+
+</div>
+</template>
+<script>
+(function(){
+  'use strict';
+
+  var CFG=['tab','view','sheet','drag','search','query','results','pane','form','field','stat','ing','confirm'];
+  var DEFAULTS={tab:'browse',view:'plates',sheet:'0',drag:'idle',search:'closed',results:'grid',
+    pane:'app',form:'form',field:'all',stat:'ingredients',ing:'idle',confirm:'closed',
+    offline:'0',sidebar:'open',backfill:'idle',deleting:'0',toast:'',scrolled:'0',hits:'12',typed:'0'};
+  var tpl=document.getElementById('app-template');
+  var stage=document.querySelector('.stage');
+  var timers=new WeakMap();
+  var lastFrame=null;
+
+  /* ---------- build: one cloned app per frame ---------- */
+  function buildFrame(host,letter){
+    var f=document.createElement('div');
+    f.className='frame';
+    f.setAttribute('data-frame',letter);
+    CFG.forEach(function(k){
+      var v=host.dataset[k];
+      if(v!==undefined && v!==''){ f.setAttribute('data-'+k,v); }
+    });
+    CFG.forEach(function(k){
+      var key=letter+k.charAt(0).toUpperCase()+k.slice(1);
+      var v=host.dataset[key];
+      if(v!==undefined){ f.setAttribute('data-'+k,v); }
+    });
+    Object.keys(DEFAULTS).forEach(function(k){
+      if(f.getAttribute('data-'+k)===null){ f.setAttribute('data-'+k,DEFAULTS[k]); }
+    });
+    f.appendChild(tpl.content.cloneNode(true));
+    host.appendChild(f);
+    return f;
+  }
+
+  var frames=[];
+  Array.prototype.forEach.call(document.querySelectorAll('.frames'),function(host){
+    frames.push(buildFrame(host,'a'));
+    if(host.dataset.width==='both'){ frames.push(buildFrame(host,'b')); }
+  });
+
+  /* ---------- theme ---------- */
+  var store={
+    get:function(k){ try{ return window.localStorage.getItem(k); }catch(err){ return null; } },
+    set:function(k,v){ try{ window.localStorage.setItem(k,v); }catch(err){} }
+  };
+  var KEY='love-on-the-plate:plate-stack-theme';
+  var prefers=matchMedia('(prefers-color-scheme: dark)');
+  function setTheme(t){ document.documentElement.dataset.theme=t; store.set(KEY,t); }
+  // ?theme=light|dark forces one theme without persisting it (see mockups/index.html).
+  var forcedTheme=(location.search.match(/[?&]theme=(light|dark)/)||[])[1];
+  if(forcedTheme){ document.documentElement.dataset.theme=forcedTheme; }
+  else setTheme(store.get(KEY) || (prefers.matches?'dark':'light'));
+  if(prefers.addEventListener){ prefers.addEventListener('change',function(e){ if(!store.get(KEY)) setTheme(e.matches?'dark':'light'); }); }
+
+  function reduced(){ return matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  /* ---------- per-frame search index, read from the frame's own markup ---------- */
+  function index(frame){
+    if(frame.__idx){ return frame.__idx; }
+    var map={};
+    Array.prototype.forEach.call(frame.querySelectorAll('.sheet-item[data-dish]'),function(it){
+      var name=it.querySelector('.si-name'), en=it.querySelector('.si-en'),
+          date=it.querySelector('.si-date'), ing=it.querySelector('.si-ing');
+      map[it.dataset.dish]={
+        title:((name&&name.textContent)||'')+' '+((en&&en.textContent)||''),
+        date:(date&&date.textContent)||'',
+        tags:(ing&&ing.textContent)||'',
+        all:it.textContent||''
+      };
+    });
+    frame.__idx=map;
+    return map;
+  }
+
+  function runFilter(frame,typed){
+    var field=frame.getAttribute('data-field')||'all';
+    var input=frame.querySelector('.sinput[data-field-input="'+field+'"]');
+    var q=((input&&input.value)||'').trim().toLowerCase();
+    var idx=index(frame);
+    var matched={}, hits=0;
+    Object.keys(idx).forEach(function(key){
+      var hay=(field==='all'?idx[key].all:idx[key][field])||'';
+      if(q==='' || hay.toLowerCase().indexOf(q)>-1){ matched[key]=1; hits++; }
+    });
+    Array.prototype.forEach.call(frame.querySelectorAll('[data-key]'),function(el){
+      el.setAttribute('data-hit',matched[el.dataset.key]?'1':'0');
+    });
+    frame.setAttribute('data-hits',String(hits));
+    if(typed){
+      Array.prototype.forEach.call(frame.querySelectorAll('[data-match-key]'),function(row){
+        row.setAttribute('data-hit',matched[row.dataset.matchKey]?'1':'0');
+      });
+      Array.prototype.forEach.call(frame.querySelectorAll('[data-match-tag]'),function(row){
+        var tag=(row.dataset.matchTag||'').toLowerCase();
+        row.setAttribute('data-hit',(q!==''&&tag.indexOf(q)>-1)?'1':'0');
+      });
+    }
+  }
+
+  frames.forEach(function(frame){
+    if(frame.dataset.query){ 
+      var input=frame.querySelector('.sinput[data-field-input="all"]');
+      if(input){ input.value=frame.dataset.query; }
+    }
+    runFilter(frame,false);
+  });
+
+  /* ---------- helpers ---------- */
+  function visible(el){ return !!(el && el.offsetParent !== null); }
+  function focusInto(frame){
+    var list=frame.querySelectorAll('.sheet-body .sheet-item .btn[data-act="close"]');
+    for(var i=0;i<list.length;i++){ if(visible(list[i])){ list[i].focus(); return; } }
+  }
+  function focusBack(frame){
+    var op=frame.__opener;
+    if(op && document.contains(op)){ op.focus(); }
+  }
+  function flash(frame,kind){
+    frame.setAttribute('data-toast',kind);
+    clearTimeout(timers.get(frame));
+    timers.set(frame,setTimeout(function(){ frame.setAttribute('data-toast',''); },2800));
+  }
+  function syncTabs(frame){
+    var tab=frame.getAttribute('data-tab');
+    Array.prototype.forEach.call(frame.querySelectorAll('.app-tabbar .tabbtn'),function(b){
+      b.setAttribute('aria-selected',b.dataset.tab===tab?'true':'false');
+    });
+    Array.prototype.forEach.call(frame.querySelectorAll('.side-nav .navbtn'),function(b){
+      b.setAttribute('aria-current',b.dataset.tab===tab?'true':'false');
+    });
+  }
+  function syncViews(frame){
+    var view=frame.getAttribute('data-view');
+    Array.prototype.forEach.call(frame.querySelectorAll('.switcher button[data-act="view"]'),function(b){
+      b.setAttribute('aria-pressed',b.dataset.view===view?'true':'false');
+    });
+  }
+  function syncFields(frame){
+    var field=frame.getAttribute('data-field');
+    Array.prototype.forEach.call(frame.querySelectorAll('[data-act="field"]'),function(b){
+      b.setAttribute('aria-pressed',b.dataset.field===field?'true':'false');
+    });
+  }
+  function syncStat(frame){
+    var stat=frame.getAttribute('data-stat');
+    Array.prototype.forEach.call(frame.querySelectorAll('[data-act="stat"]'),function(b){
+      b.setAttribute('aria-pressed',b.dataset.stat===stat?'true':'false');
+    });
+  }
+  function syncOffline(frame){
+    var on=frame.getAttribute('data-offline')==='1';
+    Array.prototype.forEach.call(frame.querySelectorAll('[data-act="offline"]'),function(b){
+      b.setAttribute('aria-pressed',on?'true':'false');
+    });
+  }
+  function syncAll(frame){ syncTabs(frame); syncViews(frame); syncFields(frame); syncStat(frame); syncOffline(frame); }
+  frames.forEach(syncAll);
+
+  var SHEET_ACTIONS=['open','prev','next','close','confirm-close','delete-sim'];
+  function sheetIsOpen(frame){ return frame.getAttribute('data-sheet')!=='0'; }
+  function openSheet(frame,n,opener){
+    frame.setAttribute('data-sheet',String(Math.min(12,Math.max(1,n))));
+    if(opener){ frame.__opener=opener; }
+    requestAnimationFrame(function(){ focusInto(frame); });
+  }
+  function closeSheet(frame){
+    frame.setAttribute('data-sheet','0');
+    focusBack(frame);
+  }
+
+  /* ---------- delegated clicks ---------- */
+  function stageClick(btn){
+    var act=btn.dataset.stageAct;
+    if(act==='mode'){
+      stage.setAttribute('data-mode',btn.dataset.mode);
+      Array.prototype.forEach.call(stage.querySelectorAll('[data-stage-act="mode"]'),function(b){
+        b.setAttribute('aria-pressed',b.dataset.mode===btn.dataset.mode?'true':'false');
+      });
+    } else if(act==='theme'){
+      setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+    } else if(act==='reset'){
+      resetAll();
+    }
+  }
+
+  function resetAll(){
+    setTheme(prefers.matches?'dark':'light');
+    stage.setAttribute('data-mode','compare');
+    Array.prototype.forEach.call(stage.querySelectorAll('[data-stage-act="mode"]'),function(b){
+      b.setAttribute('aria-pressed',b.dataset.mode==='compare'?'true':'false');
+    });
+    frames.forEach(function(frame){
+      var host=frame.parentNode;
+      Object.keys(DEFAULTS).forEach(function(k){ frame.setAttribute('data-'+k,DEFAULTS[k]); });
+      CFG.forEach(function(k){
+        var v=host.dataset[k];
+        if(v!==undefined && v!==''){ frame.setAttribute('data-'+k,v); }
+        var key=frame.dataset.frame+k.charAt(0).toUpperCase()+k.slice(1);
+        var o=host.dataset[key];
+        if(o!==undefined){ frame.setAttribute('data-'+k,o); }
+      });
+      Array.prototype.forEach.call(frame.querySelectorAll('.sinput'),function(i){ i.value=''; });
+      if(frame.dataset.query){
+        var input=frame.querySelector('.sinput[data-field-input="all"]');
+        if(input){ input.value=frame.dataset.query; }
+      }
+      Array.prototype.forEach.call(frame.querySelectorAll('[data-removed]'),function(c){ c.removeAttribute('data-removed'); });
+      Array.prototype.forEach.call(frame.querySelectorAll('[data-hit]'),function(c){ c.removeAttribute('data-hit'); });
+      Array.prototype.forEach.call(frame.querySelectorAll('.preset[aria-pressed="true"]'),function(p){ p.setAttribute('aria-pressed','false'); });
+      var main=frame.querySelector('.app-main');
+      if(main){ main.scrollTop=0; }
+      runFilter(frame,false);
+      syncAll(frame);
+    });
+  }
+
+  document.addEventListener('click',function(e){
+    var stageBtn=e.target.closest && e.target.closest('[data-stage-act]');
+    if(stageBtn){ stageClick(stageBtn); return; }
+
+    var el=e.target.closest && e.target.closest('[data-act]');
+    if(!el){ return; }
+    var frame=el.closest('.frame');
+    if(!frame){ return; }
+    lastFrame=frame;
+    var act=el.dataset.act;
+
+    if(el.tagName==='A'){ e.preventDefault(); }
+
+    switch(act){
+      case 'open': openSheet(frame,parseInt(el.dataset.dish,10)||1,el); break;
+      case 'close': closeSheet(frame); break;
+      case 'prev': case 'next': {
+        var cur=parseInt(frame.getAttribute('data-sheet'),10)||1;
+        openSheet(frame, act==='prev'?cur-1:cur+1, null);
+        break;
+      }
+      case 'view': frame.setAttribute('data-view',el.dataset.view); syncViews(frame); break;
+      case 'tab': {
+        frame.setAttribute('data-tab',el.dataset.tab);
+        syncTabs(frame);
+        var main=frame.querySelector('.app-main');
+        if(main){ main.scrollTo({top:0,behavior:reduced()?'auto':'smooth'}); }
+        break;
+      }
+      case 'sidebar': frame.setAttribute('data-sidebar',frame.getAttribute('data-sidebar')==='collapsed'?'open':'collapsed'); break;
+      case 'search-toggle': {
+        var open=frame.getAttribute('data-search')==='open';
+        frame.setAttribute('data-search',open?'closed':'open');
+        if(!open){
+          var i=frame.querySelector('.sinput[data-field-input="'+frame.getAttribute('data-field')+'"]');
+          if(i){ i.focus(); }
+        }
+        break;
+      }
+      case 'field': frame.setAttribute('data-field',el.dataset.field); syncFields(frame); runFilter(frame,true); break;
+      case 'preset': {
+        var on=el.getAttribute('aria-pressed')==='true';
+        Array.prototype.forEach.call(frame.querySelectorAll('.preset'),function(p){ p.setAttribute('aria-pressed','false'); });
+        el.setAttribute('aria-pressed',on?'false':'true');
+        break;
+      }
+      case 'clear-search': {
+        Array.prototype.forEach.call(frame.querySelectorAll('.sinput'),function(i){ i.value=''; });
+        frame.setAttribute('data-results','grid');
+        frame.setAttribute('data-typed','0');
+        runFilter(frame,true);
+        break;
+      }
+      case 'tag-filter': {
+        frame.setAttribute('data-field','tags');
+        frame.setAttribute('data-results','grid');
+        var t=frame.querySelector('.sinput[data-field-input="tags"]');
+        if(t){ t.value=el.dataset.tag||''; }
+        Array.prototype.forEach.call(frame.querySelectorAll('.sinput'),function(i){ if(i!==t){ i.value=''; } });
+        syncFields(frame);
+        runFilter(frame,true);
+        break;
+      }
+      case 'ingredient-remove': {
+        var chip=el.closest('.chip');
+        if(chip){ chip.setAttribute('data-removed','1'); }
+        break;
+      }
+      case 'ingredient-add': frame.setAttribute('data-ing',frame.getAttribute('data-ing')==='edit'?'idle':'edit'); break;
+      case 'upload-zone': {
+        var d=frame.getAttribute('data-drag');
+        if(d==='idle'){ frame.setAttribute('data-drag','dragging'); }
+        else if(d==='dragging'){ frame.setAttribute('data-drag','idle'); }
+        break;
+      }
+      case 'simulate-upload': {
+        frame.setAttribute('data-drag','uploading');
+        (function(f){
+          setTimeout(function(){ if(f.getAttribute('data-drag')==='uploading'){ f.setAttribute('data-drag','ai-done'); } },1200);
+        })(frame);
+        break;
+      }
+      case 'upload-cancel': frame.setAttribute('data-drag','idle'); break;
+      case 'upload-save': frame.setAttribute('data-drag','idle'); flash(frame,'success'); break;
+      case 'regen': flash(frame,'regen'); break;
+      case 'backfill': frame.setAttribute('data-backfill',frame.getAttribute('data-backfill')==='running'?'idle':'running'); break;
+      case 'toast': flash(frame,el.dataset.toast||'deleted'); break;
+      case 'toast-close': frame.setAttribute('data-toast',''); break;
+      case 'offline': {
+        var off=frame.getAttribute('data-offline')==='1';
+        frame.setAttribute('data-offline',off?'0':'1');
+        syncOffline(frame);
+        break;
+      }
+      case 'online': frame.setAttribute('data-offline','0'); syncOffline(frame); break;
+      case 'confirm-close': frame.setAttribute('data-confirm','closed'); frame.setAttribute('data-deleting','0'); break;
+      case 'delete-sim': {
+        frame.setAttribute('data-deleting','1');
+        (function(f){
+          setTimeout(function(){
+            f.setAttribute('data-deleting','0');
+            f.setAttribute('data-confirm','closed');
+            flash(f,'deleted');
+          },900);
+        })(frame);
+        break;
+      }
+      case 'scrolltop': {
+        var m=frame.querySelector('.app-main');
+        if(m){ m.scrollTo({top:0,behavior:reduced()?'auto':'smooth'}); }
+        break;
+      }
+      case 'pane': frame.setAttribute('data-pane',el.dataset.pane||'app'); break;
+      case 'send-link': frame.setAttribute('data-form','sent'); break;
+      case 'use-other': frame.setAttribute('data-form','form'); break;
+      case 'theme': setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'); break;
+      default: break;
+    }
+  });
+
+  /* ---------- delegated input + keys ---------- */
+  document.addEventListener('input',function(e){
+    var input=e.target.closest && e.target.closest('.sinput');
+    if(!input){ return; }
+    var frame=input.closest('.frame');
+    if(!frame){ return; }
+    frame.setAttribute('data-typed',input.value.trim()===''?'0':'1');
+    runFilter(frame,true);
+  });
+
+  document.addEventListener('keydown',function(e){
+    var active=(document.activeElement && document.activeElement.closest)?document.activeElement.closest('.frame'):null;
+    var frame=active||lastFrame;
+    if(!frame && e.key==='Escape'){
+      frame=document.querySelector('.frame[data-confirm="open"]') ||
+            Array.prototype.filter.call(document.querySelectorAll('.frame'),sheetIsOpen)[0];
+    }
+    if(!frame){ return; }
+    if(e.key==='Escape'){
+      if(frame.getAttribute('data-confirm')==='open'){
+        frame.setAttribute('data-confirm','closed');
+        frame.setAttribute('data-deleting','0');
+      } else if(sheetIsOpen(frame)){
+        closeSheet(frame);
+      } else if(frame.getAttribute('data-search')==='open'){
+        frame.setAttribute('data-search','closed');
+      }
+      return;
+    }
+    if(sheetIsOpen(frame) && (e.key==='ArrowLeft'||e.key==='ArrowRight')){
+      var cur=parseInt(frame.getAttribute('data-sheet'),10)||1;
+      openSheet(frame,e.key==='ArrowLeft'?cur-1:cur+1,null);
+    }
+  });
+
+  /* ---------- scrolled state drives the scroll-to-top button ---------- */
+  document.addEventListener('scroll',function(e){
+    var t=e.target;
+    if(!t || !t.closest){ return; }
+    var main=t.closest('.app-main');
+    if(!main){ return; }
+    var frame=main.closest('.frame');
+    if(!frame){ return; }
+    frame.setAttribute('data-scrolled',main.scrollTop>60?'1':'0');
+  },true);
+})();
+</script>
+</body>
+</html>

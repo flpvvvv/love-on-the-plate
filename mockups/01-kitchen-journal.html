@@ -1,0 +1,2459 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Love on the Plate — Direction 01 · The Kitchen Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   01 · THE KITCHEN JOURNAL — a cookbook you write by cooking.
+   Every colour in this file resolves to a custom property declared right here.
+   ========================================================================== */
+:root{
+  color-scheme: light;
+  --paper:#FAF6F0; --paper-2:#FFFFFF; --rule:#E3D9CE;
+  --ink:#14100D; --ink-2:#5B4E45;
+  --paprika:#B23A1F; --sage:#4F6350; --butter:#D9A441;
+  --veil:rgba(20,16,13,.46);
+  --f-display:"Playfair Display","PingFang SC","Noto Sans SC",serif;
+  --f-body:"Source Serif 4","PingFang SC","Noto Sans SC",serif;
+  --f-mono:"JetBrains Mono","PingFang SC","Noto Sans SC",monospace;
+  --title:clamp(2.25rem,9vw,5.5rem);
+  --r:2px;
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t:280ms; --t-2:200ms;
+  --frame-h:760px;
+}
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#141110; --paper-2:#1D1917; --rule:#2E2724;
+  --ink:#F2EBE3; --ink-2:#B5A79A;
+  --paprika:#E8705A; --sage:#9FB49C; --butter:#E2C07C;
+  --veil:rgba(6,5,4,.66);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-weight:400; font-size:1rem; line-height:1.62;
+  overflow-wrap:break-word;
+  transition:background-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+h1,h2,h3,h4,p,ul,ol,figure,blockquote{margin:0}
+ul,ol{padding:0;list-style:none}
+img,svg{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;margin:0;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse;width:100%;table-layout:fixed}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--paprika); outline-offset:2px}
+.mono{font-family:var(--f-mono);font-weight:400;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase}
+.eyebrow{font-family:var(--f-mono);font-weight:500;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--paprika)}
+.ital{font-style:italic}
+.hair{border:0;border-top:1px solid var(--rule);margin:0}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--paper-2);border:1px solid var(--rule);padding:12px 16px}
+.skip:focus{left:8px;top:8px}
+.link-plain{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px;
+  display:inline-flex;align-items:center;min-height:44px;padding:0 2px}
+.link-plain:hover{color:var(--paprika);text-decoration-color:var(--paprika)}
+.icon-btn{width:44px;height:44px;display:grid;place-items:center;border:1px solid transparent;border-radius:var(--r);color:var(--ink-2)}
+.icon-btn:hover{color:var(--paprika);border-color:var(--rule)}
+.icon-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- style header (the direction sheet) ---------- */
+.style-header{
+  padding:clamp(26px,5vw,64px) clamp(16px,4vw,56px) clamp(30px,4vw,56px);
+  border-bottom:1px solid var(--rule); background:var(--paper);
+}
+.sh-lede{display:grid;gap:clamp(18px,3vw,34px);align-items:end;grid-template-columns:1fr}
+.sh-title{font-family:var(--f-display);font-weight:900;font-size:clamp(2.4rem,11vw,7rem);line-height:.88;letter-spacing:-.035em}
+.sh-title em{font-weight:400;font-style:italic}
+.sh-thesis{font-family:var(--f-body);font-style:italic;font-size:clamp(1.02rem,2.4vw,1.6rem);line-height:1.4;color:var(--ink-2);max-width:44ch}
+.sh-note{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase;line-height:1.9}
+.sh-blocks{display:grid;gap:clamp(22px,3vw,38px);grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin-top:clamp(26px,4vw,48px)}
+.sh-block{min-width:0}
+.sh-head{font-family:var(--f-mono);font-weight:500;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--paprika);
+  border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:14px}
+.swatches{display:grid;gap:10px}
+.sw{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center}
+.sw-chip{height:44px;border:1px solid var(--rule);border-radius:var(--r);background:var(--c)}
+.sw-name{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em}
+.sw-hex{display:block;color:var(--ink-2);font-size:.66rem;letter-spacing:.06em;margin-top:2px}
+.spec{padding:14px 0;border-bottom:1px solid var(--rule)}
+.spec:last-child{border-bottom:0}
+.spec-display{font-family:var(--f-display);font-weight:900;font-size:2.1rem;line-height:.95;letter-spacing:-.03em}
+.spec-display i{font-weight:400}
+.spec-body{font-family:var(--f-body);font-weight:300;font-size:1.05rem;line-height:1.5}
+.spec-body b{font-weight:600}
+.spec-mono{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+.spec-meta{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-2);text-transform:uppercase;margin-top:7px;line-height:1.8}
+.tok{font-family:var(--f-mono);font-size:.68rem}
+.tok th{text-align:left;font-weight:500;color:var(--ink-2);letter-spacing:.14em;text-transform:uppercase;font-size:.6rem;padding:6px 8px 6px 0}
+.tok td{padding:7px 0;border-top:1px solid var(--rule);vertical-align:top;color:var(--ink)}
+.tok td+td{color:var(--ink-2);text-align:right;padding-left:8px}
+.lists{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.list-k{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px}
+.list li{position:relative;padding-left:16px;margin-bottom:8px;font-size:.95rem;line-height:1.5}
+.list li::before{content:"—";position:absolute;left:0;color:var(--paprika);font-family:var(--f-mono);font-size:.7rem;top:.15em}
+
+/* ---------- stage + toolbar ---------- */
+.stage{padding:0 clamp(12px,3vw,40px) clamp(40px,6vw,80px);max-width:1560px;margin:0 auto}
+.toolbar{position:sticky;top:0;z-index:60;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  padding:10px clamp(2px,1vw,8px);background:var(--paper);border-bottom:1px solid var(--rule);margin-bottom:clamp(22px,3vw,38px)}
+.toolbar .tb-label{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);margin-right:2px}
+.tb{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);min-height:44px;padding:0 14px;
+  transition:color var(--t-2) var(--ease),border-color var(--t-2) var(--ease),background-color var(--t-2) var(--ease)}
+.tb:hover{color:var(--ink);border-color:var(--ink-2)}
+.tb[aria-pressed="true"]{color:var(--paper-2);background:var(--ink);border-color:var(--ink)}
+.tb-rule{flex:1 1 12px;height:1px;background:var(--rule);min-width:8px}
+.screen{margin-bottom:clamp(44px,6vw,86px)}
+.screen-title{font-family:var(--f-mono);font-weight:500;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink);padding-bottom:10px;border-bottom:1px solid var(--ink)}
+.screen-note{font-size:.95rem;font-style:italic;color:var(--ink-2);max-width:66ch;margin:12px 0 20px}
+.frames{display:flex;flex-wrap:wrap;gap:clamp(16px,2vw,30px);align-items:flex-start}
+.frame{
+  position:relative;flex:1 1 500px;min-width:0;max-width:100%;
+  height:var(--frame-h);overflow:hidden;border:1px solid var(--rule);border-radius:var(--r);
+  background:var(--paper);container-type:inline-size;container-name:frame;
+}
+html[data-theme="dark"] .frame{background-image:radial-gradient(130% 74% at 50% -6%, var(--paper-2) 0%, var(--paper) 62%)}
+[data-w="mobile"] .frame{flex:0 0 390px;width:390px}
+[data-w="tablet"] .frame{flex:0 0 768px;width:768px}
+[data-w="desktop"] .frame{flex:0 0 1440px;width:1440px}
+[data-w="compare"] .frames[data-width="both"] .frame[data-frame="a"],
+[data-w="compare"] .frames[data-width="mobile"] .frame[data-frame="a"]{flex:0 0 390px;width:390px}
+[data-w="compare"] .frames[data-width="both"] .frame[data-frame="b"]{flex:1 1 560px}
+[data-w="compare"] .frames[data-width="mobile"] .frame[data-frame="b"]{display:none}
+[data-w]:not([data-w="compare"]) .frame[data-frame="b"]{display:none}
+.frame::after{
+  content:attr(data-toast);position:absolute;left:50%;bottom:82px;transform:translate(-50%,10px);
+  z-index:70;max-width:min(88%,340px);padding:12px 16px;background:var(--paper-2);border:1px solid var(--rule);
+  border-left:2px solid var(--paprika);font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink);opacity:0;pointer-events:none;transition:opacity var(--t) var(--ease),transform var(--t) var(--ease);
+}
+.frame[data-toast]:not([data-toast=""])::after{opacity:1;transform:translate(-50%,0)}
+@container frame (min-width:820px){.frame::after{bottom:26px}}
+
+/* ---------- app shell ---------- */
+.app{position:relative;display:flex;flex-direction:column;height:100%;overflow:hidden;background:transparent}
+.banner{display:none;gap:10px;align-items:center;padding:9px 14px;background:var(--paper-2);border-bottom:1px solid var(--rule);
+  font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.banner svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6}
+.frame[data-offline="on"] .banner{display:flex}
+.app-body{flex:1;display:grid;grid-template-columns:minmax(0,1fr);min-height:0}
+.app-header{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--paper-2);border-bottom:1px solid var(--rule);z-index:6}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{width:22px;height:22px;flex:none;fill:none;stroke:var(--paprika);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.brand-text{display:flex;flex-direction:column;min-width:0}
+.brand-name{font-family:var(--f-display);font-weight:700;font-size:1.06rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-sub{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.header-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+.upload-link{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px;color:var(--ink);
+  min-height:44px;display:inline-flex;align-items:center;padding:0 4px}
+.upload-link:hover{color:var(--paprika);text-decoration-color:var(--paprika)}
+.app-sidebar{display:none;flex-direction:column;gap:20px;padding:26px 20px;border-right:1px solid var(--rule);background:var(--paper-2)}
+.side-brand{font-family:var(--f-display);font-weight:900;font-size:1.42rem;line-height:1.05;letter-spacing:-.02em}
+.side-sub{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:6px}
+.side-k{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);margin:16px 0 6px}
+.side-nav{display:flex;flex-direction:column;gap:2px}
+.side-nav button,.side-views button{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;
+  min-height:44px;padding:0 8px;border:1px solid transparent;border-radius:var(--r);text-align:left;
+  font-family:var(--f-display);font-size:1.05rem;color:var(--ink-2);
+  transition:color var(--t-2) var(--ease),border-color var(--t-2) var(--ease)}
+.side-nav button span,.side-views button span{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em}
+.side-nav button:hover,.side-views button:hover{color:var(--ink);border-color:var(--rule)}
+.frame[data-tab="feed"] .side-nav [data-tab="feed"],
+.frame[data-tab="browse"] .side-nav [data-tab="browse"],
+.frame[data-tab="stats"] .side-nav [data-tab="stats"],
+.frame[data-tab="upload"] .side-nav [data-tab="upload"],
+.frame[data-view="plates"] .side-views [data-view="plates"],
+.frame[data-view="grid"] .side-views [data-view="grid"],
+.frame[data-view="timeline"] .side-views [data-view="timeline"]{color:var(--ink);border-color:var(--ink-2)}
+.frame[data-tab="browse"] .side-nav [data-tab="browse"]::after,
+.frame[data-tab="stats"] .side-nav [data-tab="stats"]::after,
+.frame[data-tab="upload"] .side-nav [data-tab="upload"]::after,
+.frame[data-tab="feed"] .side-nav [data-tab="feed"]::after{content:"●";font-size:.5rem;color:var(--paprika)}
+.app-main{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;min-height:0;scroll-behavior:smooth}
+.app-tabbar{display:flex;border-top:1px solid var(--rule);background:var(--paper-2)}
+.app-tabbar button{flex:1;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink-2)}
+.app-tabbar svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.app-tabbar .tb-en{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase}
+.app-tabbar .tb-cn{font-family:var(--f-body);font-size:.68rem;letter-spacing:.06em;opacity:.8}
+.frame[data-tab="feed"] .app-tabbar [data-tab="feed"],
+.frame[data-tab="browse"] .app-tabbar [data-tab="browse"],
+.frame[data-tab="stats"] .app-tabbar [data-tab="stats"],
+.frame[data-tab="upload"] .app-tabbar [data-tab="upload"]{color:var(--paprika)}
+.panel{display:none}
+.frame[data-tab="browse"] .panel-browse{display:block}
+.frame[data-tab="feed"] .panel-feed{display:block}
+.frame[data-tab="stats"] .panel-stats{display:block}
+.frame[data-tab="upload"] .panel-upload{display:block}
+@container frame (min-width:820px){
+  .app-body{grid-template-columns:238px minmax(0,1fr)}
+  .app-sidebar{display:flex}
+  .app-tabbar{display:none}
+  .app-header{padding:12px 22px}
+}
+
+/* ---------- browse: masthead, search, views ---------- */
+.masthead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;
+  padding:12px 14px;border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.masthead .mh-run{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.masthead .mh-count{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--paprika)}
+.searchbar{padding:10px 14px;display:grid;gap:10px;border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.searchbar-row{display:flex;gap:10px;align-items:center}
+.search-input{flex:1;min-width:0;min-height:44px;padding:10px 12px;background:var(--paper);color:var(--ink);
+  border:1px solid var(--rule);border-radius:var(--r);font-family:var(--f-body);font-size:.95rem;
+  transition:border-color var(--t-2) var(--ease)}
+.search-input::placeholder{color:var(--ink-2);font-style:italic}
+.search-input:focus-visible{border-color:var(--paprika);outline:2px solid var(--paprika);outline-offset:1px}
+.search-toggle{width:44px;height:44px;flex:none;display:grid;place-items:center;border:1px solid var(--rule);
+  border-radius:var(--r);background:var(--paper);color:var(--ink-2)}
+.search-toggle:hover{color:var(--paprika);border-color:var(--paprika)}
+.search-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.frame[data-search="idle"] .search-full{display:none}
+.frame[data-search="open"] .search-toggle{display:none}
+.search-chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip-btn{min-height:44px;padding:0 12px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper);
+  color:var(--ink-2);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  transition:color var(--t-2) var(--ease),border-color var(--t-2) var(--ease),background-color var(--t-2) var(--ease)}
+.chip-btn:hover{color:var(--ink);border-color:var(--ink-2)}
+.frame[data-field="all"] .chip-btn[data-field="all"],
+.frame[data-field="title"] .chip-btn[data-field="title"],
+.frame[data-field="date"] .chip-btn[data-field="date"],
+.frame[data-field="tags"] .chip-btn[data-field="tags"]{color:var(--ink);border-color:var(--ink);background:var(--paper-2)}
+.search-count{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.search-count::after{content:attr(data-results)}
+.frame[data-search="idle"] .search-count,
+.frame[data-results="0"] .search-count{display:none}
+.search-legend{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.frame[data-search="idle"] .search-legend{display:none}
+.search-results{display:none}
+.frame[data-search="open"] .search-results{display:block}
+.result-row{display:none;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;
+  min-height:56px;padding:8px 0;border-top:1px solid var(--rule)}
+.result-row[data-hit="on"]{display:grid}
+.result-k{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--paprika);width:104px}
+.result-v{font-family:var(--f-body);font-size:.92rem;color:var(--ink)}
+.result-v i{font-style:italic;color:var(--ink-2)}
+.hit[data-hit="off"]{display:none}
+.no-results{display:none;gap:6px;padding:34px 16px 40px;text-align:center;border-top:1px solid var(--rule)}
+.frame[data-results="0"] .no-results{display:grid}
+.no-results-t{font-family:var(--f-display);font-weight:700;font-size:1.4rem}
+.no-results-s{font-style:italic;color:var(--ink-2)}
+.view{display:none;padding:0 14px 44px}
+.frame[data-view="plates"] .view-plates,
+.frame[data-view="grid"] .view-grid,
+.frame[data-view="timeline"] .view-timeline{display:block}
+@container frame (min-width:820px){.view{padding:0 30px 60px}}
+
+/* plates: hero */
+.hero{position:relative;display:grid;gap:16px;padding:22px 0 24px;border-bottom:1px solid var(--rule)}
+.hero-hit{position:absolute;inset:0;z-index:3;cursor:pointer;border-radius:var(--r)}
+.hero-hit:hover ~ .hero-text .hero-cn{color:var(--paprika)}
+.hero-fig{position:relative;aspect-ratio:1;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:7%;display:grid;place-items:center}
+.hero-no{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.hero-cn{font-family:var(--f-display);font-weight:900;font-size:var(--title);letter-spacing:-.03em;line-height:.95;
+  margin:8px 0 6px;transition:color var(--t-2) var(--ease)}
+.hero-en{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.hero-pull{margin-top:16px;font-style:italic;font-size:1.04rem;line-height:1.5;color:var(--ink);
+  border-left:1px solid var(--rule);padding-left:14px}
+.hero-cn-cn{margin-top:12px;font-size:1rem;line-height:1.75;color:var(--ink-2)}
+.hero-cn-cn::first-letter{float:left;font-family:var(--f-display);font-weight:900;font-size:3.1em;line-height:.78;
+  padding:6px 12px 0 0;color:var(--paprika)}
+.marg{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-top:14px}
+@container frame (min-width:620px){
+  .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;align-items:start}
+}
+@container frame (min-width:820px){
+  .hero{grid-template-columns:repeat(12,minmax(0,1fr));gap:0 20px;padding:30px 0 34px}
+  .hero-fig{grid-column:1 / span 7}
+  .hero-text{grid-column:9 / span 4;padding-top:6px}
+}
+@container frame (min-width:1080px){.hero-fig{grid-column:1 / span 6}.hero-text{grid-column:8 / span 4;padding-left:8px}}
+
+/* plates: entries */
+.entries{display:grid;grid-template-columns:minmax(0,1fr)}
+.entries>li{border-top:1px solid var(--rule)}
+.entry{display:grid;grid-template-columns:auto 62px minmax(0,1fr);gap:12px;align-items:center;width:100%;
+  min-height:84px;padding:12px 2px;text-align:left;transition:background-color var(--t-2) var(--ease)}
+.entry:hover{background:var(--paper-2)}
+.entry-no{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);writing-mode:horizontal-tb}
+.entry-fig{width:62px;aspect-ratio:1;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:6%;display:grid;place-items:center}
+.entry-text{display:grid;gap:2px;min-width:0}
+.entry-cn{font-family:var(--f-display);font-weight:700;font-size:1.28rem;line-height:1.15;letter-spacing:-.01em}
+.entry-en{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.entry-meta{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+.entry:hover .entry-cn{color:var(--paprika)}
+@container frame (min-width:560px){
+  .entries{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:30px}
+  .entry{grid-template-columns:62px minmax(0,1fr);grid-template-areas:"fig no" "fig text";row-gap:2px}
+  .entry-no{grid-area:no}
+  .entry-fig{grid-area:fig;align-self:start;width:62px}
+  .entry-text{grid-area:text}
+}
+@container frame (min-width:820px){
+  .entry{grid-template-columns:74px minmax(0,1fr);padding:14px 4px}
+  .entry-fig{width:74px}
+  .entry-cn{font-size:1.45rem}
+}
+@container frame (min-width:1080px){.entries{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* grid: masonry */
+.masonry{column-count:2;column-gap:12px;padding-top:16px}
+.tile{display:block;width:100%;break-inside:avoid;margin-bottom:12px;text-align:left;background:var(--paper-2);
+  border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;transition:border-color var(--t-2) var(--ease)}
+.tile:hover{border-color:var(--ink-2)}
+.tile-fig{display:block;width:100%;background:var(--paper-2);padding:8%;border-bottom:1px solid var(--rule)}
+.tile-r{aspect-ratio:1}
+.tile-p .tile-fig{aspect-ratio:4/5}
+.tile-l .tile-fig{aspect-ratio:16/11}
+.tile-cap{display:grid;gap:2px;padding:10px 11px 12px}
+.tile-cn{font-family:var(--f-display);font-weight:700;font-size:1.08rem;line-height:1.2}
+.tile-en{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.tile-meta{font-family:var(--f-mono);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:4px}
+.tile:hover .tile-cn{color:var(--paprika)}
+@container frame (min-width:820px){.masonry{column-count:3;column-gap:16px;padding-top:22px}.tile{margin-bottom:16px}}
+@container frame (min-width:1180px){.masonry{column-count:4}}
+
+/* timeline */
+.tl-month{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;padding:24px 0 10px;border-bottom:1px solid var(--ink)}
+.tl-month-cn{font-family:var(--f-display);font-weight:900;font-size:1.9rem;line-height:1;letter-spacing:-.02em}
+.tl-month-en{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.tl-month-n{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--paprika);margin-left:auto}
+.tl-list{display:grid}
+.tl-item{display:grid;grid-template-columns:auto 54px minmax(0,1fr);gap:12px;align-items:center;min-height:76px;
+  padding:11px 0;border-bottom:1px solid var(--rule)}
+.tl-date{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;color:var(--ink-2)}
+.tl-fig{width:54px;aspect-ratio:1;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:6%;display:grid;place-items:center}
+.tl-link{display:grid;gap:2px;min-height:44px;align-content:center;text-align:left;cursor:pointer}
+.tl-cn{font-family:var(--f-display);font-weight:700;font-size:1.2rem;line-height:1.15}
+.tl-en{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.tl-link:hover .tl-cn{color:var(--paprika)}
+@container frame (min-width:820px){
+  .tl-list{position:relative}
+  .tl-list::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--rule)}
+  .tl-item{grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);gap:0 22px;padding:18px 0;min-height:0;align-items:start}
+  .tl-date{grid-column:1;text-align:right;padding-top:7px}
+  .tl-fig{grid-column:2;grid-row:1;justify-self:center;width:60px}
+  .tl-link{grid-column:3;grid-row:1;text-align:left;justify-items:start}
+  .tl-item:nth-child(even) .tl-date{grid-column:3;text-align:left}
+  .tl-item:nth-child(even) .tl-link{grid-column:1;text-align:right;justify-items:end}
+}
+
+/* immersive feed */
+.frame[data-tab="feed"] .app-main{scroll-snap-type:y mandatory}
+.feed{position:relative}
+.feed-slide{position:relative;height:100%;min-height:100%;scroll-snap-align:start;scroll-snap-stop:always;
+  background:var(--paper-2);border-bottom:1px solid var(--rule);overflow:hidden}
+.feed-fig{position:absolute;inset:0;display:grid;place-items:center;padding:9%}
+.feed-cap{position:absolute;left:0;right:0;bottom:0;padding:20px 18px 26px;background:linear-gradient(0deg,var(--paper) 24%,transparent 100%);
+  display:grid;gap:2px;align-content:end}
+.feed-cn{font-family:var(--f-display);font-weight:900;font-size:clamp(2rem,13cqi,4.6rem);letter-spacing:-.03em;line-height:.95}
+.feed-en{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.feed-meta{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-top:8px}
+.feed-idx{position:absolute;top:14px;right:16px;font-family:var(--f-mono);font-size:.62rem;letter-spacing:.16em;color:var(--ink-2)}
+.feed-details{justify-self:start;margin-top:12px;display:inline-flex;align-items:center;gap:8px;min-height:44px;
+  font-family:var(--f-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+  text-decoration:underline;text-underline-offset:5px}
+.feed-details svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}
+.feed-hint{position:absolute;left:0;right:0;bottom:16px;display:grid;justify-items:center;gap:4px;
+  font-family:var(--f-mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);pointer-events:none}
+.feed-hint svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;animation:rise 1.6s var(--ease) infinite}
+.feed-slide:not(:first-child) .feed-hint{display:none}
+
+/* photo detail sheet */
+.sheet{position:absolute;inset:0;z-index:40;display:none}
+.frame[data-sheet]:not([data-sheet="0"]) .sheet{display:grid}
+.sheet-backdrop{position:absolute;inset:0;background:var(--veil);animation:fade var(--t) var(--ease)}
+.sheet-panel{position:relative;align-self:end;justify-self:stretch;width:100%;max-height:90%;overflow-y:auto;
+  background:var(--paper);border-top:2px solid var(--ink);animation:rise var(--t) var(--ease)}
+.sheet-item{display:none}
+.sheet-item>*{animation:rise var(--t-2) var(--ease) both}
+.sheet-item>*:nth-child(2){animation-delay:40ms}
+.sheet-item>*:nth-child(3){animation-delay:80ms}
+.frame[data-sheet="1"] .sheet-item[data-dish="1"],.frame[data-sheet="2"] .sheet-item[data-dish="2"],
+.frame[data-sheet="3"] .sheet-item[data-dish="3"],.frame[data-sheet="4"] .sheet-item[data-dish="4"],
+.frame[data-sheet="5"] .sheet-item[data-dish="5"],.frame[data-sheet="6"] .sheet-item[data-dish="6"],
+.frame[data-sheet="7"] .sheet-item[data-dish="7"],.frame[data-sheet="8"] .sheet-item[data-dish="8"],
+.frame[data-sheet="9"] .sheet-item[data-dish="9"],.frame[data-sheet="10"] .sheet-item[data-dish="10"],
+.frame[data-sheet="11"] .sheet-item[data-dish="11"],.frame[data-sheet="12"] .sheet-item[data-dish="12"]{
+  display:grid;gap:16px;padding:16px 16px 22px}
+.sheet-close{position:absolute;top:10px;right:10px;z-index:5;width:44px;height:44px;display:grid;place-items:center;
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);color:var(--ink-2)}
+.sheet-close:hover{color:var(--paprika);border-color:var(--paprika)}
+.sheet-close svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.sheet-fig{aspect-ratio:4/3;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r);
+  display:grid;place-items:center;padding:6%}
+.sheet-no{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.sheet-cn{font-family:var(--f-display);font-weight:900;font-size:clamp(1.9rem,12cqi,3.4rem);letter-spacing:-.03em;line-height:.95;margin:6px 0 4px}
+.sheet-en{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.sheet-date{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink-2);margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;border:1px solid var(--rule);background:var(--paper-2);border-radius:var(--r);
+  padding:6px 10px;font-family:var(--f-body);font-size:.8rem;color:var(--ink-2);min-height:34px}
+.sheet-cn-desc{margin-top:16px;font-size:1rem;line-height:1.78}
+.sheet-cn-desc::first-letter{float:left;font-family:var(--f-display);font-weight:900;font-size:3em;line-height:.8;
+  padding:5px 11px 0 0;color:var(--paprika)}
+.sheet-en-desc{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-style:italic;font-size:1.02rem;line-height:1.6}
+.sheet-sign{text-align:right;margin-top:16px;font-family:var(--f-body);font-size:1rem;color:var(--ink-2)}
+.sheet-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--rule);padding-top:12px;margin-top:4px}
+.sheet-nav{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;color:var(--ink);
+  font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:underline;text-underline-offset:5px}
+.sheet-nav:hover{color:var(--paprika)}
+.sheet-nav svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sheet-hint{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;
+  font-family:var(--f-mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);
+  border-top:1px solid var(--rule)}
+.sheet-hint svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
+@container frame (min-width:820px){
+  .sheet{place-items:center;padding:26px}
+  .sheet-panel{align-self:center;width:min(880px,94%);max-height:88%;border:1px solid var(--rule);border-top:2px solid var(--ink);animation:rise var(--t-2) var(--ease)}
+  .frame[data-sheet="1"] .sheet-item[data-dish="1"],.frame[data-sheet="2"] .sheet-item[data-dish="2"],
+  .frame[data-sheet="3"] .sheet-item[data-dish="3"],.frame[data-sheet="4"] .sheet-item[data-dish="4"],
+  .frame[data-sheet="5"] .sheet-item[data-dish="5"],.frame[data-sheet="6"] .sheet-item[data-dish="6"],
+  .frame[data-sheet="7"] .sheet-item[data-dish="7"],.frame[data-sheet="8"] .sheet-item[data-dish="8"],
+  .frame[data-sheet="9"] .sheet-item[data-dish="9"],.frame[data-sheet="10"] .sheet-item[data-dish="10"],
+  .frame[data-sheet="11"] .sheet-item[data-dish="11"],.frame[data-sheet="12"] .sheet-item[data-dish="12"]{
+    grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:0 28px;padding:26px 28px;align-items:start}
+  .sheet-fig{position:sticky;top:0}
+  .sheet-hint{display:none}
+  .sheet-text{display:grid;align-content:start}
+}
+
+/* delete dialog */
+.dialog{position:absolute;inset:0;z-index:50;display:none}
+.frame[data-dialog="open"] .dialog{display:grid;place-items:center;padding:18px}
+.dialog-panel{position:relative;width:min(400px,94%);background:var(--paper-2);border:1px solid var(--rule);
+  border-top:2px solid var(--paprika);border-radius:var(--r);padding:22px;display:grid;gap:14px;animation:rise var(--t-2) var(--ease)}
+.dialog-h{font-family:var(--f-display);font-weight:900;font-size:1.5rem;letter-spacing:-.02em}
+.dialog-p{color:var(--ink-2);font-size:.95rem}
+.dialog-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+
+/* ---------- analytics ---------- */
+.panel-inner{padding:18px 14px 44px}
+@container frame (min-width:820px){.panel-inner{padding:26px 30px 60px}}
+.doc-head{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;justify-content:space-between;
+  border-bottom:1px solid var(--ink);padding-bottom:12px}
+.doc-h1{font-family:var(--f-display);font-weight:900;font-size:clamp(1.8rem,7cqi,3rem);letter-spacing:-.03em;line-height:1}
+.doc-sub{font-style:italic;color:var(--ink-2);font-size:.95rem}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:0 30px;margin-top:4px}
+.stat{padding:16px 0;border-bottom:1px solid var(--rule)}
+.stat-k{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.stat-v{display:block;font-family:var(--f-display);font-weight:900;font-size:clamp(2rem,9cqi,2.9rem);line-height:1;letter-spacing:-.04em;margin:8px 0 6px}
+.stat-n{display:block;font-family:var(--f-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.9}
+.block{margin-top:32px}
+.block-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;
+  border-bottom:1px solid var(--rule);padding-bottom:8px}
+.block-k{font-family:var(--f-display);font-weight:700;font-size:1.18rem}
+.block-n{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.bars{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:5px;height:172px;margin-top:16px}
+.bar{display:grid;grid-template-rows:minmax(0,1fr) auto auto;gap:6px;min-width:0}
+.bar-track{display:flex;align-items:flex-end;border-bottom:1px solid var(--ink-2)}
+.bar-v{display:block;width:100%;height:var(--h);background:var(--paprika)}
+.bar-x{font-family:var(--f-mono);font-size:.56rem;color:var(--ink-2);text-align:center}
+.bar-n{font-family:var(--f-mono);font-size:.56rem;color:var(--ink);text-align:center}
+.toggle{display:inline-flex;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:2px}
+.toggle button{min-height:44px;padding:0 14px;border-radius:1px;font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-2);transition:color var(--t-2) var(--ease),background-color var(--t-2) var(--ease)}
+.toggle button:hover{color:var(--ink)}
+.frame[data-rank="ingredients"] .toggle [data-rank="ingredients"],
+.frame[data-rank="dishes"] .toggle [data-rank="dishes"]{color:var(--paper);background:var(--ink)}
+.rank-list{border-bottom:1px solid var(--rule);margin-top:10px}
+.ranks{display:none}
+.frame[data-rank="ingredients"] .ranks-ingredients,
+.frame[data-rank="dishes"] .ranks-dishes{display:block}
+.rank{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:52px;border-top:1px solid var(--rule)}
+.rank-i{font-family:var(--f-mono);font-size:.58rem;color:var(--ink-2)}
+.rank-n{font-size:.98rem;line-height:1.3}
+.rank-bar{display:block;height:2px;background:var(--ink);width:var(--w);margin-top:5px}
+.rank-v{font-family:var(--f-mono);font-size:.64rem;color:var(--ink-2)}
+.trend{margin-top:16px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:14px}
+.trend svg{width:100%;height:auto}
+.trend-x{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.54rem;letter-spacing:.08em;color:var(--ink-2);margin-top:8px}
+.empty-note{margin-top:22px;border:1px dashed var(--rule);border-radius:var(--r);padding:14px 16px;
+  font-family:var(--f-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);line-height:1.9}
+.error-note{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px;border:1px solid var(--paprika);
+  border-radius:var(--r);padding:12px 14px;font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+
+/* ---------- upload / admin ---------- */
+.admin-head{display:grid;gap:4px;border-bottom:1px solid var(--ink);padding-bottom:12px;margin-bottom:18px}
+.admin-h1{font-family:var(--f-display);font-weight:900;font-size:clamp(1.7rem,7cqi,2.7rem);letter-spacing:-.03em;line-height:1}
+.admin-sub{font-style:italic;color:var(--ink-2)}
+.zone{position:relative;display:grid;gap:12px;justify-items:center;text-align:center;width:100%;padding:30px 18px;
+  border:1px dashed var(--rule);border-radius:var(--r);background:var(--paper-2);cursor:pointer;
+  transition:border-color var(--t-2) var(--ease),background-color var(--t-2) var(--ease)}
+.zone:hover{border-color:var(--ink-2)}
+.frame[data-drag="dragging"] .zone{border-style:solid;border-color:var(--paprika);background:var(--paper)}
+.zone .zi{width:34px;height:34px;fill:none;stroke:var(--ink-2);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.frame[data-drag="dragging"] .zone .zi{stroke:var(--paprika)}
+.zone-title{font-family:var(--f-display);font-weight:900;font-size:1.45rem;letter-spacing:-.02em;line-height:1.1}
+.zone-title-drop{display:none}
+.frame[data-drag="dragging"] .zone-title-idle,
+.frame[data-drag="dragging"] .zone-hint-idle{display:none}
+.frame[data-drag="dragging"] .zone-title-drop{display:block}
+.zone-help{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);line-height:1.9;max-width:46ch}
+.zone-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.zone-hint{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.up-block{display:none;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:16px;margin-top:16px}
+.frame[data-upload="uploading"] .up-progress{display:grid;gap:12px}
+.frame[data-upload="ai-done"] .up-ai,
+.frame[data-upload="finalising"] .up-ai{display:grid;gap:14px}
+.file-row{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.file-name{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;color:var(--ink)}
+.pbar{position:relative;height:3px;background:var(--rule);overflow:hidden}
+.pbar span{position:absolute;top:0;bottom:0;left:0;width:72%;background:var(--paprika)}
+.pbar-busy span{width:34%;animation:slide 1.5s var(--ease) infinite}
+.up-stage{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.9}
+.form-grid{display:grid;gap:14px}
+@container frame (min-width:820px){.form-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px}
+  .form-grid .span2{grid-column:1 / -1}}
+.only-busy{display:none}
+.frame[data-upload="finalising"] .only-busy{display:inline-flex}
+.frame[data-upload="finalising"] .only-idle{display:none}
+.recent{margin-top:28px}
+.recent-list{border-bottom:1px solid var(--rule)}
+.rec-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:68px;border-top:1px solid var(--rule)}
+.rec-fig{width:52px;aspect-ratio:1;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:6%;display:grid;place-items:center}
+.rec-name{font-family:var(--f-display);font-weight:700;font-size:1.04rem;line-height:1.2}
+.rec-meta{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+.rec-del{width:44px;height:44px;display:grid;place-items:center;border:1px solid transparent;border-radius:var(--r);color:var(--ink-2)}
+.rec-del:hover{color:var(--paprika);border-color:var(--paprika)}
+.rec-del svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.backfill{margin-top:30px;border:1px solid var(--rule);border-top:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);padding:18px;display:grid;gap:12px;justify-items:start}
+.bf-h{font-family:var(--f-display);font-weight:900;font-size:1.35rem;letter-spacing:-.02em}
+.bf-line{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.9}
+.bf-status{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.only-generating{display:none}
+.frame[data-upload="finalising"] .only-generating{display:inline}
+
+/* ---------- buttons, inputs, chips ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;
+  border:1px solid var(--ink);border-radius:var(--r);background:var(--ink);color:var(--paper);
+  font-family:var(--f-mono);font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
+  transition:background-color var(--t-2) var(--ease),color var(--t-2) var(--ease),border-color var(--t-2) var(--ease),opacity var(--t-2) var(--ease)}
+.btn:hover{background:var(--paprika);border-color:var(--paprika);color:var(--paper)}
+.btn-secondary{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+.btn-secondary:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-2);text-decoration:underline;text-underline-offset:5px}
+.btn-ghost:hover{background:transparent;border-color:var(--rule);color:var(--ink)}
+.btn-danger{background:transparent;border-color:var(--paprika);color:var(--paprika)}
+.btn-danger:hover{background:var(--paprika);color:var(--paper);border-color:var(--paprika)}
+.btn[disabled],.btn.is-disabled{opacity:.55;cursor:not-allowed}
+.btn[disabled]:hover,.btn.is-disabled:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn-secondary[disabled]:hover,.btn-secondary.is-disabled:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+.btn-ghost[disabled]:hover,.btn-ghost.is-disabled:hover{background:transparent;color:var(--ink-2);border-color:transparent}
+.demo-hover.btn{background:var(--paprika);border-color:var(--paprika);color:var(--paper)}
+.demo-hover.btn-secondary{background:var(--ink);color:var(--paper)}
+.demo-hover.btn-ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.demo-hover.btn-danger{background:var(--paprika);color:var(--paper)}
+.demo-focus{outline:2px solid var(--paprika);outline-offset:2px}
+.field{display:grid;gap:6px}
+.field-label{font-family:var(--f-body);font-size:.88rem;color:var(--ink-2)}
+.input{width:100%;min-height:44px;padding:10px 12px;background:var(--paper);color:var(--ink);
+  border:1px solid var(--rule);border-radius:var(--r);font-family:var(--f-body);font-size:.95rem;
+  transition:border-color var(--t-2) var(--ease)}
+.input::placeholder{color:var(--ink-2);font-style:italic}
+.input:hover{border-color:var(--ink-2)}
+.input:focus-visible{border-color:var(--paprika);outline:2px solid var(--paprika);outline-offset:1px}
+textarea.input{min-height:104px;resize:vertical;line-height:1.6}
+.demo-focus.input{border-color:var(--paprika);outline:2px solid var(--paprika);outline-offset:1px}
+.chip-rm{padding:0 0 0 11px;min-height:44px;gap:4px;color:var(--ink)}
+.chip-x{width:44px;height:44px;display:grid;place-items:center;color:var(--ink-2);border-radius:var(--r)}
+.chip-x:hover{color:var(--paprika)}
+.chip-x svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.chip-add{border-style:dashed;color:var(--ink-2);min-height:44px;font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;cursor:pointer}
+.chip-add:hover{color:var(--ink);border-color:var(--ink-2)}
+.switch{position:relative;display:inline-flex;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);padding:3px}
+.switch::before{content:"";position:absolute;top:3px;bottom:3px;left:calc(3px + var(--i,0) * (100% - 6px) / 3);
+  width:calc((100% - 6px) / 3);background:var(--ink);border-radius:1px;transition:left var(--t) var(--ease)}
+.switch button{position:relative;z-index:1;flex:1 1 0;min-width:0;min-height:44px;padding:0 12px;white-space:nowrap;color:var(--ink-2);
+  font-family:var(--f-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  transition:color var(--t-2) var(--ease)}
+.switch button:hover{color:var(--ink)}
+.frame[data-view="plates"] .switch,
+.switch[data-i="0"]{--i:0}
+.frame[data-view="grid"] .switch,
+.switch[data-i="1"]{--i:1}
+.frame[data-view="timeline"] .switch,
+.switch[data-i="2"]{--i:2}
+.frame[data-view="plates"] .switch [data-view="plates"],
+.frame[data-view="grid"] .switch [data-view="grid"],
+.frame[data-view="timeline"] .switch [data-view="timeline"],
+.switch[data-i="0"] [data-view="plates"],
+.switch[data-i="1"] [data-view="grid"],
+.switch[data-i="2"] [data-view="timeline"]{color:var(--paper)}
+.icon-btn.round{width:44px;height:44px;border:1px solid var(--rule);background:var(--paper-2);border-radius:var(--r)}
+.s2t{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--rule);border-radius:var(--r);
+  background:var(--paper-2);color:var(--ink-2)}
+.s2t:hover{color:var(--paprika);border-color:var(--paprika)}
+.s2t svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.banner--demo{display:flex}
+.ptr-demo{display:grid;justify-items:center;gap:8px}
+.ptr-wheel{width:44px;height:44px;display:grid;place-items:center;color:var(--ink-2)}
+.ptr-wheel svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;animation:spin 1.4s linear infinite}
+.toastdemo{display:inline-flex;flex-wrap:wrap;gap:8px 14px;align-items:center;border:1px solid var(--rule);
+  border-left:2px solid var(--sage);background:var(--paper-2);border-radius:var(--r);padding:12px 14px;
+  font-family:var(--f-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.toastdemo.is-err{border-left-color:var(--paprika)}
+.toastdemo a{text-decoration:underline;text-underline-offset:4px;min-height:32px;display:inline-flex;align-items:center}
+
+/* ---------- plain (chrome-less) screens ---------- */
+.plain{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.card-plain{border:1px solid var(--rule);border-top:2px solid var(--ink);border-radius:var(--r);background:var(--paper-2);
+  padding:clamp(18px,4vw,28px);display:grid;gap:16px;align-content:start}
+.card-plain.is-narrow{max-width:420px}
+.card-h{font-family:var(--f-display);font-weight:900;font-size:1.6rem;letter-spacing:-.02em;line-height:1.05}
+.card-sub{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.card-p{font-size:.95rem;color:var(--ink-2);line-height:1.65}
+.card-foot{font-family:var(--f-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.9;
+  border-top:1px solid var(--rule);padding-top:12px}
+.brand-lg{font-family:var(--f-display);font-weight:900;font-size:2rem;letter-spacing:-.03em;line-height:1}
+.comp-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.comp{border:1px solid var(--rule);border-top:2px solid var(--ink);border-radius:var(--r);background:var(--paper-2);
+  padding:18px;display:grid;gap:14px;align-content:start}
+.comp-k{font-family:var(--f-mono);font-weight:500;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--paprika);
+  border-bottom:1px solid var(--rule);padding-bottom:8px}
+.comp-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.comp-col{display:grid;gap:10px}
+.comp-note{font-family:var(--f-mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.skel{display:grid;gap:10px;padding:12px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2)}
+.skel-line{height:9px;background:var(--rule);border-radius:1px}
+.skel-line.w1{width:74%}
+.skel-line.w2{width:46%}
+.skel-fig{aspect-ratio:4/3;border:1px solid var(--rule);background:var(--paper)}
+.shimmer{position:relative;overflow:hidden}
+.shimmer::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,var(--paper),transparent);animation:slide 1.9s var(--ease) infinite}
+.carddemo{display:grid;grid-template-columns:60px minmax(0,1fr);gap:12px;align-items:center;border:1px solid var(--rule);
+  border-radius:var(--r);background:var(--paper-2);padding:12px}
+.carddemo-fig{width:60px;aspect-ratio:1;border:1px solid var(--rule);border-radius:var(--r);padding:6%;display:grid;place-items:center}
+.carddemo-t{font-family:var(--f-display);font-weight:700;font-size:1.06rem;line-height:1.2}
+.carddemo-m{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+.carddemo-empty{display:grid;gap:4px;justify-items:center;text-align:center;border:1px dashed var(--rule);border-radius:var(--r);
+  background:var(--paper-2);padding:24px 16px}
+.style-footer{border-top:1px solid var(--ink);padding:clamp(26px,4vw,48px) clamp(16px,4vw,56px) 64px;
+  display:grid;gap:clamp(20px,3vw,36px);grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.foot-k{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--paprika);margin-bottom:10px}
+.foot li{font-size:.92rem;color:var(--ink-2);padding:7px 0;border-top:1px solid var(--rule);line-height:1.5}
+.foot-note{font-family:var(--f-mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);line-height:1.9}
+
+/* ---------- dish illustration tints (each <use> carries its own palette) ---------- */
+.dish{width:100%;height:100%;display:block}
+.d1{--t1:var(--rule);--t2:var(--paprika);--t3:var(--butter);--t4:var(--ink-2)}
+.d2{--t1:var(--rule);--t2:var(--butter);--t3:var(--sage);--t4:var(--ink-2)}
+.d3{--t1:var(--ink-2);--t2:var(--paprika);--t3:var(--butter);--t4:var(--sage)}
+.d4{--t1:var(--rule);--t2:var(--paprika);--t3:var(--butter);--t4:var(--ink-2)}
+.d5{--t1:var(--ink-2);--t2:var(--paper-2);--t3:var(--sage);--t4:var(--butter)}
+.d6{--t1:var(--rule);--t2:var(--sage);--t3:var(--ink-2);--t4:var(--paper-2)}
+.d7{--t1:var(--rule);--t2:var(--butter);--t3:var(--paprika);--t4:var(--sage)}
+.d8{--t1:var(--ink-2);--t2:var(--paprika);--t3:var(--sage);--t4:var(--butter)}
+.d9{--t1:var(--rule);--t2:var(--butter);--t3:var(--paprika);--t4:var(--sage)}
+.d10{--t1:var(--rule);--t2:var(--paper-2);--t3:var(--sage);--t4:var(--ink-2)}
+.d11{--t1:var(--ink-2);--t2:var(--paprika);--t3:var(--paper-2);--t4:var(--sage)}
+.d12{--t1:var(--rule);--t2:var(--paprika);--t3:var(--butter);--t4:var(--sage)}
+
+/* ---------- motion ---------- */
+.frame{--title:clamp(2.25rem,14cqi,5.5rem)}
+.frame[data-tab="feed"] .panel-feed,.feed{height:100%}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(320%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* late overrides — rules that must win the cascade for the app shell */
+.search-full{display:grid;gap:10px;flex:1 1 auto;min-width:0}
+.viewbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;
+  padding:8px 14px;border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.viewbar-note{display:none;font-family:var(--f-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+@container frame (min-width:560px){.viewbar-note{display:block}}
+@container frame (min-width:820px){.viewbar{padding:8px 30px}}
+.rec-name,.rec-meta,.carddemo-t,.carddemo-m{display:block}
+.s2t-app{position:absolute;right:14px;bottom:74px;z-index:20;display:none;width:44px;height:44px;place-items:center;
+  border:1px solid var(--rule);border-radius:var(--r);background:var(--paper-2);color:var(--ink-2)}
+.s2t-app svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.s2t-app:hover{color:var(--paprika);border-color:var(--paprika)}
+.frame[data-scrolled="on"] .s2t-app{display:grid}
+@container frame (min-width:820px){.s2t-app{bottom:20px;right:24px}}
+@container frame (min-width:820px){
+  .hero-fig{aspect-ratio:16/11}
+}
+@container frame (min-width:1080px){
+  .hero-text{grid-column:8 / span 5}
+  .hero-cn{font-size:clamp(2.25rem,5cqi,3.7rem)}
+}
+@container frame (min-width:820px){
+  .search-toggle{display:none}
+  .frame[data-search="idle"] .search-full{display:grid}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .shimmer::after{display:none}
+  .feed-hint svg,.ptr-wheel svg{animation:none}
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#stage">Skip to the screens</a>
+
+<!-- ==========================================================================
+     STYLE HEADER — the direction sheet
+     ======================================================================= -->
+<header class="style-header">
+  <div class="sh-lede">
+    <p class="eyebrow">Direction 01 · Light “Morning Kitchen” / Dark “Night Edition”</p>
+    <h1 class="sh-title">The Kitchen <em>Journal</em></h1>
+    <p class="sh-thesis">A cookbook you write by cooking: the gallery re-set as an editorial spread where the Chinese name is the headline, English annotates it in mono caps, and every plate is an entry in a numbered index.</p>
+    <p class="sh-note">Editorial grid magazine × exaggerated minimalism · Playfair Display 900 / Source Serif 4 / JetBrains Mono · radius 2px · hairline rules instead of shadows · 200–280 ms fades, 8 px reveals, no bounce.</p>
+  </div>
+
+  <div class="sh-blocks">
+    <section class="sh-block">
+      <h2 class="sh-head">Palette — light “Morning Kitchen”</h2>
+      <div class="swatches">
+        <div class="sw"><span class="sw-chip" style="--c:var(--paper)"></span><span class="sw-name">paper<span class="sw-hex">#FAF6F0 · the page</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--paper-2)"></span><span class="sw-name">paper-2<span class="sw-hex">#FFFFFF · index cards, panels</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--rule)"></span><span class="sw-name">rule<span class="sw-hex">#E3D9CE · hairlines only</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--ink)"></span><span class="sw-name">ink<span class="sw-hex">#14100D · 17.6:1 on paper</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--ink-2)"></span><span class="sw-name">ink-2<span class="sw-hex">#5B4E45 · 7.4:1 on paper</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--paprika)"></span><span class="sw-name">paprika<span class="sw-hex">#B23A1F · 5.5:1 — the single accent</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--sage)"></span><span class="sw-name">sage<span class="sw-hex">#4F6350 · 6.0:1 on paper</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:var(--butter)"></span><span class="sw-name">butter<span class="sw-hex">#D9A441 · 2.1:1 — illustration + rules only, never text</span></span></div>
+      </div>
+    </section>
+
+    <section class="sh-block">
+      <h2 class="sh-head">Palette — dark “Night Edition”</h2>
+      <div class="swatches">
+        <div class="sw"><span class="sw-chip" style="--c:#141110"></span><span class="sw-name">paper<span class="sw-hex">#141110 · lamp-lit page, not an inversion</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#1D1917"></span><span class="sw-name">paper-2<span class="sw-hex">#1D1917 · raised index cards</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#2E2724"></span><span class="sw-name">rule<span class="sw-hex">#2E2724 · hairlines, 1.3:1 (decorative)</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#F2EBE3"></span><span class="sw-name">ink<span class="sw-hex">#F2EBE3 · 15.9:1 on paper</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#B5A79A"></span><span class="sw-name">ink-2<span class="sw-hex">#B5A79A · 8.0:1 on paper</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#E8705A"></span><span class="sw-name">paprika<span class="sw-hex">#E8705A · 6.2:1 — accent re-cut for night</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#9FB49C"></span><span class="sw-name">sage<span class="sw-hex">#9FB49C · 8.5:1 — light sage would fail here</span></span></div>
+        <div class="sw"><span class="sw-chip" style="--c:#E2C07C"></span><span class="sw-name">butter<span class="sw-hex">#E2C07C · 10.8:1 on paper</span></span></div>
+      </div>
+    </section>
+
+    <section class="sh-block">
+      <h2 class="sh-head">Type specimen</h2>
+      <div class="spec">
+        <p class="spec-display">Braised Beef <i>Noodle Soup</i></p>
+        <p class="spec-display" style="font-size:1.7rem">番茄牛腩面</p>
+        <p class="spec-meta">display · Playfair Display 400/700/900 + italic · CJK falls to PingFang SC<br>dish titles clamp(2.25rem, 9vw, 5.5rem) · -0.03em · line-height .95</p>
+      </div>
+      <div class="spec">
+        <p class="spec-body">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a <b>Sunday afternoon</b>.</p>
+        <p class="spec-meta">body · Source Serif 4 300/400/600 + italic — a serif body is the point of this direction</p>
+      </div>
+      <div class="spec">
+        <p class="spec-mono">No. 042 · 2026-08-14 · 214 plates</p>
+        <p class="spec-meta">label · JetBrains Mono 400/500 · uppercase · letter-spacing .14em — dates, numbers, eyebrows, ingredients, nav</p>
+      </div>
+    </section>
+
+    <section class="sh-block">
+      <h2 class="sh-head">Tokens</h2>
+      <table class="tok">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>--r</td><td>2px</td></tr>
+          <tr><td>shadow</td><td>none — rules + paper tone</td></tr>
+          <tr><td>--t / --t-2</td><td>280ms / 200ms</td></tr>
+          <tr><td>--ease</td><td>cubic-bezier(.2,.7,.3,1)</td></tr>
+          <tr><td>reveal</td><td>opacity + translateY(8px)</td></tr>
+          <tr><td>stagger</td><td>40ms, 3 steps max</td></tr>
+          <tr><td>--veil</td><td>rgba(20,16,13,.46) / night rgba(6,5,4,.66)</td></tr>
+          <tr><td>grid</td><td>12 col · 7 photo / 4 text offset 1</td></tr>
+          <tr><td>hairline</td><td>1px var(--rule) between entries</td></tr>
+          <tr><td>targets</td><td>44 × 44 minimum</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sh-block">
+      <h2 class="sh-head">Honest assessment</h2>
+      <div class="lists">
+        <div>
+          <p class="list-k">Good at</p>
+          <ul class="list">
+            <li>Twelve dishes read as a body of work: numbered entries, running count, month chapters.</li>
+            <li>Bilingual copy becomes the layout — 中文 headline over mono English annotation needs no language switch.</li>
+            <li>Quiet, low-chrome surfaces let the food and the writing carry the gallery.</li>
+          </ul>
+        </div>
+        <div>
+          <p class="list-k">Costs</p>
+          <ul class="list">
+            <li>Dense serif body needs 16 px+ and honest line-height or it tires in long descriptions.</li>
+            <li>Hairline-only structure gives up the tap-target affordance a card shadow provides.</li>
+            <li>Playfair has no CJK glyphs, so Chinese display type inherits PingFang — the two scripts never truly match in weight.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</header>
+
+<div class="stage" id="stage">
+  <div class="toolbar" data-w="compare">
+    <span class="tb-label">Preview</span>
+    <button class="tb" data-act="width" data-width="mobile" aria-pressed="false">Mobile 390</button>
+    <button class="tb" data-act="width" data-width="tablet" aria-pressed="false">Tablet 768</button>
+    <button class="tb" data-act="width" data-width="desktop" aria-pressed="false">Desktop 1440</button>
+    <button class="tb" data-act="width" data-width="compare" aria-pressed="true">Compare</button>
+    <span class="tb-rule"></span>
+    <button class="tb" data-act="theme">Light / Dark</button>
+    <button class="tb" data-act="reset">Reset</button>
+  </div>
+
+  <section class="screen" id="screen-1-plates" data-screen="1-plates">
+    <h2 class="screen-title">1 · Gallery — Plates</h2>
+    <p class="screen-note">The hero surface: a running masthead, the newest dish set as an opening spread — photo over seven columns, its 中文 headline and English annotation in the four columns to the right — then the index of everything else, one hairline per entry.</p>
+    <div class="frames" data-tab="browse" data-view="plates" data-width="both" data-search="idle" data-drag="idle" data-rank="ingredients"></div>
+  </section>
+
+  <section class="screen" id="screen-2-grid" data-screen="2-grid">
+    <h2 class="screen-title">2 · Gallery — Grid</h2>
+    <p class="screen-note">Thumbnail-first masonry: portrait, landscape and square plates tiled in columns, each captioned with its Chinese name and a mono English gloss.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="both" data-search="idle" data-rank="ingredients"></div>
+  </section>
+
+  <section class="screen" id="screen-3-timeline" data-screen="3-timeline">
+    <h2 class="screen-title">3 · Gallery — Timeline</h2>
+    <p class="screen-note">Month chapters with Chinese month headings. In a wide frame the entries alternate across a centre rail; in a narrow frame they stack against the left margin.</p>
+    <div class="frames" data-tab="browse" data-view="timeline" data-width="both" data-search="idle" data-rank="ingredients"></div>
+  </section>
+
+  <section class="screen" id="screen-4-feed" data-screen="4-feed">
+    <h2 class="screen-title">4 · Immersive Feed</h2>
+    <p class="screen-note">One plate per scroll-snap page with the caption set over the paper. Shown at phone width because at a wide container the desktop shell replaces this tab with the filmstrip and the persistent index rail.</p>
+    <div class="frames" data-tab="feed" data-width="mobile"></div>
+  </section>
+
+  <section class="screen" id="screen-5-detail" data-screen="5-detail">
+    <h2 class="screen-title">5 · Photo Detail</h2>
+    <p class="screen-note">Left: the detail panel as a bottom sheet in a phone frame (swipe hint included) and as a centred dialog in a desktop frame. Right: the delete confirmation, as it appears from the upload history. Prev/next, close, and the signature — there are no edit, delete or share actions inside the detail itself.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="both" data-a-sheet="1" data-b-dialog="open" data-search="idle"></div>
+  </section>
+
+  <section class="screen" id="screen-6-search" data-screen="6-search">
+    <h2 class="screen-title">6 · Search</h2>
+    <p class="screen-note">The expanded field with its four field filters and date presets, showing the results state for 番茄: the dish-name match, the ingredient tag, and the description line it appears in. The collapsed state on load is a 44 px button labelled Open search.</p>
+    <div class="frames" data-tab="browse" data-view="grid" data-width="mobile" data-search="open" data-q="番茄" data-field="all" data-rank="ingredients"></div>
+  </section>
+
+  <section class="screen" id="screen-7-stats" data-screen="7-stats">
+    <h2 class="screen-title">7 · Insights / Analytics</h2>
+    <p class="screen-note">Total count, photos per month, top ingredients and top dishes on a toggle, the 14-day trend drawn as a hairline spark, and the empty and error variants of each block.</p>
+    <div class="frames" data-tab="stats" data-width="both" data-rank="ingredients"></div>
+  </section>
+
+  <section class="screen" id="screen-8-upload" data-screen="8-upload">
+    <h2 class="screen-title">8 · Upload (Admin)</h2>
+    <p class="screen-note">Left frame: the zone in its dragging state with the title swapped. Right frame: a finished AI review with every field editable, plus the recently-uploaded index and the backfill card.</p>
+    <div class="frames" data-tab="upload" data-width="both" data-drag="idle" data-upload="none" data-a-drag="dragging" data-b-upload="ai-done"></div>
+  </section>
+
+  <section class="screen" id="screen-9-login" data-screen="9-login">
+    <h2 class="screen-title">9 · Login</h2>
+    <p class="screen-note">The admin magic-link form and its “check your inbox” confirmation, with no app chrome — the journal cover, then the note that says the link is on its way.</p>
+    <div class="plain">
+      <article class="card-plain is-narrow">
+        <p class="brand-lg">Love on the Plate</p>
+        <p class="card-sub">Admin Login</p>
+        <label class="field-label">Email address
+          <input class="input" type="email" name="email" placeholder="you@example.com" autocomplete="email">
+        </label>
+        <button class="btn" type="button" data-act="noop">Send Magic Link</button>
+        <p class="card-foot">No password needed — we’ll email you a login link.</p>
+        <button class="link-plain" type="button" data-act="noop">Back to Gallery</button>
+      </article>
+      <article class="card-plain is-narrow">
+        <svg viewBox="0 0 24 24" style="width:30px;height:30px;fill:none;stroke:var(--paprika);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="1.5"></rect><path d="M3 6l9 7 9-7"></path>
+        </svg>
+        <h2 class="card-h">Check your email</h2>
+        <p class="card-p">We sent a magic link to <b>you@example.com</b></p>
+        <p class="card-p">Click the link in the email to sign in.</p>
+        <button class="btn btn-secondary" type="button" data-act="noop">Use a different email</button>
+        <button class="link-plain" type="button" data-act="noop">Back to Gallery</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-10-components" data-screen="10-components">
+    <h2 class="screen-title">10 · Component Sheet</h2>
+    <p class="screen-note">Every control in the same paper and ink: buttons in all five states, the dish field, ingredient chips, the view switcher, toasts, skeleton and card states, scroll-to-top, the network banner, pull-to-refresh, and the theme toggle.</p>
+    <div class="comp-grid">
+      <div class="comp">
+        <p class="comp-k">Buttons · state rows</p>
+        <div class="comp-col">
+          <p class="comp-note">Default</p>
+          <div class="comp-row">
+            <button class="btn" type="button">Upload</button>
+            <button class="btn btn-secondary" type="button">Cancel</button>
+            <button class="btn btn-ghost" type="button">Regenerate All</button>
+            <button class="btn btn-danger" type="button">Delete</button>
+          </div>
+          <p class="comp-note">Hover</p>
+          <div class="comp-row">
+            <button class="btn demo-hover" type="button">Upload</button>
+            <button class="btn btn-secondary demo-hover" type="button">Cancel</button>
+            <button class="btn btn-ghost demo-hover" type="button">Regenerate All</button>
+            <button class="btn btn-danger demo-hover" type="button">Delete</button>
+          </div>
+          <p class="comp-note">Focus-visible</p>
+          <div class="comp-row">
+            <button class="btn demo-focus" type="button">Upload</button>
+            <button class="btn btn-secondary demo-focus" type="button">Cancel</button>
+            <button class="btn btn-ghost demo-focus" type="button">Regenerate All</button>
+            <button class="btn btn-danger demo-focus" type="button">Delete</button>
+          </div>
+          <p class="comp-note">Disabled</p>
+          <div class="comp-row">
+            <button class="btn" type="button" disabled>Upload</button>
+            <button class="btn btn-secondary" type="button" disabled>Cancel</button>
+            <button class="btn btn-ghost" type="button" disabled>Regenerate All</button>
+            <button class="btn btn-danger" type="button" disabled>Delete</button>
+          </div>
+          <p class="comp-note">Busy</p>
+          <div class="comp-row">
+            <button class="btn is-disabled" type="button" disabled>Uploading…</button>
+            <button class="btn btn-secondary" type="button" disabled>Cancel</button>
+            <button class="btn btn-ghost" type="button" disabled>Regenerate All</button>
+            <button class="btn btn-danger is-disabled" type="button" disabled>Deleting...</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Dish field</p>
+        <label class="field-label">菜名 / Dish Name
+          <input class="input" type="text" value="番茄牛腩面" aria-label="菜名 / Dish Name">
+        </label>
+        <label class="field-label">菜名 / Dish Name · focus-visible
+          <input class="input demo-focus" type="text" value="番茄牛腩面" aria-label="菜名 / Dish Name focus state">
+        </label>
+        <label class="field-label">菜名 / Dish Name · awaiting AI
+          <input class="input" type="text" placeholder="AI 正在识别菜名…" aria-label="菜名 / Dish Name awaiting AI">
+        </label>
+        <label class="field-label">English Description
+          <textarea class="input" aria-label="English Description" placeholder="AI is generating an English description…"></textarea>
+        </label>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Ingredient chips</p>
+        <ul class="chips">
+          <li class="chip">牛腩 beef brisket</li>
+          <li class="chip">番茄 tomato</li>
+        </ul>
+        <p class="comp-note">Removable</p>
+        <ul class="chips">
+          <li class="chip chip-rm">手擀面 hand-pulled noodles
+            <button class="chip-x" type="button" aria-label="Remove 手擀面 hand-pulled noodles">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+            </button>
+          </li>
+          <li class="chip chip-rm">八角 star anise
+            <button class="chip-x" type="button" aria-label="Remove 八角 star anise">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+            </button>
+          </li>
+        </ul>
+        <button class="chip chip-add" type="button">添加食材</button>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">View switcher · 3 states</p>
+        <div class="comp-col">
+          <span class="comp-note">Plates active</span>
+          <div class="switch" data-i="0">
+            <button type="button" data-view="plates">Plates</button>
+            <button type="button" data-view="grid">Grid</button>
+            <button type="button" data-view="timeline">Timeline</button>
+          </div>
+          <span class="comp-note">Grid active</span>
+          <div class="switch" data-i="1">
+            <button type="button" data-view="plates">Plates</button>
+            <button type="button" data-view="grid">Grid</button>
+            <button type="button" data-view="timeline">Timeline</button>
+          </div>
+          <span class="comp-note">Timeline active</span>
+          <div class="switch" data-i="2">
+            <button type="button" data-view="plates">Plates</button>
+            <button type="button" data-view="grid">Grid</button>
+            <button type="button" data-view="timeline">Timeline</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Toasts</p>
+        <p class="toastdemo">Photo uploaded with love!</p>
+        <p class="toastdemo">Descriptions regenerated!</p>
+        <p class="toastdemo">Photo deleted</p>
+        <p class="toastdemo is-err">Unable to load analytics right now. <a href="#" data-act="noop">Retry</a></p>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Skeleton &amp; shimmer</p>
+        <div class="skel shimmer">
+          <span class="skel-fig shimmer"></span>
+          <span class="skel-line w1"></span>
+          <span class="skel-line w2"></span>
+        </div>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Card — loaded</p>
+        <div class="carddemo">
+          <span class="carddemo-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></span>
+          <span>
+            <span class="carddemo-t">奶油蘑菇汤</span>
+            <span class="carddemo-m">Cream of Mushroom Soup · 2026-07-15</span>
+          </span>
+        </div>
+        <p class="comp-k">Card — empty</p>
+        <div class="carddemo-empty">
+          <span class="carddemo-t">No photos yet</span>
+          <span class="comp-note">Start documenting your culinary journey!</span>
+          <span class="comp-note">Detail fallback: No description yet</span>
+        </div>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Scroll to top · network banner</p>
+        <div class="comp-row">
+          <button class="s2t" type="button" aria-label="Scroll to top">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+          </button>
+          <span class="comp-note">44 × 44 · aria-label</span>
+        </div>
+        <div class="banner banner--demo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"></path><path d="M12 9v5M12 17.2v.1"></path></svg>
+          <span>You’re offline. Some features may be unavailable.</span>
+        </div>
+        <div class="banner banner--demo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>
+          <span>Back online</span>
+        </div>
+      </div>
+
+      <div class="comp">
+        <p class="comp-k">Pull to refresh · theme toggle</p>
+        <div class="comp-row">
+          <span class="ptr-demo">
+            <span class="ptr-wheel">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"></path><path d="M20 4v4h-4"></path></svg>
+            </span>
+            <span class="comp-note">Refreshing</span>
+          </span>
+          <span class="ptr-demo">
+            <span class="ptr-wheel" style="opacity:.55">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="animation:none"><path d="M12 5v9"></path><path d="M8 10l4 4 4-4"></path><path d="M5 19h14"></path></svg>
+            </span>
+            <span class="comp-note">Pull progress</span>
+          </span>
+          <button class="icon-btn round" type="button" aria-label="Toggle theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"></path></svg>
+          </button>
+          <button class="icon-btn round" type="button" aria-label="Toggle theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
+          </button>
+        </div>
+        <p class="comp-note">Theme toggle · light / dark · persisted in localStorage, defaults to the system preference</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ==========================================================================
+     DISH SPRITE — one top-down illustration per fixture dish, tinted by the
+     direction tokens through --t1…--t4 set on each <use> element.
+     ======================================================================= -->
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+  <symbol id="dish-1" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="52" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="44" style="fill:var(--t2)"></circle>
+    <path d="M26 60c6-11 20-17 30-14s18 4 26 13" style="fill:none;stroke:var(--t3);stroke-width:5;stroke-linecap:round"></path>
+    <path d="M30 74c8-10 22-13 32-10s16 4 22 10" style="fill:none;stroke:var(--t3);stroke-width:5;stroke-linecap:round"></path>
+    <rect x="42" y="46" width="15" height="12" rx="2.5" style="fill:var(--t4)"></rect>
+    <rect x="64" y="66" width="15" height="12" rx="2.5" style="fill:var(--t4)"></rect>
+    <g transform="rotate(-20 60 60)">
+      <rect x="18" y="34" width="84" height="3.5" rx="1.75" style="fill:var(--t4)"></rect>
+      <rect x="18" y="42" width="84" height="3.5" rx="1.75" style="fill:var(--t4)"></rect>
+    </g>
+  </symbol>
+  <symbol id="dish-2" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="52" style="fill:var(--t1)"></circle>
+    <g transform="translate(60 62)">
+      <g transform="translate(-40 -8) rotate(-16)"><path d="M0 0c7-9 22-9 29 0 7 9-3 15-14.5 15S-7 9 0 0z" style="fill:var(--t2)"></path><path d="M3 2c7-6 16-6 23 0" style="fill:none;stroke:var(--t4);stroke-width:1.6"></path></g>
+      <g transform="translate(4 -30) rotate(-4)"><path d="M0 0c7-9 22-9 29 0 7 9-3 15-14.5 15S-7 9 0 0z" style="fill:var(--t2)"></path><path d="M3 2c7-6 16-6 23 0" style="fill:none;stroke:var(--t4);stroke-width:1.6"></path></g>
+      <g transform="translate(34 4) rotate(18)"><path d="M0 0c7-9 22-9 29 0 7 9-3 15-14.5 15S-7 9 0 0z" style="fill:var(--t2)"></path><path d="M3 2c7-6 16-6 23 0" style="fill:none;stroke:var(--t4);stroke-width:1.6"></path></g>
+      <g transform="translate(-16 20) rotate(-8)"><path d="M0 0c7-9 22-9 29 0 7 9-3 15-14.5 15S-7 9 0 0z" style="fill:var(--t2)"></path><path d="M3 2c7-6 16-6 23 0" style="fill:none;stroke:var(--t4);stroke-width:1.6"></path></g>
+      <g transform="translate(22 30) rotate(10)"><path d="M0 0c7-9 22-9 29 0 7 9-3 15-14.5 15S-7 9 0 0z" style="fill:var(--t2)"></path><path d="M3 2c7-6 16-6 23 0" style="fill:none;stroke:var(--t4);stroke-width:1.6"></path></g>
+      <circle cx="-6" cy="-4" r="3" style="fill:var(--t3)"></circle>
+      <circle cx="18" cy="14" r="3" style="fill:var(--t3)"></circle>
+      <circle cx="-24" cy="16" r="3" style="fill:var(--t3)"></circle>
+    </g>
+  </symbol>
+  <symbol id="dish-3" viewBox="0 0 120 120">
+    <rect x="88" y="55" width="30" height="9" rx="4.5" style="fill:var(--t1)"></rect>
+    <circle cx="58" cy="60" r="46" style="fill:var(--t1)"></circle>
+    <circle cx="58" cy="60" r="37" style="fill:none;stroke:var(--t3);stroke-width:1.4"></circle>
+    <path d="M34 50c9-4 17 1 17 9 0 7-7 11-13 8" style="fill:none;stroke:var(--t2);stroke-width:5.5;stroke-linecap:round"></path>
+    <path d="M62 42c9-4 17 1 17 9 0 7-7 11-13 8" style="fill:none;stroke:var(--t2);stroke-width:5.5;stroke-linecap:round"></path>
+    <path d="M44 74c9-4 17 1 17 9 0 7-7 11-13 8" style="fill:none;stroke:var(--t2);stroke-width:5.5;stroke-linecap:round"></path>
+    <path d="M72 68c9-4 17 1 17 9 0 7-7 11-13 8" style="fill:none;stroke:var(--t2);stroke-width:5.5;stroke-linecap:round"></path>
+    <circle cx="33" cy="48" r="3" style="fill:var(--t2)"></circle>
+    <circle cx="61" cy="40" r="3" style="fill:var(--t2)"></circle>
+    <circle cx="43" cy="72" r="3" style="fill:var(--t2)"></circle>
+    <circle cx="71" cy="66" r="3" style="fill:var(--t2)"></circle>
+    <circle cx="52" cy="58" r="2.4" style="fill:var(--t3)"></circle>
+    <circle cx="66" cy="56" r="2.4" style="fill:var(--t3)"></circle>
+    <path d="M50 46l4-5M78 52l5-4M38 62l-5 3" style="fill:none;stroke:var(--t4);stroke-width:2;stroke-linecap:round"></path>
+  </symbol>
+  <symbol id="dish-4" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="52" style="fill:var(--t1)"></circle>
+    <g style="fill:var(--t2)">
+      <rect x="26" y="30" width="26" height="24" rx="3"></rect>
+      <rect x="56" y="30" width="26" height="24" rx="3"></rect>
+      <rect x="41" y="56" width="26" height="24" rx="3"></rect>
+      <rect x="71" y="60" width="24" height="22" rx="3"></rect>
+      <rect x="20" y="62" width="18" height="18" rx="3"></rect>
+    </g>
+    <g style="fill:none;stroke:var(--t4);stroke-width:1.6">
+      <rect x="26" y="30" width="26" height="24" rx="3"></rect>
+      <rect x="56" y="30" width="26" height="24" rx="3"></rect>
+      <rect x="41" y="56" width="26" height="24" rx="3"></rect>
+    </g>
+    <g style="fill:var(--t3)">
+      <ellipse cx="36" cy="38" rx="7" ry="3.4"></ellipse>
+      <ellipse cx="66" cy="38" rx="7" ry="3.4"></ellipse>
+      <ellipse cx="51" cy="64" rx="7" ry="3.4"></ellipse>
+    </g>
+    <g style="fill:var(--t4)">
+      <circle cx="34" cy="84" r="1.6"></circle><circle cx="42" cy="88" r="1.6"></circle><circle cx="50" cy="83" r="1.6"></circle>
+    </g>
+  </symbol>
+  <symbol id="dish-5" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="50" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="42" style="fill:var(--t2)"></circle>
+    <g style="fill:var(--t3)">
+      <ellipse cx="44" cy="46" rx="12" ry="8"></ellipse>
+      <ellipse cx="74" cy="52" rx="12" ry="8"></ellipse>
+      <ellipse cx="56" cy="74" rx="12" ry="8"></ellipse>
+      <rect x="34" y="52" width="7" height="12" rx="3"></rect>
+      <rect x="66" y="58" width="7" height="12" rx="3"></rect>
+    </g>
+    <path d="M32 62c8-8 20-4 26 2s18 6 28-4" style="fill:none;stroke:var(--t4);stroke-width:2.4;stroke-linecap:round"></path>
+    <g style="fill:var(--t4)">
+      <circle cx="38" cy="34" r="1.8"></circle><circle cx="86" cy="40" r="1.8"></circle>
+      <circle cx="82" cy="80" r="1.8"></circle><circle cx="36" cy="80" r="1.8"></circle>
+    </g>
+  </symbol>
+  <symbol id="dish-6" viewBox="0 0 120 120">
+    <circle cx="60" cy="62" r="50" style="fill:var(--t1)"></circle>
+    <path d="M60 22l32 26-6 44H34l-6-44z" style="fill:var(--t4)"></path>
+    <ellipse cx="60" cy="62" rx="40" ry="34" style="fill:var(--t2)"></ellipse>
+    <ellipse cx="60" cy="62" rx="40" ry="34" style="fill:none;stroke:var(--t3);stroke-width:1.6"></ellipse>
+    <path d="M22 52c12 8 22-6 34 2s22 8 42-4" style="fill:none;stroke:var(--t3);stroke-width:7;stroke-linecap:round"></path>
+    <path d="M60 62l30-14" style="fill:none;stroke:var(--t1);stroke-width:2"></path>
+    <path d="M60 62l-34-6" style="fill:none;stroke:var(--t1);stroke-width:2"></path>
+  </symbol>
+  <symbol id="dish-7" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="50" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="41" style="fill:var(--t4);opacity:.25"></circle>
+    <g transform="rotate(-14 60 60)" style="fill:var(--t2)">
+      <rect x="22" y="42" width="76" height="4" rx="2"></rect>
+      <rect x="24" y="49" width="72" height="4" rx="2"></rect>
+      <rect x="20" y="56" width="80" height="4" rx="2"></rect>
+      <rect x="26" y="63" width="68" height="4" rx="2"></rect>
+      <rect x="22" y="70" width="76" height="4" rx="2"></rect>
+      <rect x="28" y="77" width="64" height="4" rx="2"></rect>
+    </g>
+    <g style="fill:var(--t3)">
+      <rect x="40" y="46" width="14" height="5" rx="2.5" transform="rotate(-24 47 48)"></rect>
+      <rect x="66" y="70" width="14" height="5" rx="2.5" transform="rotate(18 73 72)"></rect>
+    </g>
+    <path d="M30 34c16 6 44 6 60-2" style="fill:none;stroke:var(--t4);stroke-width:1.6;stroke-dasharray:4 5"></path>
+  </symbol>
+  <symbol id="dish-8" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="52" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="43" style="fill:var(--t4);opacity:.35"></circle>
+    <g style="fill:var(--t2)">
+      <path d="M38 42c8-8 20-4 20 4s-10 14-18 10-8-10-2-14z"></path>
+      <path d="M62 52c8-6 18 0 17 8s-12 12-19 7-5-11 2-15z"></path>
+      <path d="M34 66c9-6 19 1 17 9s-13 11-19 5-4-10 2-14z"></path>
+      <path d="M62 74c7-6 17-1 16 7s-11 11-17 6-4-9 1-13z"></path>
+    </g>
+    <g style="fill:var(--t3)">
+      <path d="M52 34c6-6 12-6 14-2-4 6-10 8-14 2z"></path>
+      <path d="M48 86c6-6 12-6 14-2-4 6-10 8-14 2z"></path>
+      <path d="M80 40c6-5 12-4 13 0-5 5-11 6-13 0z"></path>
+    </g>
+    <path d="M30 58c10-8 22-6 30 0s20 6 30-2" style="fill:none;stroke:var(--t4);stroke-width:2;stroke-linecap:round;opacity:.5"></path>
+  </symbol>
+  <symbol id="dish-9" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="52" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="43" style="fill:var(--t2)"></circle>
+    <circle cx="60" cy="60" r="43" style="fill:none;stroke:var(--t4);stroke-width:1.4;opacity:.5"></circle>
+    <circle cx="60" cy="60" r="31" style="fill:none;stroke:var(--t4);stroke-width:1.4;opacity:.4"></circle>
+    <g style="fill:var(--t3)">
+      <path d="M44 44c9 0 15 6 13 14-2 7-9 10-15 7-5-3-7-9-4-14 2-4 5-7 6-7z"></path>
+      <path d="M76 46c9 0 15 6 13 14-2 7-9 10-15 7-5-3-7-9-4-14 2-4 5-7 6-7z"></path>
+      <path d="M60 72c9 0 15 6 13 14-2 7-9 10-15 7-5-3-7-9-4-14 2-4 5-7 6-7z"></path>
+    </g>
+    <g style="fill:var(--t4)">
+      <path d="M52 40l4-4 4 4z"></path><path d="M84 42l4-4 4 4z"></path><path d="M68 68l4-4 4 4z"></path>
+    </g>
+  </symbol>
+  <symbol id="dish-10" viewBox="0 0 120 120">
+    <ellipse cx="60" cy="62" rx="56" ry="38" style="fill:var(--t1)"></ellipse>
+    <ellipse cx="60" cy="62" rx="48" ry="31" style="fill:var(--t4);opacity:.22"></ellipse>
+    <ellipse cx="58" cy="60" rx="36" ry="19" style="fill:var(--t2)"></ellipse>
+    <path d="M94 60l16-11v22z" style="fill:var(--t2)"></path>
+    <circle cx="32" cy="55" r="3.4" style="fill:var(--t4)"></circle>
+    <g style="fill:var(--t3)">
+      <rect x="42" y="48" width="30" height="4" rx="2" transform="rotate(-6 57 50)"></rect>
+      <rect x="46" y="60" width="30" height="4" rx="2" transform="rotate(5 61 62)"></rect>
+      <rect x="50" y="70" width="26" height="4" rx="2" transform="rotate(-3 63 72)"></rect>
+    </g>
+    <g style="fill:var(--t4);opacity:.55">
+      <rect x="30" y="74" width="14" height="3" rx="1.5"></rect>
+      <rect x="52" y="76" width="12" height="3" rx="1.5"></rect>
+    </g>
+  </symbol>
+  <symbol id="dish-11" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="51" style="fill:var(--t1)"></circle>
+    <circle cx="60" cy="60" r="43" style="fill:var(--t2)"></circle>
+    <g style="fill:var(--t3)">
+      <rect x="30" y="36" width="18" height="18" rx="2"></rect>
+      <rect x="54" y="30" width="18" height="18" rx="2"></rect>
+      <rect x="72" y="52" width="18" height="18" rx="2"></rect>
+      <rect x="36" y="60" width="18" height="18" rx="2"></rect>
+      <rect x="58" y="70" width="18" height="18" rx="2"></rect>
+    </g>
+    <g style="fill:var(--t4)">
+      <circle cx="26" cy="58" r="2.2"></circle><circle cx="52" cy="54" r="2.2"></circle>
+      <circle cx="88" cy="34" r="2.2"></circle><circle cx="66" cy="94" r="2.2"></circle>
+      <circle cx="30" cy="86" r="2.2"></circle><circle cx="94" cy="80" r="2.2"></circle>
+    </g>
+    <path d="M24 44c14 8 26-4 40 2s22 8 34-2" style="fill:none;stroke:var(--t4);stroke-width:1.4;opacity:.45"></path>
+  </symbol>
+  <symbol id="dish-12" viewBox="0 0 120 120">
+    <rect x="38" y="14" width="44" height="92" rx="6" style="fill:var(--t1)"></rect>
+    <rect x="42" y="18" width="36" height="84" rx="4" style="fill:var(--t2)"></rect>
+    <rect x="42" y="18" width="36" height="26" rx="4" style="fill:var(--t3);opacity:.55"></rect>
+    <circle cx="62" cy="58" r="17" style="fill:var(--t3)"></circle>
+    <circle cx="62" cy="58" r="17" style="fill:none;stroke:var(--t1);stroke-width:2"></circle>
+    <g style="fill:none;stroke:var(--t1);stroke-width:1.6">
+      <path d="M62 41v34M45 58h34M50 46l24 24M74 46L50 70"></path>
+    </g>
+    <g style="fill:var(--t4)">
+      <path d="M76 30c7-5 13-3 14 2-5 6-12 6-14-2z"></path>
+      <path d="M74 40c7-4 12-1 12 4-6 5-12 3-12-4z"></path>
+    </g>
+    <rect x="66" y="8" width="4" height="30" rx="2" style="fill:var(--t4)" transform="rotate(9 68 23)"></rect>
+  </symbol>
+</svg>
+
+<!-- ==========================================================================
+     THE APP — one copy, cloned into every screen frame
+     ======================================================================= -->
+<template id="app-template">
+<div class="app">
+  <div class="banner" data-when="offline">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"></path><path d="M12 9v5M12 17.2v.1"></path></svg>
+    <span>You’re offline. Some features may be unavailable.</span>
+  </div>
+
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.4A4.1 4.1 0 0 1 12 7.6 4.1 4.1 0 0 1 19 10.6c0 5-7 9.4-7 9.4z"></path></svg>
+      <span class="brand-text">
+        <span class="brand-name">Love on the Plate</span>
+        <span class="brand-sub">Happy wife, happy life</span>
+      </span>
+    </div>
+    <div class="header-actions">
+      <button class="upload-link" type="button" data-act="tab" data-tab="upload">Upload</button>
+      <button class="icon-btn" type="button" data-act="theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="app-sidebar">
+      <div>
+        <p class="side-brand">Love on the Plate</p>
+        <p class="side-sub">Happy wife, happy life</p>
+      </div>
+      <div>
+        <p class="side-k">Journal</p>
+        <nav class="side-nav" aria-label="Sections">
+          <button type="button" data-act="tab" data-tab="feed">Feed <span>时光</span></button>
+          <button type="button" data-act="tab" data-tab="browse">Browse <span>浏览</span></button>
+          <button type="button" data-act="tab" data-tab="stats">Stats <span>统计</span></button>
+          <button type="button" data-act="tab" data-tab="upload">Upload <span>上传</span></button>
+        </nav>
+      </div>
+      <div class="side-views">
+        <p class="side-k">Layout</p>
+        <button type="button" data-act="view" data-view="plates">Plates <span>盘</span></button>
+        <button type="button" data-act="view" data-view="grid">Grid <span>格</span></button>
+        <button type="button" data-act="view" data-view="timeline">Timeline <span>时序</span></button>
+      </div>
+      <div class="side-k">214 plates</div>
+      <button class="icon-btn" type="button" data-act="theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
+      </button>
+    </aside>
+
+    <main class="app-main">
+      <div class="panel panel-browse">
+        <div class="masthead">
+          <span class="mh-run">Latest · 2026-08-14</span>
+          <span class="mh-count">214 plates</span>
+        </div>
+
+        <div class="viewbar">
+          <div class="switch">
+            <button type="button" data-act="view" data-view="plates">Plates</button>
+            <button type="button" data-act="view" data-view="grid">Grid</button>
+            <button type="button" data-act="view" data-view="timeline">Timeline</button>
+          </div>
+          <span class="viewbar-note">No. 001–012</span>
+        </div>
+
+        <div class="searchbar">
+          <div class="searchbar-row">
+            <button class="search-toggle" type="button" data-act="search-toggle" aria-label="Open search" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+            </button>
+            <div class="search-full">
+              <input class="search-input" type="search" placeholder="Search dishes, tags, dates..." aria-label="Search dishes, tags, dates...">
+              <div class="search-chips" role="group" aria-label="Search field">
+                <button class="chip-btn" type="button" data-act="field" data-field="all">All</button>
+                <button class="chip-btn" type="button" data-act="field" data-field="title">Title</button>
+                <button class="chip-btn" type="button" data-act="field" data-field="date">Date</button>
+                <button class="chip-btn" type="button" data-act="field" data-field="tags">Tags</button>
+              </div>
+              <div class="search-chips" role="group" aria-label="Date presets">
+                <button class="chip-btn" type="button" data-act="noop">This Year</button>
+                <button class="chip-btn" type="button" data-act="noop">Last Year</button>
+                <button class="chip-btn" type="button" data-act="noop">五月</button>
+                <button class="chip-btn" type="button" data-act="noop">六月</button>
+                <button class="chip-btn" type="button" data-act="noop">七月</button>
+                <button class="chip-btn" type="button" data-act="noop">八月</button>
+              </div>
+              <p class="search-count" data-results=""></p>
+              <p class="search-legend">Matches across dish names · ingredients · descriptions</p>
+            </div>
+          </div>
+          <div class="search-results">
+            <div class="result-row" data-kind="dish" data-hit="off" data-tags="番茄牛腩面 braised beef noodle soup 番茄 tomato">
+              <span class="result-k">Dish name</span>
+              <span class="result-v">番茄牛腩面 · Braised Beef Noodle Soup</span>
+            </div>
+            <div class="result-row" data-kind="tag" data-hit="off" data-tags="番茄 tomato 番茄 31 plates">
+              <span class="result-k">Ingredient</span>
+              <span class="result-v">番茄 tomato · <i>31 plates</i></span>
+            </div>
+            <div class="result-row" data-kind="desc" data-hit="off" data-tags="炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。 番茄 the tomatoes broke down into a broth">
+              <span class="result-k">中文描述</span>
+              <span class="result-v">炖了三个小时，牛腩一夹就散。<i>番茄全化进汤里，尝起来像某个周日的午后。</i></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="views">
+          <div class="view view-plates">
+            <article class="hero hit" data-dish="1" data-hit="on" data-tags="番茄牛腩面 braised beef noodle soup 牛腩 beef brisket 番茄 tomato 手擀面 hand-pulled noodles 八角 star anise simmered three hours until the brisket gave way to a chopstick the tomatoes broke down into a broth that tasted like a sunday afternoon 炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。">
+              <button class="hero-hit" type="button" data-act="open" data-dish="1" aria-label="打开 番茄牛腩面 — Braised Beef Noodle Soup"></button>
+              <figure class="hero-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></figure>
+              <div class="hero-text">
+                <p class="hero-no">No. 001 · 2026-08-14</p>
+                <h3 class="hero-cn">番茄牛腩面</h3>
+                <p class="hero-en">Braised Beef Noodle Soup</p>
+                <p class="hero-pull">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</p>
+                <p class="hero-cn-cn">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</p>
+                <p class="marg">牛腩 beef brisket · 番茄 tomato · 手擀面 hand-pulled noodles · 八角 star anise</p>
+              </div>
+            </article>
+            <ol class="entries">
+              <li class="hit" data-dish="2" data-hit="on" data-tags="韭菜猪肉饺子 pork &amp; chive dumplings 韭菜 chive 猪肉 pork 饺子皮 wrappers 姜 ginger folded 60 of them ate 40 the pleats got better around number thirty 包了六十个，吃掉了四十个。到第三十个的时候，褶子终于好看了。">
+                <button class="entry" type="button" data-act="open" data-dish="2" aria-label="打开 韭菜猪肉饺子 — Pork &amp; Chive Dumplings">
+                  <span class="entry-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></span>
+                  <span class="entry-no">No. 002</span>
+                  <span class="entry-text"><span class="entry-cn">韭菜猪肉饺子</span><span class="entry-en">Pork &amp; Chive Dumplings</span><span class="entry-meta">2026-08-09 · 韭菜 · 猪肉 · 姜</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="3" data-hit="on" data-tags="蒜香黄油虾 garlic butter prawns 虾 prawns 蒜 garlic 黄油 butter 欧芹 parsley ready in eleven minutes which is exactly the kind of dinner a tuesday deserves 十一点就上桌，星期二就该吃这样的晚饭。">
+                <button class="entry" type="button" data-act="open" data-dish="3" aria-label="打开 蒜香黄油虾 — Garlic Butter Prawns">
+                  <span class="entry-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></span>
+                  <span class="entry-no">No. 003</span>
+                  <span class="entry-text"><span class="entry-cn">蒜香黄油虾</span><span class="entry-en">Garlic Butter Prawns</span><span class="entry-meta">2026-07-28 · 虾 · 蒜 · 黄油</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="4" data-hit="on" data-tags="红烧肉 red-braised pork belly 五花肉 pork belly 冰糖 rock sugar 老抽 dark soy 桂皮 cinnamon caramelised to the colour of old violin sweet sticky unapologetic 炒到小提琴那样的深色。甜、黏、毫不收敛。">
+                <button class="entry" type="button" data-act="open" data-dish="4" aria-label="打开 红烧肉 — Red-Braised Pork Belly">
+                  <span class="entry-fig"><svg class="dish d4" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"></use></svg></span>
+                  <span class="entry-no">No. 004</span>
+                  <span class="entry-text"><span class="entry-cn">红烧肉</span><span class="entry-en">Red-Braised Pork Belly</span><span class="entry-meta">2026-07-21 · 五花肉 · 冰糖 · 桂皮</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="5" data-hit="on" data-tags="奶油蘑菇汤 cream of mushroom soup 口蘑 button mushroom 淡奶油 cream 百里香 thyme 洋葱 onion blended twice strained once and worth every dish in the sink 打了两遍，过了一次筛，洗那些碗也值了。">
+                <button class="entry" type="button" data-act="open" data-dish="5" aria-label="打开 奶油蘑菇汤 — Cream of Mushroom Soup">
+                  <span class="entry-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></span>
+                  <span class="entry-no">No. 005</span>
+                  <span class="entry-text"><span class="entry-cn">奶油蘑菇汤</span><span class="entry-en">Cream of Mushroom Soup</span><span class="entry-meta">2026-07-15 · 口蘑 · 淡奶油 · 百里香</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="6" data-hit="on" data-tags="抹茶巴斯克 matcha basque cheesecake 抹茶粉 matcha 奶油奶酪 cream cheese 鸡蛋 egg 淡奶油 cream burnt on purpose the middle still trembles when you cut it 故意烤焦的表面。切下去的时候，中间还会抖。">
+                <button class="entry" type="button" data-act="open" data-dish="6" aria-label="打开 抹茶巴斯克 — Matcha Basque Cheesecake">
+                  <span class="entry-fig"><svg class="dish d6" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"></use></svg></span>
+                  <span class="entry-no">No. 006</span>
+                  <span class="entry-text"><span class="entry-cn">抹茶巴斯克</span><span class="entry-en">Matcha Basque Cheesecake</span><span class="entry-meta">2026-07-06 · 抹茶粉 · 奶油奶酪 · 鸡蛋</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="7" data-hit="on" data-tags="酸辣土豆丝 hot &amp; sour potato slivers 土豆 potato 干辣椒 dried chilli 陈醋 aged vinegar crunch is the whole point ninety seconds in the wok no more 脆才是重点。锅里九十秒，多一秒都不行。">
+                <button class="entry" type="button" data-act="open" data-dish="7" aria-label="打开 酸辣土豆丝 — Hot &amp; Sour Potato Slivers">
+                  <span class="entry-fig"><svg class="dish d7" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"></use></svg></span>
+                  <span class="entry-no">No. 007</span>
+                  <span class="entry-text"><span class="entry-cn">酸辣土豆丝</span><span class="entry-en">Hot &amp; Sour Potato Slivers</span><span class="entry-meta">2026-06-30 · 土豆 · 干辣椒 · 陈醋</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="8" data-hit="on" data-tags="三杯鸡 three-cup chicken 鸡腿 chicken thigh 米酒 rice wine 九层塔 basil equal parts soy wine and sesame nine-layer basil from the balcony pot 酱油、米酒、麻油各一杯。九层塔是阳台上那盆摘的。">
+                <button class="entry" type="button" data-act="open" data-dish="8" aria-label="打开 三杯鸡 — Three-Cup Chicken">
+                  <span class="entry-fig"><svg class="dish d8" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"></use></svg></span>
+                  <span class="entry-no">No. 008</span>
+                  <span class="entry-text"><span class="entry-cn">三杯鸡</span><span class="entry-en">Three-Cup Chicken</span><span class="entry-meta">2026-06-22 · 鸡腿 · 米酒 · 九层塔</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="9" data-hit="on" data-tags="草莓奶油蛋糕 strawberry cream cake 草莓 strawberry 淡奶油 cream 低筋面粉 cake flour her birthday cake lopsided over-filled exactly right 她的生日蛋糕。歪的，奶油多了，刚刚好。">
+                <button class="entry" type="button" data-act="open" data-dish="9" aria-label="打开 草莓奶油蛋糕 — Strawberry Cream Cake">
+                  <span class="entry-fig"><svg class="dish d9" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"></use></svg></span>
+                  <span class="entry-no">No. 009</span>
+                  <span class="entry-text"><span class="entry-cn">草莓奶油蛋糕</span><span class="entry-en">Strawberry Cream Cake</span><span class="entry-meta">2026-06-14 · 草莓 · 淡奶油 · 低筋面粉</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="10" data-hit="on" data-tags="清蒸鲈鱼 steamed sea bass 鲈鱼 sea bass 姜 ginger 蒸鱼豉油 seasoned soy eight minutes of steam one ladle of hot oil over the scallions 蒸八分钟，热油往葱丝上一泼，完事。">
+                <button class="entry" type="button" data-act="open" data-dish="10" aria-label="打开 清蒸鲈鱼 — Steamed Sea Bass">
+                  <span class="entry-fig"><svg class="dish d10" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"></use></svg></span>
+                  <span class="entry-no">No. 010</span>
+                  <span class="entry-text"><span class="entry-cn">清蒸鲈鱼</span><span class="entry-en">Steamed Sea Bass</span><span class="entry-meta">2026-06-05 · 鲈鱼 · 姜 · 蒸鱼豉油</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="11" data-hit="on" data-tags="麻婆豆腐 mapo tofu 嫩豆腐 silken tofu 豆瓣酱 chilli bean paste 花椒 sichuan peppercorn numbing red and completely unphotogenic third attempt finally right 麻、红、完全不上相。第三次做，终于对了。">
+                <button class="entry" type="button" data-act="open" data-dish="11" aria-label="打开 麻婆豆腐 — Mapo Tofu">
+                  <span class="entry-fig"><svg class="dish d11" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"></use></svg></span>
+                  <span class="entry-no">No. 011</span>
+                  <span class="entry-text"><span class="entry-cn">麻婆豆腐</span><span class="entry-en">Mapo Tofu</span><span class="entry-meta">2026-05-28 · 嫩豆腐 · 豆瓣酱 · 花椒</span></span>
+                </button>
+              </li>
+              <li class="hit" data-dish="12" data-hit="on" data-tags="手打柠檬茶 hand-shaken lemon tea 柠檬 lemon 红茶 black tea 薄荷 mint pounded the lemons properly this time twenty seconds of shaking ice shock 柠檬这次捶对了。摇二十秒，冰镇一下。">
+                <button class="entry" type="button" data-act="open" data-dish="12" aria-label="打开 手打柠檬茶 — Hand-Shaken Lemon Tea">
+                  <span class="entry-fig"><svg class="dish d12" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"></use></svg></span>
+                  <span class="entry-no">No. 012</span>
+                  <span class="entry-text"><span class="entry-cn">手打柠檬茶</span><span class="entry-en">Hand-Shaken Lemon Tea</span><span class="entry-meta">2026-05-20 · 柠檬 · 红茶 · 薄荷</span></span>
+                </button>
+              </li>
+            </ol>
+          </div>
+
+          <div class="view view-grid">
+            <div class="masonry">
+              <button class="tile tile-p hit" type="button" data-act="open" data-dish="1" data-hit="on" data-tags="番茄牛腩面 braised beef noodle soup 牛腩 beef brisket 番茄 tomato 手擀面 hand-pulled noodles 八角 star anise simmered three hours until the brisket gave way to a chopstick 炖了三个小时，牛腩一夹就散。番茄全化进汤里。" aria-label="打开 番茄牛腩面 — Braised Beef Noodle Soup">
+                <span class="tile-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">番茄牛腩面</span><span class="tile-en">Braised Beef Noodle Soup</span><span class="tile-meta">No. 001 · 2026-08-14 · 1200×1600</span></span>
+              </button>
+              <button class="tile tile-l hit" type="button" data-act="open" data-dish="2" data-hit="on" data-tags="韭菜猪肉饺子 pork &amp; chive dumplings 韭菜 chive 猪肉 pork 饺子皮 wrappers 姜 ginger folded 60 of them ate 40 包了六十个，吃掉了四十个。" aria-label="打开 韭菜猪肉饺子 — Pork &amp; Chive Dumplings">
+                <span class="tile-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">韭菜猪肉饺子</span><span class="tile-en">Pork &amp; Chive Dumplings</span><span class="tile-meta">No. 002 · 2026-08-09 · 1600×1200</span></span>
+              </button>
+              <button class="tile tile-l hit" type="button" data-act="open" data-dish="3" data-hit="on" data-tags="蒜香黄油虾 garlic butter prawns 虾 prawns 蒜 garlic 黄油 butter 欧芹 parsley ready in eleven minutes 十一点就上桌，星期二就该吃这样的晚饭。" aria-label="打开 蒜香黄油虾 — Garlic Butter Prawns">
+                <span class="tile-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">蒜香黄油虾</span><span class="tile-en">Garlic Butter Prawns</span><span class="tile-meta">No. 003 · 2026-07-28 · 1600×1200</span></span>
+              </button>
+              <button class="tile tile-p hit" type="button" data-act="open" data-dish="4" data-hit="on" data-tags="红烧肉 red-braised pork belly 五花肉 pork belly 冰糖 rock sugar 老抽 dark soy 桂皮 cinnamon caramelised to the colour of old violin 炒到小提琴那样的深色。" aria-label="打开 红烧肉 — Red-Braised Pork Belly">
+                <span class="tile-fig"><svg class="dish d4" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">红烧肉</span><span class="tile-en">Red-Braised Pork Belly</span><span class="tile-meta">No. 004 · 2026-07-21 · 1200×1600</span></span>
+              </button>
+              <button class="tile tile-l hit" type="button" data-act="open" data-dish="5" data-hit="on" data-tags="奶油蘑菇汤 cream of mushroom soup 口蘑 button mushroom 淡奶油 cream 百里香 thyme 洋葱 onion blended twice strained once 打了两遍，过了一次筛。" aria-label="打开 奶油蘑菇汤 — Cream of Mushroom Soup">
+                <span class="tile-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">奶油蘑菇汤</span><span class="tile-en">Cream of Mushroom Soup</span><span class="tile-meta">No. 005 · 2026-07-15 · 1600×1200</span></span>
+              </button>
+              <button class="tile tile-p hit" type="button" data-act="open" data-dish="6" data-hit="on" data-tags="抹茶巴斯克 matcha basque cheesecake 抹茶粉 matcha 奶油奶酪 cream cheese 鸡蛋 egg burnt on purpose 故意烤焦的表面。" aria-label="打开 抹茶巴斯克 — Matcha Basque Cheesecake">
+                <span class="tile-fig"><svg class="dish d6" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">抹茶巴斯克</span><span class="tile-en">Matcha Basque Cheesecake</span><span class="tile-meta">No. 006 · 2026-07-06 · 1200×1600</span></span>
+              </button>
+              <button class="tile tile-r hit" type="button" data-act="open" data-dish="7" data-hit="on" data-tags="酸辣土豆丝 hot &amp; sour potato slivers 土豆 potato 干辣椒 dried chilli 陈醋 aged vinegar crunch is the whole point 脆才是重点。" aria-label="打开 酸辣土豆丝 — Hot &amp; Sour Potato Slivers">
+                <span class="tile-fig"><svg class="dish d7" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">酸辣土豆丝</span><span class="tile-en">Hot &amp; Sour Potato Slivers</span><span class="tile-meta">No. 007 · 2026-06-30 · 1400×1400</span></span>
+              </button>
+              <button class="tile tile-p hit" type="button" data-act="open" data-dish="8" data-hit="on" data-tags="三杯鸡 three-cup chicken 鸡腿 chicken thigh 米酒 rice wine 九层塔 basil equal parts soy wine and sesame 酱油、米酒、麻油各一杯。" aria-label="打开 三杯鸡 — Three-Cup Chicken">
+                <span class="tile-fig"><svg class="dish d8" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">三杯鸡</span><span class="tile-en">Three-Cup Chicken</span><span class="tile-meta">No. 008 · 2026-06-22 · 1200×1600</span></span>
+              </button>
+              <button class="tile tile-l hit" type="button" data-act="open" data-dish="9" data-hit="on" data-tags="草莓奶油蛋糕 strawberry cream cake 草莓 strawberry 淡奶油 cream 低筋面粉 cake flour her birthday cake lopsided 她的生日蛋糕。歪的，奶油多了，刚刚好。" aria-label="打开 草莓奶油蛋糕 — Strawberry Cream Cake">
+                <span class="tile-fig"><svg class="dish d9" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">草莓奶油蛋糕</span><span class="tile-en">Strawberry Cream Cake</span><span class="tile-meta">No. 009 · 2026-06-14 · 1600×1200</span></span>
+              </button>
+              <button class="tile tile-r hit" type="button" data-act="open" data-dish="10" data-hit="on" data-tags="清蒸鲈鱼 steamed sea bass 鲈鱼 sea bass 姜 ginger 蒸鱼豉油 seasoned soy eight minutes of steam 蒸八分钟，热油往葱丝上一泼，完事。" aria-label="打开 清蒸鲈鱼 — Steamed Sea Bass">
+                <span class="tile-fig"><svg class="dish d10" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">清蒸鲈鱼</span><span class="tile-en">Steamed Sea Bass</span><span class="tile-meta">No. 010 · 2026-06-05 · 1400×1400</span></span>
+              </button>
+              <button class="tile tile-p hit" type="button" data-act="open" data-dish="11" data-hit="on" data-tags="麻婆豆腐 mapo tofu 嫩豆腐 silken tofu 豆瓣酱 chilli bean paste 花椒 sichuan peppercorn numbing red and completely unphotogenic 麻、红、完全不上相。第三次做，终于对了。" aria-label="打开 麻婆豆腐 — Mapo Tofu">
+                <span class="tile-fig"><svg class="dish d11" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">麻婆豆腐</span><span class="tile-en">Mapo Tofu</span><span class="tile-meta">No. 011 · 2026-05-28 · 1200×1600</span></span>
+              </button>
+              <button class="tile tile-l hit" type="button" data-act="open" data-dish="12" data-hit="on" data-tags="手打柠檬茶 hand-shaken lemon tea 柠檬 lemon 红茶 black tea 薄荷 mint pounded the lemons properly this time 柠檬这次捶对了。摇二十秒，冰镇一下。" aria-label="打开 手打柠檬茶 — Hand-Shaken Lemon Tea">
+                <span class="tile-fig"><svg class="dish d12" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"></use></svg></span>
+                <span class="tile-cap"><span class="tile-cn">手打柠檬茶</span><span class="tile-en">Hand-Shaken Lemon Tea</span><span class="tile-meta">No. 012 · 2026-05-20 · 1600×1200</span></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="view view-timeline">
+            <div class="tl-month"><span class="tl-month-cn">八月</span><span class="tl-month-en">August 2026</span><span class="tl-month-n">2 entries</span></div>
+            <ol class="tl-list">
+              <li class="tl-item hit" data-dish="1" data-hit="on" data-tags="番茄牛腩面 braised beef noodle soup 牛腩 beef brisket 番茄 tomato 手擀面 hand-pulled noodles 八角 star anise 炖了三个小时，牛腩一夹就散。">
+                <span class="tl-date">2026-08-14</span>
+                <span class="tl-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="1" aria-label="打开 番茄牛腩面 — Braised Beef Noodle Soup"><span class="tl-cn">番茄牛腩面</span><span class="tl-en">Braised Beef Noodle Soup</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="2" data-hit="on" data-tags="韭菜猪肉饺子 pork &amp; chive dumplings 韭菜 chive 猪肉 pork 饺子皮 wrappers 姜 ginger 包了六十个，吃掉了四十个。">
+                <span class="tl-date">2026-08-09</span>
+                <span class="tl-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="2" aria-label="打开 韭菜猪肉饺子 — Pork &amp; Chive Dumplings"><span class="tl-cn">韭菜猪肉饺子</span><span class="tl-en">Pork &amp; Chive Dumplings</span></button>
+              </li>
+            </ol>
+            <div class="tl-month"><span class="tl-month-cn">七月</span><span class="tl-month-en">July 2026</span><span class="tl-month-n">4 entries</span></div>
+            <ol class="tl-list">
+              <li class="tl-item hit" data-dish="3" data-hit="on" data-tags="蒜香黄油虾 garlic butter prawns 虾 prawns 蒜 garlic 黄油 butter 欧芹 parsley 十一点就上桌。">
+                <span class="tl-date">2026-07-28</span>
+                <span class="tl-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="3" aria-label="打开 蒜香黄油虾 — Garlic Butter Prawns"><span class="tl-cn">蒜香黄油虾</span><span class="tl-en">Garlic Butter Prawns</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="4" data-hit="on" data-tags="红烧肉 red-braised pork belly 五花肉 pork belly 冰糖 rock sugar 老抽 dark soy 桂皮 cinnamon 炒到小提琴那样的深色。">
+                <span class="tl-date">2026-07-21</span>
+                <span class="tl-fig"><svg class="dish d4" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="4" aria-label="打开 红烧肉 — Red-Braised Pork Belly"><span class="tl-cn">红烧肉</span><span class="tl-en">Red-Braised Pork Belly</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="5" data-hit="on" data-tags="奶油蘑菇汤 cream of mushroom soup 口蘑 button mushroom 淡奶油 cream 百里香 thyme 洋葱 onion 打了两遍，过了一次筛。">
+                <span class="tl-date">2026-07-15</span>
+                <span class="tl-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="5" aria-label="打开 奶油蘑菇汤 — Cream of Mushroom Soup"><span class="tl-cn">奶油蘑菇汤</span><span class="tl-en">Cream of Mushroom Soup</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="6" data-hit="on" data-tags="抹茶巴斯克 matcha basque cheesecake 抹茶粉 matcha 奶油奶酪 cream cheese 鸡蛋 egg 故意烤焦的表面。">
+                <span class="tl-date">2026-07-06</span>
+                <span class="tl-fig"><svg class="dish d6" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="6" aria-label="打开 抹茶巴斯克 — Matcha Basque Cheesecake"><span class="tl-cn">抹茶巴斯克</span><span class="tl-en">Matcha Basque Cheesecake</span></button>
+              </li>
+            </ol>
+            <div class="tl-month"><span class="tl-month-cn">六月</span><span class="tl-month-en">June 2026</span><span class="tl-month-n">4 entries</span></div>
+            <ol class="tl-list">
+              <li class="tl-item hit" data-dish="7" data-hit="on" data-tags="酸辣土豆丝 hot &amp; sour potato slivers 土豆 potato 干辣椒 dried chilli 陈醋 aged vinegar 脆才是重点。">
+                <span class="tl-date">2026-06-30</span>
+                <span class="tl-fig"><svg class="dish d7" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="7" aria-label="打开 酸辣土豆丝 — Hot &amp; Sour Potato Slivers"><span class="tl-cn">酸辣土豆丝</span><span class="tl-en">Hot &amp; Sour Potato Slivers</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="8" data-hit="on" data-tags="三杯鸡 three-cup chicken 鸡腿 chicken thigh 米酒 rice wine 九层塔 basil 阳台上那盆摘的。">
+                <span class="tl-date">2026-06-22</span>
+                <span class="tl-fig"><svg class="dish d8" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="8" aria-label="打开 三杯鸡 — Three-Cup Chicken"><span class="tl-cn">三杯鸡</span><span class="tl-en">Three-Cup Chicken</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="9" data-hit="on" data-tags="草莓奶油蛋糕 strawberry cream cake 草莓 strawberry 淡奶油 cream 低筋面粉 cake flour 她的生日蛋糕。">
+                <span class="tl-date">2026-06-14</span>
+                <span class="tl-fig"><svg class="dish d9" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="9" aria-label="打开 草莓奶油蛋糕 — Strawberry Cream Cake"><span class="tl-cn">草莓奶油蛋糕</span><span class="tl-en">Strawberry Cream Cake</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="10" data-hit="on" data-tags="清蒸鲈鱼 steamed sea bass 鲈鱼 sea bass 姜 ginger 蒸鱼豉油 seasoned soy 蒸八分钟。">
+                <span class="tl-date">2026-06-05</span>
+                <span class="tl-fig"><svg class="dish d10" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="10" aria-label="打开 清蒸鲈鱼 — Steamed Sea Bass"><span class="tl-cn">清蒸鲈鱼</span><span class="tl-en">Steamed Sea Bass</span></button>
+              </li>
+            </ol>
+            <div class="tl-month"><span class="tl-month-cn">五月</span><span class="tl-month-en">May 2026</span><span class="tl-month-n">2 entries</span></div>
+            <ol class="tl-list">
+              <li class="tl-item hit" data-dish="11" data-hit="on" data-tags="麻婆豆腐 mapo tofu 嫩豆腐 silken tofu 豆瓣酱 chilli bean paste 花椒 sichuan peppercorn 麻、红、完全不上相。">
+                <span class="tl-date">2026-05-28</span>
+                <span class="tl-fig"><svg class="dish d11" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="11" aria-label="打开 麻婆豆腐 — Mapo Tofu"><span class="tl-cn">麻婆豆腐</span><span class="tl-en">Mapo Tofu</span></button>
+              </li>
+              <li class="tl-item hit" data-dish="12" data-hit="on" data-tags="手打柠檬茶 hand-shaken lemon tea 柠檬 lemon 红茶 black tea 薄荷 mint 柠檬这次捶对了。">
+                <span class="tl-date">2026-05-20</span>
+                <span class="tl-fig"><svg class="dish d12" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"></use></svg></span>
+                <button class="tl-link" type="button" data-act="open" data-dish="12" aria-label="打开 手打柠檬茶 — Hand-Shaken Lemon Tea"><span class="tl-cn">手打柠檬茶</span><span class="tl-en">Hand-Shaken Lemon Tea</span></button>
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="no-results">
+          <span class="no-results-t">No photos yet</span>
+          <span class="no-results-s">Start documenting your culinary journey!</span>
+        </div>
+      </div>
+
+      <div class="panel panel-feed">
+        <div class="feed">
+          <article class="feed-slide" data-dish="1">
+            <div class="feed-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></div>
+            <p class="feed-idx">1 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">番茄牛腩面</h3>
+              <p class="feed-en">Braised Beef Noodle Soup</p>
+              <p class="feed-meta">2026-08-14 · 牛腩 beef brisket · 番茄 tomato · 手擀面 hand-pulled noodles</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="1" aria-label="View details for 番茄牛腩面">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+            <p class="feed-hint">Swipe up to explore<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg></p>
+          </article>
+          <article class="feed-slide" data-dish="2">
+            <div class="feed-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></div>
+            <p class="feed-idx">2 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">韭菜猪肉饺子</h3>
+              <p class="feed-en">Pork &amp; Chive Dumplings</p>
+              <p class="feed-meta">2026-08-09 · 韭菜 chive · 猪肉 pork · 姜 ginger</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="2" aria-label="View details for 韭菜猪肉饺子">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="3">
+            <div class="feed-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></div>
+            <p class="feed-idx">3 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">蒜香黄油虾</h3>
+              <p class="feed-en">Garlic Butter Prawns</p>
+              <p class="feed-meta">2026-07-28 · 虾 prawns · 蒜 garlic · 黄油 butter · 欧芹 parsley</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="3" aria-label="View details for 蒜香黄油虾">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="4">
+            <div class="feed-fig"><svg class="dish d4" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"></use></svg></div>
+            <p class="feed-idx">4 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">红烧肉</h3>
+              <p class="feed-en">Red-Braised Pork Belly</p>
+              <p class="feed-meta">2026-07-21 · 五花肉 pork belly · 冰糖 rock sugar · 老抽 dark soy · 桂皮 cinnamon</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="4" aria-label="View details for 红烧肉">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="5">
+            <div class="feed-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></div>
+            <p class="feed-idx">5 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">奶油蘑菇汤</h3>
+              <p class="feed-en">Cream of Mushroom Soup</p>
+              <p class="feed-meta">2026-07-15 · 口蘑 button mushroom · 淡奶油 cream · 百里香 thyme · 洋葱 onion</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="5" aria-label="View details for 奶油蘑菇汤">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="6">
+            <div class="feed-fig"><svg class="dish d6" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"></use></svg></div>
+            <p class="feed-idx">6 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">抹茶巴斯克</h3>
+              <p class="feed-en">Matcha Basque Cheesecake</p>
+              <p class="feed-meta">2026-07-06 · 抹茶粉 matcha · 奶油奶酪 cream cheese · 鸡蛋 egg · 淡奶油 cream</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="6" aria-label="View details for 抹茶巴斯克">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="7">
+            <div class="feed-fig"><svg class="dish d7" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"></use></svg></div>
+            <p class="feed-idx">7 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">酸辣土豆丝</h3>
+              <p class="feed-en">Hot &amp; Sour Potato Slivers</p>
+              <p class="feed-meta">2026-06-30 · 土豆 potato · 干辣椒 dried chilli · 陈醋 aged vinegar</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="7" aria-label="View details for 酸辣土豆丝">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="8">
+            <div class="feed-fig"><svg class="dish d8" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"></use></svg></div>
+            <p class="feed-idx">8 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">三杯鸡</h3>
+              <p class="feed-en">Three-Cup Chicken</p>
+              <p class="feed-meta">2026-06-22 · 鸡腿 chicken thigh · 米酒 rice wine · 九层塔 basil</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="8" aria-label="View details for 三杯鸡">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="9">
+            <div class="feed-fig"><svg class="dish d9" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"></use></svg></div>
+            <p class="feed-idx">9 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">草莓奶油蛋糕</h3>
+              <p class="feed-en">Strawberry Cream Cake</p>
+              <p class="feed-meta">2026-06-14 · 草莓 strawberry · 淡奶油 cream · 低筋面粉 cake flour</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="9" aria-label="View details for 草莓奶油蛋糕">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="10">
+            <div class="feed-fig"><svg class="dish d10" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"></use></svg></div>
+            <p class="feed-idx">10 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">清蒸鲈鱼</h3>
+              <p class="feed-en">Steamed Sea Bass</p>
+              <p class="feed-meta">2026-06-05 · 鲈鱼 sea bass · 姜 ginger · 蒸鱼豉油 seasoned soy</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="10" aria-label="View details for 清蒸鲈鱼">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="11">
+            <div class="feed-fig"><svg class="dish d11" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"></use></svg></div>
+            <p class="feed-idx">11 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">麻婆豆腐</h3>
+              <p class="feed-en">Mapo Tofu</p>
+              <p class="feed-meta">2026-05-28 · 嫩豆腐 silken tofu · 豆瓣酱 chilli bean paste · 花椒 Sichuan peppercorn</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="11" aria-label="View details for 麻婆豆腐">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+          <article class="feed-slide" data-dish="12">
+            <div class="feed-fig"><svg class="dish d12" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"></use></svg></div>
+            <p class="feed-idx">12 / 12</p>
+            <div class="feed-cap">
+              <h3 class="feed-cn">手打柠檬茶</h3>
+              <p class="feed-en">Hand-Shaken Lemon Tea</p>
+              <p class="feed-meta">2026-05-20 · 柠檬 lemon · 红茶 black tea · 薄荷 mint</p>
+              <a class="feed-details" href="#" data-act="open" data-dish="12" aria-label="View details for 手打柠檬茶">Details<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="panel panel-stats">
+        <div class="panel-inner">
+          <div class="doc-head">
+            <h1 class="doc-h1">Analytics</h1>
+            <p class="doc-sub">A quick look at how the gallery is growing</p>
+            <button class="link-plain" type="button" data-act="tab" data-tab="browse">Back to Gallery</button>
+          </div>
+          <div class="stat-cards">
+            <div class="stat"><span class="stat-k">Total photos</span><span class="stat-v">214</span><span class="stat-n">+30 this month</span><span class="stat-n">Updated 12m ago</span></div>
+            <div class="stat"><span class="stat-k">Last 30 days</span><span class="stat-v">30</span><span class="stat-n">30 uploads</span></div>
+          </div>
+          <div class="block">
+            <div class="block-head"><span class="block-k">Photos per month</span><span class="block-n">Last 8 months</span></div>
+            <div class="bars">
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:37%"></span></span><span class="bar-x">一月</span><span class="bar-n">14</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:50%"></span></span><span class="bar-x">二月</span><span class="bar-n">19</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:61%"></span></span><span class="bar-x">三月</span><span class="bar-n">23</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:47%"></span></span><span class="bar-x">四月</span><span class="bar-n">18</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:71%"></span></span><span class="bar-x">五月</span><span class="bar-n">27</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:82%"></span></span><span class="bar-x">六月</span><span class="bar-n">31</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:100%"></span></span><span class="bar-x">七月</span><span class="bar-n">38</span></div>
+              <div class="bar"><span class="bar-track"><span class="bar-v" style="--h:79%"></span></span><span class="bar-x">八月</span><span class="bar-n">30</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <span class="block-k">Top ingredients / Top dishes</span>
+              <span class="toggle" role="group" aria-label="Ranking">
+                <button type="button" data-act="rank" data-rank="ingredients">Ingredients</button>
+                <button type="button" data-act="rank" data-rank="dishes">Dishes</button>
+              </span>
+            </div>
+            <div class="rank-list">
+              <ol class="ranks ranks-ingredients">
+                <li class="rank"><span class="rank-i">01</span><span><span class="rank-n">蒜 garlic</span><span class="rank-bar" style="--w:100%"></span></span><span class="rank-v">38</span></li>
+                <li class="rank"><span class="rank-i">02</span><span><span class="rank-n">番茄 tomato</span><span class="rank-bar" style="--w:82%"></span></span><span class="rank-v">31</span></li>
+                <li class="rank"><span class="rank-i">03</span><span><span class="rank-n">酱油 soy sauce</span><span class="rank-bar" style="--w:76%"></span></span><span class="rank-v">29</span></li>
+                <li class="rank"><span class="rank-i">04</span><span><span class="rank-n">姜 ginger</span><span class="rank-bar" style="--w:71%"></span></span><span class="rank-v">27</span></li>
+                <li class="rank"><span class="rank-i">05</span><span><span class="rank-n">葱 scallion</span><span class="rank-bar" style="--w:63%"></span></span><span class="rank-v">24</span></li>
+              </ol>
+              <ol class="ranks ranks-dishes">
+                <li class="rank"><span class="rank-i">01</span><span><span class="rank-n">番茄牛腩面</span><span class="rank-bar" style="--w:100%"></span></span><span class="rank-v">9</span></li>
+                <li class="rank"><span class="rank-i">02</span><span><span class="rank-n">麻婆豆腐</span><span class="rank-bar" style="--w:78%"></span></span><span class="rank-v">7</span></li>
+                <li class="rank"><span class="rank-i">03</span><span><span class="rank-n">红烧肉</span><span class="rank-bar" style="--w:67%"></span></span><span class="rank-v">6</span></li>
+                <li class="rank"><span class="rank-i">04</span><span><span class="rank-n">韭菜猪肉饺子</span><span class="rank-bar" style="--w:56%"></span></span><span class="rank-v">5</span></li>
+                <li class="rank"><span class="rank-i">05</span><span><span class="rank-n">三杯鸡</span><span class="rank-bar" style="--w:44%"></span></span><span class="rank-v">4</span></li>
+              </ol>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-head"><span class="block-k">14-day trend</span><span class="block-n">Last 14 days</span></div>
+            <div class="trend">
+              <svg viewBox="0 0 280 64" role="img" aria-label="Uploads over the last 14 days: 3, 5, 2, 4, 6, 1, 0, 3, 5, 4, 7, 3, 2, 4">
+                <line x1="0" y1="56" x2="280" y2="56" style="stroke:var(--rule);stroke-width:1"></line>
+                <polyline points="6,35 26,21 46,42 66,28 86,14 106,49 126,56 146,35 166,21 186,28 206,7 226,35 246,42 266,28" style="fill:none;stroke:var(--paprika);stroke-width:1.6;stroke-linejoin:round"></polyline>
+                <circle cx="266" cy="28" r="3" style="fill:var(--paprika)"></circle>
+                <circle cx="206" cy="7" r="2.4" style="fill:var(--ink-2)"></circle>
+              </svg>
+              <div class="trend-x"><span>2026-09-07</span><span>2026-09-20</span></div>
+            </div>
+          </div>
+          <p class="empty-note">Empty state · Top ingredients — No ingredient tags yet — start uploading! · Top dishes — No dish names yet — start uploading!</p>
+          <div class="error-note"><span>Unable to load analytics right now.</span><button class="btn btn-secondary" type="button" data-act="noop">Retry</button></div>
+        </div>
+      </div>
+
+      <div class="panel panel-upload">
+        <div class="panel-inner">
+          <header class="admin-head">
+            <p class="eyebrow">Admin</p>
+            <h1 class="admin-h1">Upload Photo</h1>
+            <p class="admin-sub">Share your culinary creations</p>
+            <p><button class="link-plain" type="button" data-act="tab" data-tab="browse">View Gallery</button></p>
+          </header>
+
+          <div class="zone" data-act="upload-zone">
+            <svg class="zi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>
+            <span class="zone-title zone-title-idle">Upload a photo</span>
+            <span class="zone-title zone-title-drop">Drop your photo here</span>
+            <span class="zone-help">Supports JPEG, PNG, WebP, HEIC • Images will be compressed automatically</span>
+            <span class="zone-actions">
+              <button class="btn btn-secondary" type="button" data-act="simulate-upload">Take Photo</button>
+              <button class="btn btn-ghost" type="button" data-act="simulate-upload">Choose from Gallery</button>
+            </span>
+            <span class="zone-hint zone-hint-idle">or drag and drop an image here</span>
+          </div>
+
+          <div class="up-block up-progress">
+            <div class="file-row"><span class="file-name">IMG_4830.HEIC</span><span class="up-stage">3.4 MB · 1600×1200</span></div>
+            <div class="pbar pbar-busy"><span></span></div>
+            <p class="up-stage">Compressing 1920×1920 · quality 0.8</p>
+            <p class="up-stage">AI 正在识别菜名…</p>
+          </div>
+
+          <div class="up-block up-ai">
+            <div class="file-row">
+              <span class="file-name">IMG_4830.HEIC · 番茄牛腩面</span>
+              <span class="up-stage">EXIF date · 2026-08-14</span>
+            </div>
+            <p class="up-stage">Edit the name, then tap the refresh button to regenerate descriptions</p>
+            <div class="form-grid">
+              <label class="field-label">菜名 / Dish Name
+                <input class="input" type="text" value="番茄牛腩面">
+              </label>
+              <label class="field-label">烹饪日期 / Cooked Date
+                <input class="input" type="date" value="2026-08-14">
+              </label>
+              <div class="field span2">
+                <span class="field-label">主要食材 / Main Ingredients</span>
+                <ul class="chips">
+                  <li class="chip chip-rm">牛腩 beef brisket<button class="chip-x" type="button" aria-label="Remove 牛腩 beef brisket"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></li>
+                  <li class="chip chip-rm">番茄 tomato<button class="chip-x" type="button" aria-label="Remove 番茄 tomato"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></li>
+                  <li class="chip chip-rm">手擀面 hand-pulled noodles<button class="chip-x" type="button" aria-label="Remove 手擀面 hand-pulled noodles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></li>
+                  <li class="chip chip-rm">八角 star anise<button class="chip-x" type="button" aria-label="Remove 八角 star anise"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></li>
+                  <li><button class="chip chip-add" type="button">添加食材</button></li>
+                </ul>
+                <input class="input" type="text" placeholder="输入食材…" aria-label="输入食材…">
+              </div>
+              <label class="field-label span2">中文描述
+                <textarea class="input" placeholder="AI 正在生成中文描述…">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</textarea>
+              </label>
+              <label class="field-label span2">English Description
+                <textarea class="input" placeholder="AI is generating an English description…">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</textarea>
+              </label>
+            </div>
+            <div class="comp-row">
+              <button class="btn btn-ghost" type="button" data-act="regenerate">Regenerate All</button>
+              <button class="btn btn-secondary" type="button" data-act="upload-cancel">Cancel</button>
+              <button class="btn" type="button" data-act="save-photo"><span class="only-idle">Upload</span><span class="only-busy">Uploading…</span></button>
+              <span class="up-stage">Save to gallery</span>
+            </div>
+          </div>
+
+          <section class="recent">
+            <div class="block-head"><span class="block-k">Recently Uploaded</span><span class="block-n">3 in this issue</span></div>
+            <ul class="recent-list">
+              <li class="rec-row">
+                <span class="rec-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></span>
+                <span><span class="rec-name">番茄牛腩面</span><span class="rec-meta">IMG_4830.HEIC · 2026-08-14 · 3.4 MB</span></span>
+                <button class="rec-del" type="button" data-act="dialog-open" aria-label="Delete photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V5h6v2"></path><path d="M6 7l1 13h10l1-13"></path></svg></button>
+              </li>
+              <li class="rec-row">
+                <span class="rec-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></span>
+                <span><span class="rec-name">韭菜猪肉饺子</span><span class="rec-meta">IMG_4821.HEIC · 2026-08-09 · 2.7 MB</span></span>
+                <button class="rec-del" type="button" data-act="dialog-open" aria-label="Delete photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V5h6v2"></path><path d="M6 7l1 13h10l1-13"></path></svg></button>
+              </li>
+              <li class="rec-row">
+                <span class="rec-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></span>
+                <span><span class="rec-name">蒜香黄油虾</span><span class="rec-meta">IMG_4808.HEIC · 2026-07-28 · 1.9 MB</span></span>
+                <button class="rec-del" type="button" data-act="dialog-open" aria-label="Delete photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M9 7V5h6v2"></path><path d="M6 7l1 13h10l1-13"></path></svg></button>
+              </li>
+            </ul>
+          </section>
+
+          <section class="backfill">
+            <p class="bf-h">Backfill Missing Data</p>
+            <p class="bf-line">12 photos missing dish name or descriptions</p>
+            <p class="bf-line">7 photos missing ingredient tags</p>
+            <p class="bf-line">out of 214 total</p>
+            <button class="btn btn-secondary" type="button" data-act="backfill">
+              <span class="only-idle">Generate Missing Data with AI</span>
+              <span class="only-busy only-generating">Generating with AI…</span>
+            </button>
+            <p class="bf-status">This may take a while. Please don’t close this page.</p>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <nav class="app-tabbar" aria-label="Primary">
+    <button type="button" data-act="tab" data-tab="feed">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"></rect><path d="M3 9h18"></path></svg>
+      <span class="tb-en">Feed</span><span class="tb-cn">时光</span>
+    </button>
+    <button type="button" data-act="tab" data-tab="browse">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="5.2"></circle><path d="M13 13l6 6"></path></svg>
+      <span class="tb-en">Browse</span><span class="tb-cn">浏览</span>
+    </button>
+    <button type="button" data-act="tab" data-tab="stats">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"></path></svg>
+      <span class="tb-en">Stats</span><span class="tb-cn">统计</span>
+    </button>
+    <button type="button" data-act="tab" data-tab="upload">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>
+      <span class="tb-en">Upload</span><span class="tb-cn">上传</span>
+    </button>
+  </nav>
+
+  <button class="s2t-app" type="button" data-act="scrolltop" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+  </button>
+
+  <div class="sheet" data-sheet-panel>
+    <div class="sheet-backdrop" data-act="close" aria-hidden="true"></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Photo detail">
+      <button class="sheet-close" type="button" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+
+      <article class="sheet-item" data-dish="1">
+        <figure class="sheet-fig"><svg class="dish d1" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-1"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 001 · 1200×1600 · IMG_4830.HEIC</p>
+          <h3 class="sheet-cn">番茄牛腩面</h3>
+          <p class="sheet-en">Braised Beef Noodle Soup</p>
+          <p class="sheet-date">August 14, 2026</p>
+          <ul class="chips"><li class="chip">牛腩 beef brisket</li><li class="chip">番茄 tomato</li><li class="chip">手擀面 hand-pulled noodles</li><li class="chip">八角 star anise</li></ul>
+          <p class="sheet-cn-desc">炖了三个小时，牛腩一夹就散。番茄全化进汤里，尝起来像某个周日的午后。</p>
+          <p class="sheet-en-desc">Simmered three hours until the brisket gave way to a chopstick. The tomatoes broke down into a broth that tasted like a Sunday afternoon.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="2">
+        <figure class="sheet-fig"><svg class="dish d2" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-2"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 002 · 1600×1200 · IMG_4821.HEIC</p>
+          <h3 class="sheet-cn">韭菜猪肉饺子</h3>
+          <p class="sheet-en">Pork &amp; Chive Dumplings</p>
+          <p class="sheet-date">August 9, 2026</p>
+          <ul class="chips"><li class="chip">韭菜 chive</li><li class="chip">猪肉 pork</li><li class="chip">饺子皮 wrappers</li><li class="chip">姜 ginger</li></ul>
+          <p class="sheet-cn-desc">包了六十个，吃掉了四十个。到第三十个的时候，褶子终于好看了。</p>
+          <p class="sheet-en-desc">Folded 60 of them, ate 40. The pleats got better around number thirty.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="3">
+        <figure class="sheet-fig"><svg class="dish d3" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-3"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 003 · 1600×1200 · IMG_4812.HEIC</p>
+          <h3 class="sheet-cn">蒜香黄油虾</h3>
+          <p class="sheet-en">Garlic Butter Prawns</p>
+          <p class="sheet-date">July 28, 2026</p>
+          <ul class="chips"><li class="chip">虾 prawns</li><li class="chip">蒜 garlic</li><li class="chip">黄油 butter</li><li class="chip">欧芹 parsley</li></ul>
+          <p class="sheet-cn-desc">十一点就上桌，星期二就该吃这样的晚饭。</p>
+          <p class="sheet-en-desc">Ready in eleven minutes, which is exactly the kind of dinner a Tuesday deserves.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="4">
+        <figure class="sheet-fig"><svg class="dish d4" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-4"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 004 · 1200×1600 · IMG_4806.HEIC</p>
+          <h3 class="sheet-cn">红烧肉</h3>
+          <p class="sheet-en">Red-Braised Pork Belly</p>
+          <p class="sheet-date">July 21, 2026</p>
+          <ul class="chips"><li class="chip">五花肉 pork belly</li><li class="chip">冰糖 rock sugar</li><li class="chip">老抽 dark soy</li><li class="chip">桂皮 cinnamon</li></ul>
+          <p class="sheet-cn-desc">炒到小提琴那样的深色。甜、黏、毫不收敛。</p>
+          <p class="sheet-en-desc">Caramelised to the colour of old violin. Sweet, sticky, unapologetic.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="5">
+        <figure class="sheet-fig"><svg class="dish d5" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-5"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 005 · 1600×1200 · IMG_4794.HEIC</p>
+          <h3 class="sheet-cn">奶油蘑菇汤</h3>
+          <p class="sheet-en">Cream of Mushroom Soup</p>
+          <p class="sheet-date">July 15, 2026</p>
+          <ul class="chips"><li class="chip">口蘑 button mushroom</li><li class="chip">淡奶油 cream</li><li class="chip">百里香 thyme</li><li class="chip">洋葱 onion</li></ul>
+          <p class="sheet-cn-desc">打了两遍，过了一次筛，洗那些碗也值了。</p>
+          <p class="sheet-en-desc">Blended twice, strained once, and worth every dish in the sink.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="6">
+        <figure class="sheet-fig"><svg class="dish d6" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-6"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 006 · 1200×1600 · IMG_4780.HEIC</p>
+          <h3 class="sheet-cn">抹茶巴斯克</h3>
+          <p class="sheet-en">Matcha Basque Cheesecake</p>
+          <p class="sheet-date">July 6, 2026</p>
+          <ul class="chips"><li class="chip">抹茶粉 matcha</li><li class="chip">奶油奶酪 cream cheese</li><li class="chip">鸡蛋 egg</li><li class="chip">淡奶油 cream</li></ul>
+          <p class="sheet-cn-desc">故意烤焦的表面。切下去的时候，中间还会抖。</p>
+          <p class="sheet-en-desc">Burnt on purpose. The middle still trembles when you cut it.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="7">
+        <figure class="sheet-fig"><svg class="dish d7" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-7"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 007 · 1400×1400 · IMG_4771.HEIC</p>
+          <h3 class="sheet-cn">酸辣土豆丝</h3>
+          <p class="sheet-en">Hot &amp; Sour Potato Slivers</p>
+          <p class="sheet-date">June 30, 2026</p>
+          <ul class="chips"><li class="chip">土豆 potato</li><li class="chip">干辣椒 dried chilli</li><li class="chip">陈醋 aged vinegar</li></ul>
+          <p class="sheet-cn-desc">脆才是重点。锅里九十秒，多一秒都不行。</p>
+          <p class="sheet-en-desc">Crunch is the whole point. Ninety seconds in the wok, no more.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="8">
+        <figure class="sheet-fig"><svg class="dish d8" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-8"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 008 · 1200×1600 · IMG_4762.HEIC</p>
+          <h3 class="sheet-cn">三杯鸡</h3>
+          <p class="sheet-en">Three-Cup Chicken</p>
+          <p class="sheet-date">June 22, 2026</p>
+          <ul class="chips"><li class="chip">鸡腿 chicken thigh</li><li class="chip">米酒 rice wine</li><li class="chip">九层塔 basil</li></ul>
+          <p class="sheet-cn-desc">酱油、米酒、麻油各一杯。九层塔是阳台上那盆摘的。</p>
+          <p class="sheet-en-desc">Equal parts soy, wine and sesame. Nine-layer basil from the balcony pot.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="9">
+        <figure class="sheet-fig"><svg class="dish d9" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-9"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 009 · 1600×1200 · IMG_4755.HEIC</p>
+          <h3 class="sheet-cn">草莓奶油蛋糕</h3>
+          <p class="sheet-en">Strawberry Cream Cake</p>
+          <p class="sheet-date">June 14, 2026</p>
+          <ul class="chips"><li class="chip">草莓 strawberry</li><li class="chip">淡奶油 cream</li><li class="chip">低筋面粉 cake flour</li></ul>
+          <p class="sheet-cn-desc">她的生日蛋糕。歪的，奶油多了，刚刚好。</p>
+          <p class="sheet-en-desc">Her birthday cake. Lopsided, over-filled, exactly right.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="10">
+        <figure class="sheet-fig"><svg class="dish d10" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-10"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 010 · 1400×1400 · IMG_4741.HEIC</p>
+          <h3 class="sheet-cn">清蒸鲈鱼</h3>
+          <p class="sheet-en">Steamed Sea Bass</p>
+          <p class="sheet-date">June 5, 2026</p>
+          <ul class="chips"><li class="chip">鲈鱼 sea bass</li><li class="chip">姜 ginger</li><li class="chip">蒸鱼豉油 seasoned soy</li></ul>
+          <p class="sheet-cn-desc">蒸八分钟，热油往葱丝上一泼，完事。</p>
+          <p class="sheet-en-desc">Eight minutes of steam, one ladle of hot oil over the scallions.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="11">
+        <figure class="sheet-fig"><svg class="dish d11" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-11"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 011 · 1200×1600 · IMG_4734.HEIC</p>
+          <h3 class="sheet-cn">麻婆豆腐</h3>
+          <p class="sheet-en">Mapo Tofu</p>
+          <p class="sheet-date">May 28, 2026</p>
+          <ul class="chips"><li class="chip">嫩豆腐 silken tofu</li><li class="chip">豆瓣酱 chilli bean paste</li><li class="chip">花椒 Sichuan peppercorn</li></ul>
+          <p class="sheet-cn-desc">麻、红、完全不上相。第三次做，终于对了。</p>
+          <p class="sheet-en-desc">Numbing, red, and completely unphotogenic. Third attempt, finally right.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <article class="sheet-item" data-dish="12">
+        <figure class="sheet-fig"><svg class="dish d12" viewBox="0 0 120 120" aria-hidden="true"><use href="#dish-12"></use></svg></figure>
+        <div class="sheet-text">
+          <p class="sheet-no">No. 012 · 1600×1200 · IMG_4727.HEIC</p>
+          <h3 class="sheet-cn">手打柠檬茶</h3>
+          <p class="sheet-en">Hand-Shaken Lemon Tea</p>
+          <p class="sheet-date">May 20, 2026</p>
+          <ul class="chips"><li class="chip">柠檬 lemon</li><li class="chip">红茶 black tea</li><li class="chip">薄荷 mint</li></ul>
+          <p class="sheet-cn-desc">柠檬这次捶对了。摇二十秒，冰镇一下。</p>
+          <p class="sheet-en-desc">Pounded the lemons properly this time. Twenty seconds of shaking, ice shock.</p>
+          <p class="sheet-sign">With love ♡</p>
+          <div class="sheet-foot">
+            <button class="sheet-nav" type="button" data-act="prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Previous photo</button>
+            <button class="sheet-nav" type="button" data-act="next">Next photo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </div>
+      </article>
+      <p class="sheet-hint">Swipe to navigate<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></p>
+    </div>
+  </div>
+
+  <div class="dialog">
+    <div class="sheet-backdrop" data-act="dialog-close" aria-hidden="true"></div>
+    <div class="dialog-panel" role="dialog" aria-modal="true" aria-label="Delete Photo">
+      <h3 class="dialog-h">Delete Photo</h3>
+      <p class="dialog-p">Are you sure you want to delete this photo? This action cannot be undone.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" type="button" data-act="dialog-close">Cancel</button>
+        <button class="btn btn-danger" type="button" data-act="dialog-confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var KEY = 'lotp-kitchen-journal-theme';
+  var tpl = document.getElementById('app-template');
+  var stage = document.querySelector('.stage');
+  var BASE = ['tab','view','sheet','search','drag','upload','rank','field','dialog','offline'];
+  var DEFAULTS = { tab:'browse', view:'plates', sheet:'0', search:'idle', drag:'idle', upload:'none',
+                   rank:'ingredients', field:'all', dialog:'closed', offline:'off', scrolled:'off' };
+  var PLACEHOLDER = {
+    all: 'Search dishes, tags, dates...',
+    title: 'Search by dish name...',
+    date: 'Select a date preset...',
+    tags: 'Search or pick an ingredient...'
+  };
+  var mqDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var prefersDark = mqDark ? mqDark.matches === true : false;
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) { saved = null; }
+  // ?theme=light|dark forces one theme without persisting it — used by mockups/index.html so
+  // all three directions can be compared in the same theme.
+  var forced = (location.search.match(/[?&]theme=(light|dark)/) || [])[1];
+  root.dataset.theme = forced || saved || (prefersDark ? 'dark' : 'light');
+
+  var frames = [];
+  var lastFrame = null;
+  var workTimers = new WeakMap();
+  var toastTimers = new WeakMap();
+
+  function reduced() {
+    var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    return mq ? mq.matches === true : false;
+  }
+  function later(f, fn, ms) {
+    clearTimeout(workTimers.get(f));
+    workTimers.set(f, setTimeout(fn, ms));
+  }
+  function toast(f, msg) {
+    f.dataset.toast = msg;
+    clearTimeout(toastTimers.get(f));
+    toastTimers.set(f, setTimeout(function () { f.dataset.toast = ''; }, 2600));
+  }
+  function updateToggle(f) {
+    var t = f.querySelector('.search-toggle');
+    if (t) t.setAttribute('aria-expanded', f.dataset.search === 'open' ? 'true' : 'false');
+  }
+  function syncSearch(f) {
+    var raw = (f.__q || '').trim();
+    var q = raw.toLowerCase();
+    var view = f.querySelector('.view-' + (f.dataset.view || 'plates'));
+    var ids = {};
+    var rows = 0;
+    Array.prototype.forEach.call(f.querySelectorAll('[data-tags]'), function (el) {
+      var on = true;
+      if (q.length > 0) on = el.dataset.tags.toLowerCase().indexOf(q) !== -1;
+      el.dataset.hit = on ? 'on' : 'off';
+      if (on && el.dataset.dish && view && view.contains(el)) ids[el.dataset.dish] = 1;
+    });
+    Array.prototype.forEach.call(f.querySelectorAll('.result-row'), function (row) {
+      if (row.dataset.hit === 'on' && row.dataset.kind !== 'dish') rows++;
+    });
+    var n = Object.keys(ids).length + rows;
+    var count = f.querySelector('.search-count');
+    if (count) count.dataset.results = q ? (n + (n === 1 ? ' result for ' : ' results for ') + raw) : '';
+    f.dataset.results = q ? String(n) : '';
+  }
+  function setPlaceholder(f, field) {
+    var input = f.querySelector('.search-input');
+    var text = PLACEHOLDER[field] || PLACEHOLDER.all;
+    if (input) { input.placeholder = text; input.setAttribute('aria-label', text); }
+  }
+  function focusSheet(f) {
+    setTimeout(function () {
+      var btn = f.querySelector('.sheet-close');
+      if (btn) btn.focus();
+    }, 0);
+  }
+  function closeSheet(f) {
+    f.dataset.sheet = '0';
+    if (f.__opener && document.contains(f.__opener)) f.__opener.focus();
+  }
+  function stepSheet(f, step) {
+    var n = parseInt(f.dataset.sheet, 10) || 1;
+    n = Math.min(12, Math.max(1, n + step));
+    f.dataset.sheet = String(n);
+  }
+  function buildFrame(host, name) {
+    var f = document.createElement('div');
+    f.className = 'frame';
+    f.dataset.frame = name;
+    BASE.forEach(function (k) {
+      if (host.dataset[k] !== undefined && host.dataset[k] !== '') f.dataset[k] = host.dataset[k];
+      var key = name + k.charAt(0).toUpperCase() + k.slice(1);
+      if (host.dataset[key] !== undefined) f.dataset[k] = host.dataset[key];
+    });
+    Object.keys(DEFAULTS).forEach(function (k) {
+      if (!f.dataset[k]) f.dataset[k] = DEFAULTS[k];
+    });
+    f.appendChild(tpl.content.cloneNode(true));
+    host.appendChild(f);
+    frames.push(f);
+
+    var q = host.dataset.q || '';
+    f.__q = q;
+    f.__init = { q: q };
+    BASE.forEach(function (k) { if (f.dataset[k] !== undefined) f.__init[k] = f.dataset[k]; });
+    var input = f.querySelector('.search-input');
+    if (input) {
+      input.value = q;
+      input.placeholder = PLACEHOLDER[f.dataset.field] || PLACEHOLDER.all;
+      input.setAttribute('aria-label', input.placeholder);
+    }
+    updateToggle(f);
+    syncSearch(f);
+    return f;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.frames'), function (host) {
+    var names = host.dataset.width === 'both' ? ['a', 'b'] : ['a'];
+    names.forEach(function (n) { buildFrame(host, n); });
+  });
+
+  function setWidth(w) {
+    stage.dataset.w = w;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-act="width"]'), function (btn) {
+      btn.setAttribute('aria-pressed', btn.dataset.width === w ? 'true' : 'false');
+    });
+  }
+  function toggleTheme() {
+    var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+  }
+  function resetAll() {
+    frames.forEach(function (f) {
+      Object.keys(f.__init).forEach(function (k) {
+        if (k === 'q') return;
+        f.dataset[k] = f.__init[k];
+      });
+      f.__q = f.__init.q || '';
+      f.dataset.toast = '';
+      f.dataset.scrolled = 'off';
+      var input = f.querySelector('.search-input');
+      if (input) input.value = f.__q;
+      updateToggle(f);
+      setPlaceholder(f, f.dataset.field);
+      syncSearch(f);
+    });
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    root.dataset.theme = prefersDark ? 'dark' : 'light';
+    setWidth('compare');
+  }
+
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest('[data-act]');
+    if (!el) return;
+    var act = el.dataset.act;
+    if (el.tagName === 'A') ev.preventDefault();
+    if (act === 'width') { setWidth(el.dataset.width); return; }
+    if (act === 'theme') { toggleTheme(); return; }
+    if (act === 'reset') { resetAll(); return; }
+    if (act === 'noop') return;
+    var f = el.closest('.frame');
+    if (!f) return;
+    if (act === 'open') {
+      lastFrame = f;
+      f.__opener = el;
+      f.dataset.sheet = String(el.dataset.dish || '1');
+      focusSheet(f);
+    } else if (act === 'close') {
+      closeSheet(f);
+    } else if (act === 'prev') {
+      stepSheet(f, -1);
+    } else if (act === 'next') {
+      stepSheet(f, 1);
+    } else if (act === 'view') {
+      f.dataset.view = el.dataset.view;
+      syncSearch(f);
+    } else if (act === 'tab') {
+      f.dataset.tab = el.dataset.tab;
+      var m = f.querySelector('.app-main');
+      if (m) m.scrollTop = 0;
+    } else if (act === 'search-toggle') {
+      f.dataset.search = f.dataset.search === 'open' ? 'idle' : 'open';
+      updateToggle(f);
+    } else if (act === 'field') {
+      f.dataset.field = el.dataset.field;
+      setPlaceholder(f, el.dataset.field);
+    } else if (act === 'rank') {
+      f.dataset.rank = el.dataset.rank;
+    } else if (act === 'upload-zone') {
+      f.dataset.drag = f.dataset.drag === 'dragging' ? 'idle' : 'dragging';
+    } else if (act === 'simulate-upload') {
+      f.dataset.drag = 'idle';
+      f.dataset.upload = 'uploading';
+      later(f, function () { f.dataset.upload = 'ai-done'; }, 1500);
+    } else if (act === 'save-photo') {
+      f.dataset.upload = 'finalising';
+      later(f, function () {
+        f.dataset.upload = 'none';
+        toast(f, 'Photo uploaded with love!');
+      }, 1500);
+    } else if (act === 'upload-cancel') {
+      f.dataset.upload = 'none';
+    } else if (act === 'regenerate') {
+      toast(f, 'Descriptions regenerated!');
+    } else if (act === 'backfill') {
+      f.dataset.upload = 'finalising';
+      later(f, function () { f.dataset.upload = 'ai-done'; }, 1800);
+    } else if (act === 'dialog-open') {
+      lastFrame = f;
+      f.dataset.dialog = 'open';
+    } else if (act === 'dialog-close') {
+      f.dataset.dialog = 'closed';
+    } else if (act === 'dialog-confirm') {
+      f.dataset.dialog = 'closed';
+      toast(f, 'Photo deleted');
+    } else if (act === 'scrolltop') {
+      var main = f.querySelector('.app-main');
+      if (main) main.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+    }
+  });
+
+  document.addEventListener('input', function (ev) {
+    var input = ev.target.closest ? ev.target.closest('.search-input') : null;
+    if (!input) return;
+    var f = input.closest('.frame');
+    if (!f) return;
+    f.__q = input.value;
+    var empty = input.value.trim() === '';
+    if (!empty && f.dataset.search !== 'open') { f.dataset.search = 'open'; updateToggle(f); }
+    if (empty && !f.dataset.q) { f.dataset.search = 'idle'; updateToggle(f); }
+    syncSearch(f);
+  });
+
+  document.addEventListener('scroll', function (ev) {
+    var m = ev.target;
+    if (!m || !m.classList || m.classList.contains('app-main') === false) return;
+    var f = m.closest ? m.closest('.frame') : null;
+    if (!f) return;
+    f.dataset.scrolled = m.scrollTop > 240 ? 'on' : 'off';
+  }, true);
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Escape') return;
+    var f = ev.target.closest ? ev.target.closest('.frame') : null;
+    if (!f) f = lastFrame;
+    if (!f) return;
+    if (f.dataset.dialog === 'open') { f.dataset.dialog = 'closed'; return; }
+    if (f.dataset.sheet !== '0') closeSheet(f);
+  });
+
+  setWidth('compare');
+})();
+</script>
+
+<footer class="style-footer">
+  <section>
+    <h2 class="foot-k">Existing tokens replaced</h2>
+    <ul class="foot">
+      <li>Fraunces → Playfair Display 900 for display</li>
+      <li>Plus Jakarta Sans → Source Serif 4 as the body face</li>
+      <li>Caveat handwriting dropped entirely</li>
+      <li><code>--canvas / --canvas-elevated / --canvas-recessed</code> → <code>--paper / --paper-2</code></li>
+      <li><code>--ink / --ink-secondary / --ink-tertiary</code> → <code>--ink / --ink-2</code></li>
+      <li><code>--love #D94B38 / --warmth / --freshness</code> → <code>--paprika / --butter / --sage</code></li>
+      <li>Dark “Candlelit Dinner” <code>#0F0C0A / #FF7B68</code> → night edition <code>#141110 / #E8705A</code></li>
+    </ul>
+  </section>
+  <section>
+    <h2 class="foot-k">Existing shapes replaced</h2>
+    <ul class="foot">
+      <li><code>rounded-xl</code> cards and <code>rounded-full</code> pills → 2 px radius, hairline rules</li>
+      <li><code>shadow-md / shadow-lg</code> → no shadow anywhere; paper tone does the separating</li>
+      <li>Glass sticky header → opaque paper bar with a 1 px rule</li>
+      <li>Red pill CTA → mono-caps underlined <code>Upload</code> text link</li>
+      <li><code>animate-heartbeat / float / shimmer / scale-in</code> → 200–280 ms fades, 8 px reveals</li>
+      <li>Card overlay gradients → flat paper captions</li>
+    </ul>
+  </section>
+  <section>
+    <h2 class="foot-k">Kept from the real app</h2>
+    <ul class="foot">
+      <li>Four tabs Feed · Browse · Stats · Upload, and both the phone bar and the desktop rail</li>
+      <li>Plates, Grid, Timeline plus the immersive feed, with the same switcher</li>
+      <li>Search field filters All · Title · Date · Tags and the date presets</li>
+      <li>All five analytics blocks, including the empty and error states</li>
+      <li>Upload → compress → AI review → save flow, with the backfill card</li>
+      <li>Delete confirmation, toasts, and the <code>With love ♡</code> signature</li>
+      <li>Both themes, the magic-link login, and the <code>214 plates</code> count</li>
+    </ul>
+  </section>
+  <section>
+    <h2 class="foot-k">How to read this file</h2>
+    <p class="foot-note">Every screen block below the toolbar is the same app, cloned from one template and initialised through <code>data-*</code> attributes only. Layout responds to the frame’s own width through container queries — no media queries are used for the app. The toolbar resizes every frame; Compare shows the phone and desktop frames together.</p>
+  </section>
+</footer>
+</body>
+</html>
