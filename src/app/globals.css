@@ -1123,20 +1123,6 @@
     color: var(--ink-2);
   }
 
-  .badge-no {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    z-index: 3;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.66rem;
-    padding: 1px 6px;
-    border: 2px solid var(--line);
-    background: var(--ink);
-    color: var(--canvas);
-  }
-
   /* ---------- view 1: bento board ---------- */
   .bento {
     display: grid;

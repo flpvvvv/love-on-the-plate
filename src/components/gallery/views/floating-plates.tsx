@@ -2,9 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
-import { getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
-import { formatCardMeta, NEW_PLATE_WINDOW_MS, plateNumber, stickerTilt } from "../photo-card"
+import { formatCardMeta, stickerTilt } from "../photo-card"
 
 interface FloatingPlatesProps {
   photos: PhotoWithUrls[]
@@ -66,12 +65,6 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
                   {photo.ingredients[0]}
                 </span>
               )}
-              {Date.now() - getDisplayDate(photo).getTime() < NEW_PLATE_WINDOW_MS && (
-                <span className="sticker sticker-tomato st-ne" style={stickerTilt(index + 1)}>
-                  NEW
-                </span>
-              )}
-              <span className="badge-no">{plateNumber(index)}</span>
             </span>
 
             <span className="meta">

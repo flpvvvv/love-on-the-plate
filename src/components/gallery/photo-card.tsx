@@ -10,20 +10,12 @@ interface PhotoCardProps {
   photo: PhotoWithUrls
   onClick: () => void
   priority?: boolean
-  /** Position in the rendered list — drives the `.badge-no` plate number. */
+  /** Position in the rendered list — cycles the stickers' tilt. */
   index?: number
 }
 
-/** Newer than a week is a new plate — the tomato sticker. */
-export const NEW_PLATE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
-
 /** Sticker rotations, cycled by position so a board reads hand-stuck. */
 const STICKER_TILT = ["-3deg", "2deg", "3deg", "-2deg"]
-
-/** The plate's ordinal in the gallery, zero-padded like the reference. */
-export function plateNumber(index: number): string {
-  return String(index + 1).padStart(3, "0")
-}
 
 /**
  * Portrait 3/4 · landscape 4/3 · square 1/1, from the photo's real pixels.
@@ -37,17 +29,10 @@ export function getArtAspect(photo: PhotoWithUrls): CSSProperties | undefined {
   return { aspectRatio: "1 / 1" }
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-/** `date · W×H · size` — the Space Mono caption. Missing fields drop out. */
+/** `date · W×H` — the Space Mono caption. Missing fields drop out. */
 export function formatCardMeta(photo: PhotoWithUrls): string {
   const parts = [formatDate(getDisplayDate(photo))]
   if (photo.width && photo.height) parts.push(`${photo.width}×${photo.height}`)
-  if (photo.file_size) parts.push(formatFileSize(photo.file_size))
   return parts.join(" · ")
 }
 
@@ -83,12 +68,6 @@ export function PhotoCard({ photo, onClick, priority = false, index }: PhotoCard
             {photo.ingredients[0]}
           </span>
         )}
-        {Date.now() - getDisplayDate(photo).getTime() < NEW_PLATE_WINDOW_MS && (
-          <span className="sticker sticker-tomato st-ne" style={stickerTilt((index ?? 0) + 1)}>
-            NEW
-          </span>
-        )}
-        {index !== undefined && <span className="badge-no">{plateNumber(index)}</span>}
       </span>
       <span className="meta">
         <span className="nm">{photo.dish_name || "Untitled dish"}</span>

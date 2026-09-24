@@ -17,8 +17,8 @@ interface NumberedPhoto {
 export function MasonryGrid({ photos, onPhotoClick }: MasonryGridProps) {
   const prefersReducedMotion = useReducedMotion()
 
-  // Carry the gallery ordinal through the chunking so every card's `.badge-no`
-  // is its true position, not a column-relative one.
+  // Carry the gallery ordinal through the chunking so each card's stickers keep
+  // their true position's tilt, not a column-relative one.
   const numbered: NumberedPhoto[] = photos.map((photo, ordinal) => ({ photo, ordinal }))
 
   const getColumnPhotos = (columnCount: number) => {
