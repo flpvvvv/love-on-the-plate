@@ -29,13 +29,6 @@ export function getArtAspect(photo: PhotoWithUrls): CSSProperties | undefined {
   return { aspectRatio: "1 / 1" }
 }
 
-/** `date · W×H` — the Space Mono caption. Missing fields drop out. */
-export function formatCardMeta(photo: PhotoWithUrls): string {
-  const parts = [formatDate(getDisplayDate(photo))]
-  if (photo.width && photo.height) parts.push(`${photo.width}×${photo.height}`)
-  return parts.join(" · ")
-}
-
 export function stickerTilt(index: number): CSSProperties {
   return { "--r": STICKER_TILT[index % STICKER_TILT.length] } as CSSProperties
 }
@@ -72,7 +65,7 @@ export function PhotoCard({ photo, onClick, priority = false, index }: PhotoCard
       <span className="meta">
         <span className="nm">{photo.dish_name || "Untitled dish"}</span>
         {photo.description_en && <span className="en line-clamp-1">{photo.description_en}</span>}
-        <span className="dt">{formatCardMeta(photo)}</span>
+        <span className="dt">{formatDate(getDisplayDate(photo))}</span>
       </span>
     </motion.button>
   )

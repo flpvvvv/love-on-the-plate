@@ -3,9 +3,8 @@
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
 import { useMemo } from "react"
-import { getDisplayDate, groupByMonthAndDate } from "@/lib/utils"
+import { formatDate, getDisplayDate, groupByMonthAndDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
-import { formatCardMeta } from "../photo-card"
 
 interface LoveTimelineProps {
   photos: PhotoWithUrls[]
@@ -81,7 +80,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                           {photo.description_en && (
                             <span className="en line-clamp-1">{photo.description_en}</span>
                           )}
-                          <span className="dt">{formatCardMeta(photo)}</span>
+                          <span className="dt">{formatDate(getDisplayDate(photo))}</span>
                           {photo.description_cn && (
                             <span className="desc line-clamp-2">{photo.description_cn}</span>
                           )}

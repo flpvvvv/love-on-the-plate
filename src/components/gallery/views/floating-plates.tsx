@@ -2,8 +2,9 @@
 
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
+import { formatDate, getDisplayDate } from "@/lib/utils"
 import type { PhotoWithUrls } from "@/types"
-import { formatCardMeta, stickerTilt } from "../photo-card"
+import { stickerTilt } from "../photo-card"
 
 interface FloatingPlatesProps {
   photos: PhotoWithUrls[]
@@ -72,7 +73,7 @@ export function FloatingPlates({ photos, onPhotoClick }: FloatingPlatesProps) {
               {photo.description_en && (
                 <span className="en line-clamp-1">{photo.description_en}</span>
               )}
-              <span className="dt">{formatCardMeta(photo)}</span>
+              <span className="dt">{formatDate(getDisplayDate(photo))}</span>
             </span>
           </motion.button>
         )
