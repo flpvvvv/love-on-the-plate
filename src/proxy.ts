@@ -1,9 +1,9 @@
-import type { NextRequest } from "next/server"
 import { updateSession } from "@/lib/supabase/middleware"
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request)
-}
+// Next.js 16 proxy convention (renamed from middleware). `updateSession`
+// already has the required (request: NextRequest) => Promise<NextResponse>
+// signature, so alias it rather than wrapping it in a pass-through.
+export const proxy = updateSession
 
 export const config = {
   matcher: [
