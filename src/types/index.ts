@@ -56,6 +56,8 @@ export interface DailyTrendPoint {
 
 export interface AnalyticsResponse {
   totalCount: number
+  /** Distinct calendar days (display_date) that hold at least one dish. */
+  daysRecorded: number
   perMonth: MonthlyCount[]
   topDishes: DishCount[]
   topIngredients: IngredientCount[]

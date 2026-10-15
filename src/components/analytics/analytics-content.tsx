@@ -10,7 +10,7 @@ type RankView = "ingredients" | "dishes"
 const SKELETON_BAR_HEIGHTS = [45, 72, 38, 85, 52, 67, 29, 78, 43, 91, 56, 34]
 
 /* The scoreboard and the trend line are fluid grids of equal columns. */
-const SCORE_GRID = "score grid-cols-1 sm:grid-cols-2 xl:grid-cols-5"
+const SCORE_GRID = "score grid-cols-1 sm:grid-cols-2 xl:grid-cols-6"
 const TREND_DAYS = 14
 
 /** `.sv` is a display-size numeral; long counts step down to `.sv-sm`. */
@@ -147,7 +147,7 @@ export function AnalyticsContent() {
     return (
       <div className="space-y-4 md:space-y-6">
         <div className={SCORE_GRID}>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="sblock skel">
               <div className="sk-line short" />
               <div className="sk-line" />
@@ -220,6 +220,14 @@ export function AnalyticsContent() {
           </span>
           {thisMonthCount > 0 && <span className="sd">+{thisMonthCount} this month</span>}
           {timeLabel && <span className="sd">{timeLabel}</span>}
+        </div>
+
+        <div className="sblock nb nb-wash">
+          <span className="sk">Days recorded</span>
+          <span className={valueClass(data.daysRecorded.toLocaleString())}>
+            {data.daysRecorded.toLocaleString()}
+          </span>
+          <span className="sd">Days with at least one dish</span>
         </div>
 
         <div className="sblock nb nb-cobalt">

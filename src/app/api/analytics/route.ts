@@ -55,9 +55,10 @@ export async function GET() {
     const dailyKeys = getDailyWindow(now)
     const dailyStart = `${dailyKeys[0]}T00:00:00.000Z`
 
-    // Run all five independent queries in parallel
-    const [countRes, monthlyRes, dailyRes, dishRes, ingredientRes] = await Promise.all([
+    // Run all six independent queries in parallel
+    const [countRes, daysRes, monthlyRes, dailyRes, dishRes, ingredientRes] = await Promise.all([
       supabase.from("photos").select("id", { count: "exact", head: true }),
+      supabase.rpc("get_photo_day_count"),
       supabase.rpc("get_monthly_photo_counts", { since: monthStart }),
       supabase.rpc("get_daily_photo_counts", { since: dailyStart }),
       supabase.rpc("get_top_dishes", { lim: TOP_DISHES_LIMIT }),
@@ -67,6 +68,11 @@ export async function GET() {
     if (countRes.error) {
       console.error("Analytics count error:", countRes.error)
       return NextResponse.json({ error: "Failed to fetch analytics count" }, { status: 500 })
+    }
+
+    if (daysRes.error) {
+      console.error("Recorded days error:", daysRes.error)
+      return NextResponse.json({ error: "Failed to fetch recorded days" }, { status: 500 })
     }
 
     if (monthlyRes.error) {
@@ -127,6 +133,7 @@ export async function GET() {
 
     const payload: AnalyticsResponse = {
       totalCount: countRes.count ?? 0,
+      daysRecorded: Number(daysRes.data ?? 0),
       perMonth,
       topDishes,
       topIngredients,
