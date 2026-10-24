@@ -106,13 +106,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload full image (and thumbnail if available) in parallel
-    const [fullUploadRes, thumbUploadRes] = await Promise.allSettled(uploads) as [
+    const [fullUploadRes, thumbUploadRes] = (await Promise.allSettled(uploads)) as [
       PromiseSettledResult<{ error: unknown } | null>,
       PromiseSettledResult<{ error: unknown } | null> | undefined,
     ]
 
-    if (fullUploadRes.status === "rejected" || (fullUploadRes.status === "fulfilled" && fullUploadRes.value?.error)) {
-      console.error("Full image upload error:", fullUploadRes.status === "rejected" ? fullUploadRes.reason : fullUploadRes.value?.error)
+    if (
+      fullUploadRes.status === "rejected" ||
+      (fullUploadRes.status === "fulfilled" && fullUploadRes.value?.error)
+    ) {
+      console.error(
+        "Full image upload error:",
+        fullUploadRes.status === "rejected" ? fullUploadRes.reason : fullUploadRes.value?.error
+      )
       return NextResponse.json(
         { error: "Failed to upload full image to storage.", code: "STORAGE_UPLOAD_ERROR" },
         { status: 500 }

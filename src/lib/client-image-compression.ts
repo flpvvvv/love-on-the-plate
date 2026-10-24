@@ -28,7 +28,13 @@ export const COMPRESSION_PRESETS = {
   /** For AI description generation - smaller/faster */
   ai: { maxWidth: 1280, maxHeight: 1280, quality: 0.7, format: "image/jpeg" as const },
   /** Thumbnail generation - small, center-cropped square */
-  thumbnail: { maxWidth: 400, maxHeight: 400, quality: 0.8, format: "image/jpeg" as const, fit: "cover" as const },
+  thumbnail: {
+    maxWidth: 400,
+    maxHeight: 400,
+    quality: 0.8,
+    format: "image/jpeg" as const,
+    fit: "cover" as const,
+  },
 } as const
 
 /**

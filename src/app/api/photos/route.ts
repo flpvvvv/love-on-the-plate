@@ -59,14 +59,11 @@ export async function GET(request: NextRequest) {
           // Switch to raw SQL with unnest + ilike if case-insensitive tag search is needed.
           query = query.contains("ingredients", [q])
           break
-        case "all":
         default:
           // OR across dish_name (ILIKE) and ingredients array (cs).
           // display_date is excluded — timestamptz doesn't support ILIKE in
           // .or() filters. Use the dedicated "Date" field for date searches.
-          query = query.or(
-            `dish_name.ilike.%${q}%,ingredients.cs.{${q}}`
-          )
+          query = query.or(`dish_name.ilike.%${q}%,ingredients.cs.{${q}}`)
           break
       }
     }
