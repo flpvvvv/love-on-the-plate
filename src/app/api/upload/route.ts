@@ -8,6 +8,27 @@ import { createClient, createServiceClient } from "@/lib/supabase/server"
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]
 
+function readTextField(formData: FormData, key: string, maxLength: number): string {
+  const value = formData.get(key)
+  return typeof value === "string" ? value.slice(0, maxLength) : ""
+}
+
+function parseIngredientsField(formData: FormData): string[] {
+  const raw = formData.get("ingredients")
+  if (typeof raw !== "string" || raw.length === 0) return []
+
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+      .map((item) => item.trim().slice(0, 80))
+      .slice(0, 40)
+  } catch {
+    return []
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and admin role
@@ -30,6 +51,11 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File | null
     const thumbnailFile = formData.get("thumbnail") as File | null
     const takenAtStr = formData.get("takenAt") as string | null
+    const descriptionsProvided = formData.get("descriptionsProvided") === "true"
+    const providedDishName = readTextField(formData, "dishName", 200).trim()
+    const providedDescriptionEn = readTextField(formData, "descriptionEn", 4000)
+    const providedDescriptionCn = readTextField(formData, "descriptionCn", 4000)
+    const providedIngredients = parseIngredientsField(formData)
 
     // Parse client-provided takenAt (date-only "YYYY-MM-DD" string from client EXIF / date picker)
     let takenAt: Date | null = null
@@ -134,51 +160,59 @@ export async function POST(request: NextRequest) {
       // Non-fatal: continue without thumbnail
     }
 
-    // Generate AI descriptions (English and Chinese) and ingredients
+    // Descriptions were generated from the original image in the editor. Only
+    // fall back to AI on the uploaded bytes when the client has none.
     let dishName = ""
     let descriptionEn = ""
     let descriptionCn = ""
     let ingredients: string[] = []
     let descriptionWarning: string | undefined
 
-    try {
-      // Fetch existing ingredients for tag consistency
-      const { data: knownRows } = await serviceClient
-        .from("photos")
-        .select("ingredients")
-        .not("ingredients", "eq", "{}")
-        .limit(500)
-      const knownSet = new Set<string>()
-      for (const row of knownRows ?? []) {
-        if (Array.isArray(row.ingredients)) {
-          for (const ing of row.ingredients) {
-            if (typeof ing === "string" && ing.trim()) {
-              knownSet.add(ing.trim())
+    if (descriptionsProvided) {
+      dishName = providedDishName
+      descriptionEn = providedDescriptionEn
+      descriptionCn = providedDescriptionCn
+      ingredients = providedIngredients
+    } else {
+      try {
+        // Fetch existing ingredients for tag consistency
+        const { data: knownRows } = await serviceClient
+          .from("photos")
+          .select("ingredients")
+          .not("ingredients", "eq", "{}")
+          .limit(500)
+        const knownSet = new Set<string>()
+        for (const row of knownRows ?? []) {
+          if (Array.isArray(row.ingredients)) {
+            for (const ing of row.ingredients) {
+              if (typeof ing === "string" && ing.trim()) {
+                knownSet.add(ing.trim())
+              }
             }
           }
         }
-      }
-      const knownIngredients = Array.from(knownSet)
+        const knownIngredients = Array.from(knownSet)
 
-      const descriptions = await generateDescription(
-        bufferToBase64(fullBuffer),
-        undefined,
-        knownIngredients
-      )
-      dishName = descriptions.dishName
-      descriptionEn = descriptions.en
-      descriptionCn = descriptions.cn
-      ingredients = descriptions.ingredients
-    } catch (descError) {
-      console.error("Description generation error:", descError)
-      if (descError instanceof AIError) {
-        if (descError.code === "RATE_LIMIT") {
-          descriptionWarning = "AI description skipped (rate limit). You can regenerate it later."
+        const descriptions = await generateDescription(
+          bufferToBase64(fullBuffer),
+          undefined,
+          knownIngredients
+        )
+        dishName = descriptions.dishName
+        descriptionEn = descriptions.en
+        descriptionCn = descriptions.cn
+        ingredients = descriptions.ingredients
+      } catch (descError) {
+        console.error("Description generation error:", descError)
+        if (descError instanceof AIError) {
+          if (descError.code === "RATE_LIMIT") {
+            descriptionWarning = "AI description skipped (rate limit). You can regenerate it later."
+          } else {
+            descriptionWarning = "AI description generation failed. You can regenerate it later."
+          }
         } else {
           descriptionWarning = "AI description generation failed. You can regenerate it later."
         }
-      } else {
-        descriptionWarning = "AI description generation failed. You can regenerate it later."
       }
     }
 

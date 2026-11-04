@@ -13,9 +13,8 @@ import {
   COMPRESSION_PRESETS,
   compressImage,
   formatFileSize,
-  generateThumbnail,
-  getBase64Size,
 } from "@/lib/client-image-compression"
+import { DEFAULT_IMAGE_EDITS, type ImageEdits, renderEditedImage } from "@/lib/image-editing"
 import { createClient } from "@/lib/supabase/client"
 import type { PhotoWithUrls } from "@/types"
 
@@ -29,11 +28,11 @@ export default function AdminPage() {
   const { showToast } = useToast()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [takenDate, setTakenDate] = useState<string | null>(null)
-  const [compressedForUpload, setCompressedForUpload] = useState<string | null>(null)
-  const [compressedThumbnail, setCompressedThumbnail] = useState<string | null>(null)
+  const [imageEdits, setImageEdits] = useState<ImageEdits>(DEFAULT_IMAGE_EDITS)
   const [dishName, setDishName] = useState("")
   const [descriptionEn, setDescriptionEn] = useState("")
   const [descriptionCn, setDescriptionCn] = useState("")
+  const [descriptionsReady, setDescriptionsReady] = useState(false)
   const [ingredients, setIngredients] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
@@ -109,11 +108,14 @@ export default function AdminPage() {
   const handleFileSelect = useCallback(
     async (file: File) => {
       setSelectedFile(file)
-      setCompressedForUpload(null)
+      setImageEdits({ ...DEFAULT_IMAGE_EDITS })
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
+      setDescriptionsReady(false)
       setIngredients([])
+      // Keep Upload disabled until the original-image description settles.
+      setRegenerating(true)
 
       // Extract EXIF capture date from the original file before compression strips it.
       // If no EXIF date is found, default to today — user can adjust via the date picker.
@@ -129,32 +131,20 @@ export default function AdminPage() {
         setTakenDate(getTodayDate())
       }
 
-      // Generate initial descriptions
+      // Generate initial descriptions from the original image
       try {
-        setRegenerating(true)
-
-        // We'll generate descriptions during upload, just show preview for now
         setDishName("识别菜名中…")
         setDescriptionEn("Generating English description…")
         setDescriptionCn("正在生成中文描述…")
 
-        // Compress for upload (1920px - higher quality for storage)
-        const uploadBase64 = await compressImage(file, COMPRESSION_PRESETS.upload)
-        setCompressedForUpload(uploadBase64)
-
-        // Generate thumbnail (400x400 - center-cropped)
-        const thumbnail = await generateThumbnail(file)
-        setCompressedThumbnail(thumbnail.base64)
-
+        // AI description uses the untouched original, before any user edits.
         // Compress for AI (1280px - smaller/faster for description)
         const aiBase64 = await compressImage(file, COMPRESSION_PRESETS.ai)
 
-        const originalSize = formatFileSize(file.size)
-        const uploadSize = formatFileSize(getBase64Size(uploadBase64))
-        const aiSize = formatFileSize(getBase64Size(aiBase64))
-        // Compression stats (dev only)
         if (process.env.NODE_ENV === "development") {
-          console.log(`Image compressed: ${originalSize} → upload: ${uploadSize}, AI: ${aiSize}`)
+          console.log(
+            `AI input compressed: ${formatFileSize(file.size)} → ${COMPRESSION_PRESETS.ai.maxWidth}px`
+          )
         }
 
         // Call describe endpoint with AI-compressed base64 image (smaller/faster)
@@ -178,6 +168,7 @@ export default function AdminPage() {
           setDescriptionEn(data.descriptionEn || "")
           setDescriptionCn(data.descriptionCn || "")
           setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
+          setDescriptionsReady(true)
         } else {
           const errorData = await response.json()
           console.error("Describe API error:", errorData)
@@ -198,6 +189,7 @@ export default function AdminPage() {
           setDescriptionEn("")
           setDescriptionCn("")
           setIngredients([])
+          setDescriptionsReady(false)
         }
       } catch (error) {
         console.error("Preview generation error:", error)
@@ -207,6 +199,7 @@ export default function AdminPage() {
         setDescriptionEn("")
         setDescriptionCn("")
         setIngredients([])
+        setDescriptionsReady(false)
       } finally {
         setRegenerating(false)
       }
@@ -219,6 +212,7 @@ export default function AdminPage() {
 
     try {
       setRegenerating(true)
+      setDescriptionsReady(false)
 
       // Compress image before sending - use smaller size for API
       const compressedBase64 = await compressImage(selectedFile, {
@@ -248,6 +242,7 @@ export default function AdminPage() {
         setDescriptionEn(data.descriptionEn || "")
         setDescriptionCn(data.descriptionCn || "")
         setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
+        setDescriptionsReady(true)
         showToast("Descriptions regenerated!", "success")
       } else {
         const errorData = await response.json()
@@ -270,6 +265,7 @@ export default function AdminPage() {
 
     try {
       setRegeneratingDescOnly(true)
+      setDescriptionsReady(false)
 
       // Compress image for AI analysis
       const aiBase64 = await compressImage(selectedFile, COMPRESSION_PRESETS.ai)
@@ -293,6 +289,7 @@ export default function AdminPage() {
         setDescriptionEn(data.descriptionEn || "")
         setDescriptionCn(data.descriptionCn || "")
         setIngredients(Array.isArray(data.ingredients) ? data.ingredients : [])
+        setDescriptionsReady(true)
         showToast(`Descriptions regenerated for "${dishName.trim()}"!`, "success")
       } else {
         const errorData = await response.json()
@@ -311,34 +308,50 @@ export default function AdminPage() {
   }, [selectedFile, dishName, showToast])
 
   const handleUpload = useCallback(async () => {
-    if (!selectedFile || !compressedForUpload) return
+    if (!selectedFile) return
 
     try {
       setUploading(true)
 
-      // Convert compressed base64 to File for upload
-      const blob = base64ToBlob(compressedForUpload, "image/jpeg")
+      // Bake filters, crop, flips and rotation into the stored image.
+      const edited = await renderEditedImage(selectedFile, imageEdits, COMPRESSION_PRESETS.upload)
+      const thumbnail = await renderEditedImage(
+        selectedFile,
+        imageEdits,
+        COMPRESSION_PRESETS.thumbnail
+      )
+
+      const blob = base64ToBlob(edited.base64, "image/jpeg")
       const compressedFile = new File([blob], selectedFile.name.replace(/\.[^.]+$/, ".jpg"), {
         type: "image/jpeg",
       })
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`Uploading compressed file: ${formatFileSize(compressedFile.size)}`)
+        console.log(
+          `Uploading edited file: ${formatFileSize(compressedFile.size)} (${edited.width}×${edited.height})`
+        )
       }
 
       const formData = new FormData()
       formData.append("file", compressedFile)
-      if (compressedThumbnail) {
-        const thumbBlob = base64ToBlob(compressedThumbnail, "image/jpeg")
-        formData.append(
-          "thumbnail",
-          new File([thumbBlob], `thumb-${selectedFile.name.replace(/\.[^.]+$/, ".jpg")}`, {
-            type: "image/jpeg",
-          })
-        )
-      }
+      const thumbBlob = base64ToBlob(thumbnail.base64, "image/jpeg")
+      formData.append(
+        "thumbnail",
+        new File([thumbBlob], `thumb-${selectedFile.name.replace(/\.[^.]+$/, ".jpg")}`, {
+          type: "image/jpeg",
+        })
+      )
       if (takenDate) {
         formData.append("takenAt", takenDate)
+      }
+
+      // These were generated from the original image before any edits.
+      if (descriptionsReady) {
+        formData.append("descriptionsProvided", "true")
+        formData.append("dishName", dishName)
+        formData.append("descriptionEn", descriptionEn)
+        formData.append("descriptionCn", descriptionCn)
+        formData.append("ingredients", JSON.stringify(ingredients))
       }
 
       const response = await fetch("/api/upload", {
@@ -376,54 +389,17 @@ export default function AdminPage() {
         showToast(photo.warning as string, "info")
       }
 
-      // If user edited descriptions or ingredients, update them
-      const needsUpdate =
-        (dishName && dishName !== photo.dish_name) ||
-        (descriptionEn && descriptionEn !== photo.description_en) ||
-        (descriptionCn && descriptionCn !== photo.description_cn) ||
-        (ingredients.length > 0 &&
-          JSON.stringify(ingredients) !== JSON.stringify(photo.ingredients))
-
-      if (needsUpdate) {
-        try {
-          const patchResponse = await fetch("/api/photos", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              photoId: photo.id,
-              dishName,
-              descriptionEn,
-              descriptionCn,
-              ingredients,
-            }),
-          })
-
-          if (patchResponse.ok) {
-            photo.dish_name = dishName
-            photo.description_en = descriptionEn
-            photo.description_cn = descriptionCn
-            photo.ingredients = ingredients
-          } else {
-            console.error("Failed to update descriptions")
-            // Don't fail the whole upload, just log it
-          }
-        } catch (patchError) {
-          console.error("Description update error:", patchError)
-          // Don't fail the whole upload, just log it
-        }
-      }
-
       // Add to recent photos
       setRecentPhotos((prev) => [photo, ...prev].slice(0, 5))
 
       // Reset form
       setSelectedFile(null)
       setTakenDate(null)
-      setCompressedForUpload(null)
-      setCompressedThumbnail(null)
+      setImageEdits({ ...DEFAULT_IMAGE_EDITS })
       setDishName("")
       setDescriptionEn("")
       setDescriptionCn("")
+      setDescriptionsReady(false)
       setIngredients([])
 
       // Show success toast with heartbeat
@@ -444,12 +420,12 @@ export default function AdminPage() {
     }
   }, [
     selectedFile,
-    compressedForUpload,
-    compressedThumbnail,
+    imageEdits,
     takenDate,
     dishName,
     descriptionEn,
     descriptionCn,
+    descriptionsReady,
     ingredients,
     router,
     showToast,
@@ -458,15 +434,31 @@ export default function AdminPage() {
   const handleCancel = useCallback(() => {
     setSelectedFile(null)
     setTakenDate(null)
-    setCompressedForUpload(null)
-    setCompressedThumbnail(null)
+    setImageEdits({ ...DEFAULT_IMAGE_EDITS })
     setDishName("")
     setDescriptionEn("")
     setDescriptionCn("")
+    setDescriptionsReady(false)
     setIngredients([])
   }, [])
 
+  const handleDishNameChange = useCallback((value: string) => {
+    setDishName(value)
+    setDescriptionsReady(true)
+  }, [])
+
+  const handleDescriptionEnChange = useCallback((value: string) => {
+    setDescriptionEn(value)
+    setDescriptionsReady(true)
+  }, [])
+
+  const handleDescriptionCnChange = useCallback((value: string) => {
+    setDescriptionCn(value)
+    setDescriptionsReady(true)
+  }, [])
+
   const handleAddIngredient = useCallback((ingredient: string) => {
+    setDescriptionsReady(true)
     setIngredients((prev) => {
       if (prev.includes(ingredient)) return prev
       return [...prev, ingredient]
@@ -474,6 +466,7 @@ export default function AdminPage() {
   }, [])
 
   const handleRemoveIngredient = useCallback((ingredient: string) => {
+    setDescriptionsReady(true)
     setIngredients((prev) => prev.filter((i) => i !== ingredient))
   }, [])
 
@@ -675,14 +668,16 @@ export default function AdminPage() {
           {selectedFile ? (
             <ImagePreview
               file={selectedFile}
+              edits={imageEdits}
+              onEditsChange={setImageEdits}
               dishName={dishName}
               descriptionEn={descriptionEn}
               descriptionCn={descriptionCn}
               ingredients={ingredients}
               takenDate={takenDate ?? ""}
-              onDishNameChange={setDishName}
-              onDescriptionEnChange={setDescriptionEn}
-              onDescriptionCnChange={setDescriptionCn}
+              onDishNameChange={handleDishNameChange}
+              onDescriptionEnChange={handleDescriptionEnChange}
+              onDescriptionCnChange={handleDescriptionCnChange}
               onTakenDateChange={setTakenDate}
               onAddIngredient={handleAddIngredient}
               onRemoveIngredient={handleRemoveIngredient}

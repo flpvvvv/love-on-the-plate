@@ -1,12 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Image from "next/image"
-import { useEffect, useMemo } from "react"
 import { Button, IngredientTags } from "@/components/ui"
+import type { ImageEdits } from "@/lib/image-editing"
+import { PhotoEditor } from "./photo-editor"
 
 interface ImagePreviewProps {
   file: File
+  edits: ImageEdits
+  onEditsChange: (edits: ImageEdits) => void
   dishName: string
   descriptionEn: string
   descriptionCn: string
@@ -29,6 +31,8 @@ interface ImagePreviewProps {
 
 export function ImagePreview({
   file,
+  edits,
+  onEditsChange,
   dishName,
   descriptionEn,
   descriptionCn,
@@ -48,29 +52,10 @@ export function ImagePreview({
   regenerating,
   regeneratingDescOnly,
 }: ImagePreviewProps) {
-  const previewUrl = useMemo(() => URL.createObjectURL(file), [file])
-
-  // Clean up object URL to prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-    }
-  }, [previewUrl])
-
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="nb">
-      {/* Image */}
-      <div className="art aspect-[4/3]">
-        {previewUrl && (
-          <Image
-            src={previewUrl}
-            alt="Preview"
-            fill
-            className="object-contain"
-            unoptimized // Use original blob URL
-          />
-        )}
-      </div>
+      {/* Filters + basic edits (AI description still uses the untouched original) */}
+      <PhotoEditor file={file} edits={edits} onChange={onEditsChange} disabled={uploading} />
 
       {/* Descriptions */}
       <div className="p-5 space-y-4">
@@ -226,7 +211,12 @@ export function ImagePreview({
           <Button variant="secondary" onClick={onCancel} disabled={uploading} className="flex-1">
             Cancel
           </Button>
-          <Button onClick={onUpload} loading={uploading} disabled={uploading} className="flex-1">
+          <Button
+            onClick={onUpload}
+            loading={uploading}
+            disabled={uploading || regenerating || regeneratingDescOnly}
+            className="flex-1"
+          >
             {uploading ? "Uploading…" : "Upload"}
           </Button>
         </div>
