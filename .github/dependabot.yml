@@ -7,11 +7,11 @@ updates:
       day: "sunday"
       time: "02:00"
       timezone: "Etc/UTC"
-    cooldown:
-      default-days: 7
-      semver-major-days: 14
-      semver-minor-days: 7
-      semver-patch-days: 3
+    # No cooldown: Dependabot implements it by injecting pnpm's repo-wide
+    # minimumReleaseAge (--config.minimum-release-age), and per-semver windows
+    # then abort grouped updates whenever any dependency is younger than the
+    # longest window (ERR_PNPM_NO_MATURE_MATCHING_VERSION). The weekly schedule
+    # plus Dependabot's built-in 3-day cooldown already covers release age.
     groups:
       all-dependencies:
         patterns:
