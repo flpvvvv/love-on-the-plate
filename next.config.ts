@@ -31,6 +31,11 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
+    // Storage objects are immutable (`photos/<uuid>/{full,thumb}.jpg`, never
+    // overwritten), so optimized variants can be cached for 31 days instead of
+    // the default 4 hours. This is the primary lever against repeated Supabase
+    // origin fetches.
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: "https",

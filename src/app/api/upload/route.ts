@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
     const uploads: Promise<unknown>[] = [
       serviceClient.storage.from("photos").upload(fullPath, fullBuffer, {
         contentType: "image/jpeg",
+        cacheControl: "31536000",
         upsert: false,
       }),
     ]
@@ -126,6 +127,7 @@ export async function POST(request: NextRequest) {
       uploads.push(
         serviceClient.storage.from("photos").upload(thumbPath, thumbBuffer, {
           contentType: "image/jpeg",
+          cacheControl: "31536000",
           upsert: false,
         })
       )
