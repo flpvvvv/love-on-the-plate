@@ -1,16 +1,15 @@
 import type { NextConfig } from "next"
 
-// Required for next/image remotePatterns and the Content-Security-Policy below.
-// Fail loudly at build time instead of throwing an opaque error from `new URL()`.
+// Required for the Content-Security-Policy below. Fail loudly at build time
+// instead of throwing an opaque error from `new URL()`.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 if (!supabaseUrl) {
   throw new Error(
-    "NEXT_PUBLIC_SUPABASE_URL is required: it configures next/image remotePatterns and the Content-Security-Policy. Set it in .env.local (or the Vercel project environment) before building."
+    "NEXT_PUBLIC_SUPABASE_URL is required: it configures the Content-Security-Policy. Set it in .env.local (or the Vercel project environment) before building."
   )
 }
 
-const supabaseHostname = new URL(supabaseUrl).hostname
-const supabaseOrigin = `https://${supabaseHostname}`
+const supabaseOrigin = `https://${new URL(supabaseUrl).hostname}`
 
 // Note: 'unsafe-inline' is required for script/style because next-themes and
 // Next.js itself emit inline bootstrap scripts without a nonce. Everything
@@ -20,7 +19,7 @@ const contentSecurityPolicy = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
-  `img-src 'self' data: blob: ${supabaseOrigin}`,
+  `img-src 'self' data: blob:`,
   `connect-src 'self' ${supabaseOrigin}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -30,20 +29,6 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  images: {
-    // Storage objects are immutable (`photos/<uuid>/{full,thumb}.jpg`, never
-    // overwritten), so optimized variants can be cached for 31 days instead of
-    // the default 4 hours. This is the primary lever against repeated Supabase
-    // origin fetches.
-    minimumCacheTTL: 2678400,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: supabaseHostname,
-        pathname: "/storage/v1/object/public/**",
-      },
-    ],
-  },
   experimental: {
     optimizePackageImports: ["framer-motion"],
   },

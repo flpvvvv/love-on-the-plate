@@ -201,7 +201,7 @@ function FeedItem({
           src={photo.imageUrl}
           alt={photo.dish_name || photo.description_en || photo.description_cn || "A homemade meal"}
           fill
-          sizes="100vw"
+          unoptimized
           className="object-cover"
           priority={priority}
         />

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { AIError, generateDescription } from "@/lib/ai"
 import { bufferToBase64, getDimensions } from "@/lib/image-processing"
+import { photoImageUrl } from "@/lib/photo-image"
 import { requireAdmin } from "@/lib/supabase/admin-check"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 
@@ -248,14 +249,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get public URLs
-    const { data: fullUrlData } = serviceClient.storage.from("photos").getPublicUrl(fullPath)
-    const { data: thumbUrlData } = serviceClient.storage.from("photos").getPublicUrl(thumbPath)
-
+    // The storage bucket is private; clients get first-party URLs instead.
     return NextResponse.json({
       ...photo,
-      imageUrl: fullUrlData.publicUrl,
-      thumbnailUrl: thumbUrlData.publicUrl,
+      imageUrl: photoImageUrl(fullPath),
+      thumbnailUrl: photoImageUrl(thumbPath),
       ...(descriptionWarning && { warning: descriptionWarning }),
     })
   } catch (error) {

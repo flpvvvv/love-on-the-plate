@@ -15,6 +15,7 @@ import {
   formatFileSize,
 } from "@/lib/client-image-compression"
 import { DEFAULT_IMAGE_EDITS, type ImageEdits, renderEditedImage } from "@/lib/image-editing"
+import { photoImageUrl } from "@/lib/photo-image"
 import { createClient } from "@/lib/supabase/client"
 import type { PhotoWithUrls } from "@/types"
 
@@ -83,20 +84,11 @@ export default function AdminPage() {
           .limit(6)
 
         if (data) {
-          const photosWithUrls: PhotoWithUrls[] = data.map((photo) => {
-            const { data: fullUrlData } = supabase.storage
-              .from("photos")
-              .getPublicUrl(photo.storage_path)
-            const { data: thumbUrlData } = supabase.storage
-              .from("photos")
-              .getPublicUrl(photo.thumbnail_path)
-
-            return {
-              ...photo,
-              imageUrl: fullUrlData.publicUrl,
-              thumbnailUrl: thumbUrlData.publicUrl,
-            }
-          })
+          const photosWithUrls: PhotoWithUrls[] = data.map((photo) => ({
+            ...photo,
+            imageUrl: photoImageUrl(photo.storage_path),
+            thumbnailUrl: photoImageUrl(photo.thumbnail_path ?? photo.storage_path),
+          }))
           setRecentPhotos(photosWithUrls)
         }
       }
@@ -707,8 +699,8 @@ export default function AdminPage() {
                         src={photo.thumbnailUrl}
                         alt={photo.description_en || photo.description_cn || "Recent upload"}
                         fill
+                        unoptimized
                         className="object-cover"
-                        sizes="48px"
                       />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -897,6 +889,7 @@ export default function AdminPage() {
                     "Photo to delete"
                   }
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </div>

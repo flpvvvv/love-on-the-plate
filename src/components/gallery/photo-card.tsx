@@ -52,7 +52,7 @@ export function PhotoCard({ photo, onClick, priority = false, index }: PhotoCard
           src={photo.thumbnailUrl}
           alt={photo.dish_name || photo.description_en || photo.description_cn || "A homemade meal"}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          unoptimized
           className="object-cover"
           priority={priority}
         />

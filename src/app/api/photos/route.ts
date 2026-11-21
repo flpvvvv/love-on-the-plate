@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { photoImageUrl } from "@/lib/photo-image"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { isValidUUID } from "@/lib/validation"
 
@@ -92,13 +93,9 @@ export async function GET(request: NextRequest) {
     const hasMore = photos.length > limit
     const returnPhotos = hasMore ? photos.slice(0, -1) : photos
 
-    // Get public URLs and strip internal fields before sending to client
+    // Build first-party image URLs (the storage bucket is private) and strip
+    // internal fields before sending to the client.
     const photosWithUrls = returnPhotos.map((photo) => {
-      const { data: fullUrlData } = supabase.storage.from("photos").getPublicUrl(photo.storage_path)
-      const { data: thumbUrlData } = supabase.storage
-        .from("photos")
-        .getPublicUrl(photo.thumbnail_path)
-
       // Strip internal fields that the client doesn't need
       const {
         storage_path: _sp,
@@ -112,8 +109,8 @@ export async function GET(request: NextRequest) {
 
       return {
         ...clientPhoto,
-        imageUrl: fullUrlData.publicUrl,
-        thumbnailUrl: thumbUrlData.publicUrl,
+        imageUrl: photoImageUrl(photo.storage_path),
+        thumbnailUrl: photoImageUrl(photo.thumbnail_path ?? photo.storage_path),
       }
     })
 

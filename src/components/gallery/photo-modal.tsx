@@ -226,7 +226,7 @@ export function PhotoModalContent({
                 photo.dish_name || photo.description_en || photo.description_cn || "A homemade meal"
               }
               fill
-              sizes="(max-width: 768px) 100vw, 420px"
+              unoptimized
               className="object-cover pointer-events-none select-none"
               priority
               draggable={false}

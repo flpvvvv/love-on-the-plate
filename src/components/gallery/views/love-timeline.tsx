@@ -69,7 +69,7 @@ export function LoveTimeline({ photos, onPhotoClick }: LoveTimelineProps) {
                               "A homemade meal"
                             }
                             fill
-                            sizes="96px"
+                            unoptimized
                             className="object-cover"
                             priority={globalIdx < 4}
                           />
