@@ -19,9 +19,8 @@ export const runtime = "nodejs"
 let storage: SupabaseClient | undefined
 
 /**
- * Cookie-less service-role client. Deliberately does not use
- * `createServiceClient()`: that one reads cookies, which would make this route
- * uncacheable at the CDN.
+ * Cookie-less service-role client, reused across requests. Reading cookies
+ * here would make this route uncacheable at the CDN.
  */
 function storageClient(): SupabaseClient {
   if (storage) return storage
